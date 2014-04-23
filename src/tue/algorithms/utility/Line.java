@@ -11,6 +11,8 @@ package tue.algorithms.utility;
  */
 public class Line {
 	
+	/* -- START Private final fields -- */
+	
 	/**
 	 * The x-coordinate of the point the line starts at.
 	 */
@@ -27,6 +29,10 @@ public class Line {
 	 * The y-coordinate of the point the line ends at.
 	 */
 	private final int y2;
+	
+	/* -- END Private final fields -- */
+	
+	/* -- START Constructors -- */
 	
 	/**
 	 * Create a line from the point (x1, y1) to the point (x2, y2).
@@ -50,6 +56,10 @@ public class Line {
 	public Line(Point point1, Point point2) {
 		this(point1.getX(), point1.getY(), point2.getX(), point2.getY());
 	}
+	
+	/* -- END Constructors -- */
+	
+	/* -- START Public getters for private fields -- */
 	
 	/**
 	 * Get the x-coordinate of the point the line starts at.
@@ -83,6 +93,10 @@ public class Line {
 		return y2;
 	}
 	
+	/* -- END Public getters for private fields -- */
+	
+	/* -- START Getters for point representations of private fields -- */
+	
 	/**
 	 * Get the point the line starts at.
 	 * @return The point.
@@ -99,6 +113,10 @@ public class Line {
 		return new Point(x2, y2);
 	}
 	
+	/* -- END Getters for point representations of private fields -- */
+	
+	/* -- START Manipulation method to invert line -- */
+	
 	/**
 	 * Get a line with the direction inverted: the created line will start where this line ends, and end where this line starts.
 	 * @return The point.
@@ -106,5 +124,35 @@ public class Line {
 	public Line invertDirection() {
 		return new Line(x2, y2, x1, y1);
 	}
+	
+	/* -- END Manipulation method to invert line -- */
+	
+	/* -- START Override equals(), hashCode() and toString() -- */
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Line) {
+			Line other = (Line) obj;
+			return (other.getX1() == getX1() && other.getY1() == getY1() && other.getX2() == getX2() && other.getY2() == getY2());
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return getX1()+getY1()*getY1()+getX2()*getX2()*getX2()+getY2()*getY2()*getY2()*getY2();
+	}
+	
+	@Override
+	public String toString() {
+		return super.toString()+"["
+				+"x1="+getX1()+", "
+				+"y1="+getY1()+", "
+				+"x2="+getX2()+", "
+				+"y2="+getY2()
+				+"]";
+	}
+	
+	/* -- END Override equals(), hashCode() and toString() -- */
 	
 }

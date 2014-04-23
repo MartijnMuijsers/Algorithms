@@ -11,6 +11,21 @@ package tue.algorithms.utility;
  */
 public class Point {
 	
+	/* -- START Private final fields -- */
+	
+	/**
+	 * The x-coordinate of the point.
+	 */
+	private final int x;
+	/**
+	 * The y-coordinate of the point.
+	 */
+	private final int y;
+	
+	/* -- END Private final fields -- */
+	
+	/* -- START Constructors -- */
+	
 	/**
 	 * Create a point with coordinates (x, y).
 	 * @param x The x-coordinate of the point.
@@ -21,14 +36,9 @@ public class Point {
 		this.y = y;
 	}
 	
-	/**
-	 * The x-coordinate of the point.
-	 */
-	private final int x;
-	/**
-	 * The y-coordinate of the point.
-	 */
-	private final int y;
+	/* -- END Constructors -- */
+	
+	/* -- START Public getters for private fields -- */
 	
 	/**
 	 * Get the x-coordinate of the point.
@@ -45,6 +55,10 @@ public class Point {
 	public int getY() {
 		return y;
 	}
+	
+	/* -- END Public getters for private fields -- */
+	
+	/* -- START Manipulation methods for adding and subtracting points -- */
 	
 	/**
 	 * Get a point that is the vector sum of this point and the given point.
@@ -84,6 +98,10 @@ public class Point {
 		return add(-x, -y);
 	}
 	
+	/* -- END Manipulation methods for adding and subtracting points -- */
+	
+	/* -- START Methods to get the line between points -- */
+	
 	/**
 	 * Get a line starting at this point, ending at the given point.
 	 * @param point The point where the line should end.
@@ -121,5 +139,33 @@ public class Point {
 	public Line getLineFromPointToHere(int x, int y) {
 		return new Line(x, y, getX(), getY());
 	}
+	
+	/* -- END Methods to get the line between points -- */
+	
+	/* -- START Override equals(), hashCode() and toString() -- */
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Point) {
+			Point other = (Point) obj;
+			return (other.getX() == getX() && other.getY() == getY());
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return getX()+getY()*getY();
+	}
+	
+	@Override
+	public String toString() {
+		return super.toString()+"["
+				+"x="+getX()+", "
+				+"y="+getY()
+				+"]";
+	}
+	
+	/* -- END Override equals(), hashCode() and toString() -- */
 	
 }
