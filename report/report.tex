@@ -1,0 +1,226 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,amssymb}
+\usepackage{a4wide}
+\usepackage{graphicx}
+
+\newcommand{\maxsize}[1]{\begin{quotation} {\sl \noindent Maximum size: #1.} \end{quotation}}
+
+\newcommand{\crp}[1]{\begin{quotation} {\sl \noindent For the curve- and network-reconstruction problem: #1} \end{quotation}}
+
+\newcommand{\example}[1]{\begin{quotation} {\sl \noindent Example: #1} \end{quotation}}
+
+%%
+% Theorem-Like Environments
+%
+\newtheorem{defin}{Definition}
+  \newenvironment{mydefinition}{\begin{defin} \sl}{\end{defin}}
+\newtheorem{theo}[defin]{Theorem}
+  \newenvironment{mytheorem}{\begin{theo} \sl}{\end{theo}}
+\newtheorem{lem}[defin]{Lemma}
+  \newenvironment{lemma}{\begin{lem} \sl}{\end{lem}}
+\newtheorem{coro}[defin]{Corollary}
+  \newenvironment{corollary}{\begin{coro} \sl}{\end{coro}}
+\newtheorem{obse}[defin]{Observation}
+  \newenvironment{observation}{\begin{obse} \sl}{\end{obse}}
+
+\newenvironment{proof}{\emph{Proof.}}{\hfill $\Box$ \medskip\\}
+
+
+\title{Title of your DBL Algorithms Paper}
+\author{S.~Tudent1 \and S.~Tudent2 \and S.~Tudent3 \and S.~Tudent4 \and S.~Tudent5}
+\date{}
+
+\begin{document}
+
+
+\section*{\begin{center} Guidelines for DBL Algorithms reports \\ {\normalsize M. de Berg} \end{center}}
+This document contains guidelines for the report that has to be written for the course
+\emph{DBL Algorithms} (2IO90). It serves several purposes. First of all, it describes the structure
+your document should have: the sections it should contain,
+the general contents of those sections and their maximum length.
+Second, it explains which (parts of the) sections should already be written for
+the intermediate report that has to be handed in at the end of the fourth week of the project.
+Finally, it gives some hints on how to write certain sections.
+The main part of this document---everything except the current page---is
+written in the same format your paper should have.
+
+You may use the \LaTeX source file of this document as a template for your report.
+For your convenience I have already added commands for theorems, proof, etcetera,
+which can be used by writing, for example:
+\verb#\begin{theorem} ... \end{theorem}#.
+
+\section*{About the intermediate and the final report}
+The report for this {\sc dbl} project should be written in the form of a paper.
+This means that you should write it as if you want to submit it to a scientific
+journal. Thus, do not write things like ``For the course 2IO90 we had to write a report
+on reconstructing curves and networks.''. There are several requirements for
+the reports:
+\begin{itemize}
+\item The reports should be written using 11\;pt font, and it should be for A4 paper 
+      with reasonable (not too large) margins. If you use \LaTeX for preparing
+      your paper---this is the preferred way of doing it---then use
+      \verb#\usepackage{a4wide}#.
+\item The maximum total length of the
+      final report is 20~pages. This includes everything from the title and abstract until
+      the references. Do not use appendices. You do not need to use all 20 pages,
+      although if you use significantly less than 20 pages it is likely that
+      your paper is not sufficiently detailed or clear, that your experimental evaluation is
+      not extensive enough, or that your paper could profit from more figures.
+      The minimum number of pages is~16.
+\item The number of pages for the intermediate report should be at least 8 and at most~11.
+      It should contain (most of) Section~\ref{se:introduction}, Section~\ref{se:algorithms},
+      and the references. You are expected to revise these sections for the final report, based
+      on the feedback you get on the intermediate report and on your findings in the second half
+      of the project. 
+\end{itemize}
+
+
+
+
+
+\newpage
+
+\maketitle
+
+\begin{abstract}
+In the abstract you give an overview---typically one short paragraph---of the contents of
+your paper: you describe the problem you have studied, and what the main results are.
+\end{abstract}
+
+
+
+\section{Introduction}
+\label{se:introduction}
+\maxsize{2 pages}
+The introduction usually starts with a description of and
+a motivation for the general problem area.
+%
+\crp{You would start by
+describing the general problem of object reconstruction from point data,
+mention how data can be obtained (laser scanners), discuss network reconstruction, etcetera.}
+%
+After introducing the general problem area, you zoom in to the specific problem
+studied in the paper. I like to already discuss previous work here. This way
+you can explain where the specific problem fits into the state-of-the-art
+and why it is interesting. Ideally, the discussion of the previous work
+culminates in a clear statement about what is still missing in the current
+state-of-the-art: namely an answer to the specific problem you study.
+%
+\crp{You would now discuss the specific variants that you study, 
+what is known about them, which general reconstruction methods may or may not apply, and so on.}
+%
+Then you give an overview of your results.
+%
+\crp{You could give a high-level description of the
+approach(es) you have used and relate them to approaches found in the literature.
+State the theoretical guarantees (on running time,
+for instance, or on other aspects) that you may have proved for your algorithms
+and mention the main conclusions from the experiments.}
+%
+Finally, you can give an overview of the structure of the rest of your paper.
+Personally, however, I do not find these overviews very useful: I prefer to
+integrate this with the previous part of the introduction, where the overview
+of the results is given.
+
+\section{The algorithms}
+\label{se:algorithms}
+\maxsize{8 pages. Use subsections where appropriate.}
+%
+The description of the algorithms should be such that a programmer can
+implement them without much difficulty. It is good practice to first explain the
+main ideas behind the algorithm at a more intuitive level, and then give a
+detailed description (for example using pseudo-code).
+Don't forget to describe which supporting data structures you use:
+linked lists, arrays, search trees, and so on. For standard data structures
+from the literature you do not need to explain how they work; a reference
+to the literature suffices.
+%
+\example{We store the set $P$ of points in a red-black tree~\cite{clrs-ia-01},
+         using the $x$-coordinate of each point as its key.}
+%
+Try to theoretically analyze the worst-case running time of your algorithms
+and the amount of storage they use. Also try to say something about the quality of your algorithm: you might
+be able to prove that the algorithm is guaranteed to find the correct solution if the
+input has certain well-defined properties, or you might be able to give examples
+of inputs for which the algorithm will fail to give a correct solution.
+
+
+\section{Experimental evaluation}
+\label{se:evaluation}
+\maxsize{8 pages. Use subsections where appropriate.}
+Describe the experiments (for example how you generated the input and on which machine you
+ran the experiments), give the results of the experiments (in the form of tables or graphs),
+and discuss the results. Here you can also include pictures of your output for a few tests.
+Relate the outcome of the experiments to your theoretical analysis.
+
+Note that the experimental data in itself are not the main result: the conclusions
+you can draw are what makes the data interesting.
+
+
+
+
+
+\section{Concluding remarks}
+\label{se:conclusions}
+\maxsize{1 page}
+Give a short overview of the main results, discussing both the strong
+points of your algorithms as well as their weak points, and ideas for improvements
+(``future work'').
+
+
+\bibliographystyle{plain}
+
+\begin{thebibliography}{}
+
+\bibitem{} Here you put your references. See the next references for examples, and see below
+for guidelines on how to do this.
+
+\bibitem{a-raoa-02}
+S. Albers.
+On randomized online scheduling.
+In \emph{Proc. 34th ACM Sympos. Theory Comput.}, pages 134--143, 2002.
+
+\bibitem{clrs-ia-01}
+T.H. Cormen, C.E. Leiserson, R.L. Rivest and C. Stein.
+\emph{Introduction to Algorithms} (2nd edition).
+MIT Press, 2001.
+
+\bibitem{m-apca-83}
+N. Megiddo.
+Applying parallel computation algorithms in the design of serial algorithms.
+\emph{J. ACM} 30: 852--865 (1983).
+
+\end{thebibliography}
+
+Make sure your references are well-polished and complete.
+References are typically to books and to papers in scientific
+journals and conference proceedings. References to web pages are hardly
+ever appropriate.
+The list of references is usually ordered alphabetically by first author (although some journals
+list them in the order they are cited for the first time in the paper).
+Only put in references that are actually cited in your paper.
+Formatting can be done as in the example above---note that these references have
+nothing to do with the topic of the DBL-project---, following the following rules:
+\begin{itemize}
+\item for journals:
+      Authors. Title of paper. \emph{Journal Name (italic)} volume: page numbers (year).
+      See reference~\cite{m-apca-83}.
+\item for conference proceedings:
+      Authors. Title of paper. In \emph{Proc. Conference Name and number (italic)}, pages xxx--yyy, year.
+      See reference~\cite{a-raoa-02}
+\item for books: Authors. \emph{Book title (italic)}. publisher, year.
+      See reference~\cite{clrs-ia-01}
+\end{itemize}
+Note that names of journals and conferences are usually abbreviated. There is a more
+or less standard way of doing this (for example, \emph{J. ACM} is stands for \emph{Journal of the ACM},
+but how you do it exactly is not so important,
+as long as you are consistent and list all the necessary information.
+
+
+
+
+
+
+\end{document}
+
