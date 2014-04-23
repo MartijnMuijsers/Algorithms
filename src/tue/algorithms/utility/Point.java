@@ -5,7 +5,7 @@ package tue.algorithms.utility;
  * Utility class that represents a point (x, y).
  * </p>
  * <p>
- * This class is unmutable.
+ * This class is immutable.
  * </p>
  * @author Martijn
  */
