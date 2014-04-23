@@ -113,6 +113,14 @@ public class Line {
 		return new Point(getX2(), getY2());
 	}
 	
+	/**
+	 * Get the vector of this line, which is the point (x2-x1, y2-y1).
+	 * @return The vector as a point.
+	 */
+	public Point getVector() {
+		return getPoint2().subtract(getPoint1());
+	}
+	
 	/* -- END Getters for point representations of private fields -- */
 	
 	/* -- START Getters for useful information -- */
@@ -122,7 +130,16 @@ public class Line {
 	 * @return The length as a float.
 	 */
 	public float length() {
-		return getPoint2().subtract(getPoint1()).length();
+		return getVector().length();
+	}
+	
+	/**
+	 * Get the angle of the line.
+	 * An angle of 0 means this line points to the right, and an angle of Math.PI/2 means this line points upwards.
+	 * @return The angle as a double.
+	 */
+	public double getAngle() {
+		return getVector().getAngle();
 	}
 	
 	/* -- END Getters for useful information -- */

@@ -61,11 +61,20 @@ public class Point {
 	/* -- START Getters for useful information -- */
 	
 	/**
-	 * Get the length of this point when treated as a vector.
+	 * Get the length of this point when treated as a vector (distance to the origin).
 	 * @return The length as a float.
 	 */
 	public float length() {
 		return (float) Math.sqrt(getX()*getX()+getY()*getY());
+	}
+	
+	/**
+	 * Get the angle between this point, when treated as a vector, and the x-axis.
+	 * An angle of 0 means this point points to the right, and an angle of Math.PI/2 means this point points upwards.
+	 * @return The angle as a double.
+	 */
+	public double getAngle() {
+		return Math.atan2(getY(), getX());
 	}
 	
 	/* -- END Getters for useful information -- */
