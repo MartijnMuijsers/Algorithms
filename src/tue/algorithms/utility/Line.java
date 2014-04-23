@@ -16,19 +16,19 @@ public class Line {
 	/**
 	 * The x-coordinate of the point the line starts at.
 	 */
-	private final int x1;
+	private final float x1;
 	/**
 	 * The y-coordinate of the point the line starts at.
 	 */
-	private final int y1;
+	private final float y1;
 	/**
 	 * The x-coordinate of the point the line ends at.
 	 */
-	private final int x2;
+	private final float x2;
 	/**
 	 * The y-coordinate of the point the line ends at.
 	 */
-	private final int y2;
+	private final float y2;
 	
 	/* -- END Private final fields -- */
 	
@@ -41,7 +41,7 @@ public class Line {
 	 * @param x2 The x-coordinate of the point the line ends at.
 	 * @param y2 The y-coordinate of the point the line ends at.
 	 */
-	public Line(int x1, int y1, int x2, int y2) {
+	public Line(float x1, float y1, float x2, float y2) {
 		this.x1 = x1;
 		this.y1 = y1;
 		this.x2 = x2;
@@ -63,33 +63,33 @@ public class Line {
 	
 	/**
 	 * Get the x-coordinate of the point the line starts at.
-	 * @return The x-coordinate as an integer.
+	 * @return The x-coordinate as an float.
 	 */
-	public int getX1() {
+	public float getX1() {
 		return x1;
 	}
 	
 	/**
 	 * Get the y-coordinate of the point the line starts at.
-	 * @return The y-coordinate as an integer.
+	 * @return The y-coordinate as an float.
 	 */
-	public int getY1() {
+	public float getY1() {
 		return y1;
 	}
 	
 	/**
 	 * Get the x-coordinate of the point the line ends at.
-	 * @return The x-coordinate as an integer.
+	 * @return The x-coordinate as an float.
 	 */
-	public int getX2() {
+	public float getX2() {
 		return x2;
 	}
 	
 	/**
 	 * Get the y-coordinate of the point the line ends at.
-	 * @return The y-coordinate as an integer.
+	 * @return The y-coordinate as an float.
 	 */
-	public int getY2() {
+	public float getY2() {
 		return y2;
 	}
 	
@@ -119,7 +119,7 @@ public class Line {
 	
 	/**
 	 * Get a line with the direction inverted: the created line will start where this line ends, and end where this line starts.
-	 * @return The point.
+	 * @return The line with inverted direction.
 	 */
 	public Line invertDirection() {
 		return new Line(x2, y2, x1, y1);
@@ -140,7 +140,7 @@ public class Line {
 	
 	@Override
 	public int hashCode() {
-		return getX1()+getY1()*getY1()+getX2()*getX2()*getX2()+getY2()*getY2()*getY2()*getY2();
+		return (int) ((getX1()*10000)+(getY1()*10000)*(getY1()*10000)+(getX2()*10000)*(getX2()*10000)*(getX2()*10000)+(getY2()*10000)*(getY2()*10000)*(getY2()*10000)*(getY2()*10000));
 	}
 	
 	@Override

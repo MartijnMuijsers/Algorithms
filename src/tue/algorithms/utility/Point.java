@@ -16,11 +16,11 @@ public class Point {
 	/**
 	 * The x-coordinate of the point.
 	 */
-	private final int x;
+	private final float x;
 	/**
 	 * The y-coordinate of the point.
 	 */
-	private final int y;
+	private final float y;
 	
 	/* -- END Private final fields -- */
 	
@@ -31,7 +31,7 @@ public class Point {
 	 * @param x The x-coordinate of the point.
 	 * @param y The y-coordinate of the point.
 	 */
-	public Point(int x, int y) {
+	public Point(float x, float y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -42,17 +42,17 @@ public class Point {
 	
 	/**
 	 * Get the x-coordinate of the point.
-	 * @return The x-coordinate as an integer.
+	 * @return The x-coordinate as an float.
 	 */
-	public int getX() {
+	public float getX() {
 		return x;
 	}
 	
 	/**
 	 * Get the y-coordinate of the point.
-	 * @return The y-coordinate as an integer.
+	 * @return The y-coordinate as an float.
 	 */
-	public int getY() {
+	public float getY() {
 		return y;
 	}
 	
@@ -75,7 +75,7 @@ public class Point {
 	 * @param y The y-coordinate of the point to add to this point.
 	 * @return The sum vector point.
 	 */
-	public Point add(int x, int y) {
+	public Point add(float x, float y) {
 		return new Point(getX()+x, getY()+y);
 	}
 	
@@ -94,7 +94,7 @@ public class Point {
 	 * @param y The y-coordinate of the point to subtract from this point.
 	 * @return The subtraction vector point.
 	 */
-	public Point subtract(int x, int y) {
+	public Point subtract(float x, float y) {
 		return add(-x, -y);
 	}
 	
@@ -117,7 +117,7 @@ public class Point {
 	 * @param y The y-coordinate of the point where the line should end.
 	 * @return The line.
 	 */
-	public Line getLineFromHereToPoint(int x, int y) {
+	public Line getLineFromHereToPoint(float x, float y) {
 		return new Line(getX(), getY(), x, y);
 	}
 	
@@ -136,7 +136,7 @@ public class Point {
 	 * @param y The y-coordinate of the point where the line should start.
 	 * @return The line.
 	 */
-	public Line getLineFromPointToHere(int x, int y) {
+	public Line getLineFromPointToHere(float x, float y) {
 		return new Line(x, y, getX(), getY());
 	}
 	
@@ -155,7 +155,7 @@ public class Point {
 	
 	@Override
 	public int hashCode() {
-		return getX()+getY()*getY();
+		return (int) ((getX()*10000)+(getY()*10000)*(getY()*10000));
 	}
 	
 	@Override
