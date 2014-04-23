@@ -16,11 +16,11 @@ public class Point {
 	/**
 	 * The x-coordinate of the point.
 	 */
-	private final float x;
+	protected final float x;
 	/**
 	 * The y-coordinate of the point.
 	 */
-	private final float y;
+	protected final float y;
 	
 	/* -- END Private final fields -- */
 	

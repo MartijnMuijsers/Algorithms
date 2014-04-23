@@ -16,19 +16,19 @@ public class Line {
 	/**
 	 * The x-coordinate of the point the line starts at.
 	 */
-	private final float x1;
+	protected final float x1;
 	/**
 	 * The y-coordinate of the point the line starts at.
 	 */
-	private final float y1;
+	protected final float y1;
 	/**
 	 * The x-coordinate of the point the line ends at.
 	 */
-	private final float x2;
+	protected final float x2;
 	/**
 	 * The y-coordinate of the point the line ends at.
 	 */
-	private final float y2;
+	protected final float y2;
 	
 	/* -- END Private final fields -- */
 	
@@ -102,7 +102,7 @@ public class Line {
 	 * @return The point.
 	 */
 	public Point getPoint1() {
-		return new Point(x1, y1);
+		return new Point(getX1(), getY1());
 	}
 	
 	/**
@@ -110,10 +110,22 @@ public class Line {
 	 * @return The point.
 	 */
 	public Point getPoint2() {
-		return new Point(x2, y2);
+		return new Point(getX2(), getY2());
 	}
 	
 	/* -- END Getters for point representations of private fields -- */
+	
+	/* -- START Getters for useful information -- */
+	
+	/**
+	 * Get the length of the line.
+	 * @return The length as a float.
+	 */
+	public float length() {
+		return (float) Math.sqrt((getX2()-getX1())*(getX2()-getX1())+(getY2()-getY1())*(getY2()-getY1()));
+	}
+	
+	/* -- END Getters for useful information -- */
 	
 	/* -- START Manipulation method to invert line -- */
 	
@@ -122,7 +134,7 @@ public class Line {
 	 * @return The line with inverted direction.
 	 */
 	public Line invertDirection() {
-		return new Line(x2, y2, x1, y1);
+		return new Line(getX2(), getY2(), getX1(), getY1());
 	}
 	
 	/* -- END Manipulation method to invert line -- */
