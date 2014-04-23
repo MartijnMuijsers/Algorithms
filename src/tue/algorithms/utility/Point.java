@@ -5,6 +5,9 @@ package tue.algorithms.utility;
  * Utility class that represents a point (x, y).
  * </p>
  * <p>
+ * This class is also perfectly usable to represent a vector.
+ * </p>
+ * <p>
  * This class is immutable.
  * </p>
  * @author Martijn
