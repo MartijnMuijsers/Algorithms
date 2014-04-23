@@ -58,6 +58,18 @@ public class Point {
 	
 	/* -- END Public getters for private fields -- */
 	
+	/* -- START Getters for useful information -- */
+	
+	/**
+	 * Get the length of this point when treated as a vector.
+	 * @return The length as a float.
+	 */
+	public float length() {
+		return (float) Math.sqrt(getX()*getX()+getY()*getY());
+	}
+	
+	/* -- END Getters for useful information -- */
+	
 	/* -- START Manipulation methods for adding and subtracting points -- */
 	
 	/**

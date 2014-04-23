@@ -122,7 +122,7 @@ public class Line {
 	 * @return The length as a float.
 	 */
 	public float length() {
-		return (float) Math.sqrt((getX2()-getX1())*(getX2()-getX1())+(getY2()-getY1())*(getY2()-getY1()));
+		return getPoint2().subtract(getPoint1()).length();
 	}
 	
 	/* -- END Getters for useful information -- */
@@ -138,6 +138,48 @@ public class Line {
 	}
 	
 	/* -- END Manipulation method to invert line -- */
+	
+	/* -- START Manipulation methods for adding and subtracting points -- */
+	
+	/**
+	 * Get a line that is translated by the vector of the given point.
+	 * @param point The translation vector.
+	 * @return The resulting line.
+	 */
+	public Line add(Point point) {
+		return add(point.getX(), point.getY());
+	}
+	
+	/**
+	 * Get a line that is translated by the vector (x, y).
+	 * @param x The x-coordinate of the translation.
+	 * @param y The y-coordinate of the translation.
+	 * @return The resulting line.
+	 */
+	public Line add(float x, float y) {
+		return new Line(getX1()+x, getY1()+y, getX2()+x, getY2()+y);
+	}
+	
+	/**
+	 * Get a line that is inversely translated by the vector of the given point.
+	 * @param point The translation vector to be inversely translated over.
+	 * @return The resulting line.
+	 */
+	public Line subtract(Point point) {
+		return subtract(point.getX(), point.getY());
+	}
+	
+	/**
+	 * Get a line that is inversely translated by the vector (x, y).
+	 * @param x The x-coordinate of the translation vector to be inversely translated over.
+	 * @param y The y-coordinate of the translation vector to be inversely translated over.
+	 * @return The resulting line.
+	 */
+	public Line subtract(float x, float y) {
+		return add(-x, -y);
+	}
+	
+	/* -- END Manipulation methods for adding and subtracting points -- */
 	
 	/* -- START Override equals(), hashCode() and toString() -- */
 	
