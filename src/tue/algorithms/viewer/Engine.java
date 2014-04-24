@@ -85,7 +85,7 @@ public class Engine {
     private void render() {
         simulation.render();
         Display.update();
-        // Display.sync(60);
+        Display.sync(60);
     }
 
     private void cleanUp() {
