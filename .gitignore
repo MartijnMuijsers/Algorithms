@@ -31,7 +31,9 @@ local.properties
 *.class
 
 # Package Files #
-*.jar
+# Do not exclude .jar because we keep forgetting to add the .jar when we
+# update the libraries.
+#*.jar
 *.war
 *.ear
 
@@ -44,3 +46,5 @@ local.properties
 *.fls
 *.out
 *.toc
+
+!lib/
