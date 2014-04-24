@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import org.lwjgl.input.Keyboard;
 import static org.lwjgl.opengl.GL11.*;
 import static java.lang.Math.*;
+import tue.algorithms.utility.*;
 
 public class Simulation {
     // Nodes
@@ -52,7 +53,7 @@ public class Simulation {
     }
     
     private void drawNode(Node node){
-        drawCircle(node.x, node.y, 0.005f, 32);
+        drawCircle(node.getX(), node.getY(), 0.005f, 32);
     }
     
     private void drawCircle(float cx, float cy, float r, int num_segments) {
