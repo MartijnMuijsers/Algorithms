@@ -1,2 +1,4 @@
 # Always use LF
-* text eol=lf
+src/* text eol=lf
+*.tex text eol=lf
+
