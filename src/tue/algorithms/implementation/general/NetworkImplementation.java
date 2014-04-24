@@ -1,4 +1,8 @@
-package tue.algorithms.utility;
+package tue.algorithms.implementation.general;
+
+import tue.algorithms.other.Pair;
+import tue.algorithms.utility.Node;
+import tue.algorithms.utility.Segment;
 
 /**
  * <p>
