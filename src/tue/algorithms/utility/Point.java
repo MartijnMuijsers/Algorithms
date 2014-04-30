@@ -68,7 +68,7 @@ public class Point {
 	 * @return The length as a float.
 	 */
 	public float length() {
-		return (float) Math.sqrt(getX()*getX()+getY()*getY());
+		return (float) Math.sqrt(getX() * getX() + getY() * getY());
 	}
 	
 	/**
@@ -100,7 +100,7 @@ public class Point {
 	 * @return The sum vector point.
 	 */
 	public Point add(float x, float y) {
-		return new Point(getX()+x, getY()+y);
+		return new Point(getX() + x, getY() + y);
 	}
 	
 	/**
@@ -179,15 +179,15 @@ public class Point {
 	
 	@Override
 	public int hashCode() {
-		return (int) ((getX()*10000)+(getY()*10000)*(getY()*10000));
+		return (int) ((getX() * 10000) + (getY() * 10000) * (getY() * 10000));
 	}
 	
 	@Override
 	public String toString() {
-		return super.toString()+"["
-				+"x="+getX()+", "
-				+"y="+getY()
-				+"]";
+		return super.toString() + "["
+			+ "x=" + getX() + ", "
+			+ "y=" + getY()
+			+ "]";
 	}
 	
 	/* -- END Override equals(), hashCode() and toString() -- */

@@ -119,19 +119,19 @@ public class Segment extends Line {
 	
 	@Override
 	public int hashCode() {
-		return getNode1Id()*12000+getNode2Id();
+		return getNode1Id() * 12000 + getNode2Id();
 	}
 	
 	@Override
 	public String toString() {
-		return super.toString()+"["
-				+"id1="+getNode1Id()+", "
-				+"x1="+getX1()+", "
-				+"y1="+getY1()+", "
-				+"id2="+getNode2Id()+", "
-				+"x2="+getX2()+", "
-				+"y2="+getY2()
-				+"]";
+		return super.toString() + "["
+			+ "id1=" + getNode1Id() + ", "
+			+ "x1=" + getX1() + ", "
+			+ "y1=" + getY1() + ", "
+			+ "id2=" + getNode2Id() + ", "
+			+ "x2=" + getX2() + ", "
+			+ "y2=" + getY2()
+			+ "]";
 	}
 	
 	/* -- END Override equals(), hashCode() and toString() -- */
