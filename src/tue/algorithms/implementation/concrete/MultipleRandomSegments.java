@@ -2,22 +2,21 @@ package tue.algorithms.implementation.concrete;
 
 import java.util.HashSet;
 
-import tue.algorithms.implementation.general.NetworkImplementation;
-import tue.algorithms.other.Pair;
+import tue.algorithms.implementation.general.MultipleImplementation;
 import tue.algorithms.utility.Node;
 import tue.algorithms.utility.Segment;
 
 /**
- * A solution to the network problem, that is NOT a real solution.
- * This just connects every node with a random other node, and gives no added nodes.
+ * A solution to the multiple-curve problem, that is NOT a real solution.
+ * This just connects every node with a random other node.
  * 
  * This is supposed to be to test a simulation environment.
  * @author Martijn
  */
-public class NetworkRandomSegments extends NetworkImplementation {
+public class MultipleRandomSegments extends MultipleImplementation {
 
 	@Override
-	public Pair<Segment[], Node[]> getOutput(Node[] input) {
+	public Segment[] getOutput(Node[] input) {
 		HashSet<Segment> segments = new HashSet<Segment>();
 		for (Node node : input) {
 			Node otherNode = input[(int) (Math.random()*input.length)];
@@ -32,7 +31,7 @@ public class NetworkRandomSegments extends NetworkImplementation {
 			resultSegments[i] = segment;
 			i++;
 		}
-		return new Pair<Segment[], Node[]>(resultSegments, new Node[0]);
+		return resultSegments;
 	}
 	
 }
