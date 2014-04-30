@@ -7,7 +7,9 @@ import tue.algorithms.other.Pair;
 import tue.algorithms.utility.Node;
 
 /**
+ * <p>
  * Class that reads Peach input.
+ * </p>
  * @author Martijn
  */
 public abstract class PeachInputReader {

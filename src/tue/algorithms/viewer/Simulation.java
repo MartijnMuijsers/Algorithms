@@ -1,15 +1,71 @@
 package tue.algorithms.viewer;
 
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_LINES;
+import static org.lwjgl.opengl.GL11.GL_POLYGON;
+import static org.lwjgl.opengl.GL11.glBegin;
+import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glColor3f;
+import static org.lwjgl.opengl.GL11.glEnd;
+import static org.lwjgl.opengl.GL11.glVertex2f;
+import static org.lwjgl.opengl.GL11.glVertex3f;
+
 import java.util.ArrayList;
+
 import org.lwjgl.input.Keyboard;
-import static org.lwjgl.opengl.GL11.*;
-import static java.lang.Math.*;
-import tue.algorithms.utility.*;
+
+import tue.algorithms.implementation.general.MultipleImplementation;
+import tue.algorithms.implementation.general.NetworkImplementation;
+import tue.algorithms.implementation.general.ProblemType;
+import tue.algorithms.implementation.general.SingleImplementation;
+import tue.algorithms.other.Pair;
+import tue.algorithms.test.FakeInputReader;
+import tue.algorithms.utility.Node;
+import tue.algorithms.utility.Segment;
 
 public class Simulation {
+	
+	/**
+	 * Get an instance of the class that is chosen to provide input.
+	 * @return An instance of a class that extends FakeInputReader.
+	 */
+	public static FakeInputReader getFakeInputReader() {
+		/* TODO Choose an implementation */
+		return null;
+	}
+	
+	/**
+	 * Get an instance of the class that is chosen to solve single-curve problem cases.
+	 * @return An instance of a class that extends SingleImplementation.
+	 */
+	public static SingleImplementation getSingleImplementation() {
+		/* TODO Choose an implementation */
+		return null;
+	}
+	
+	/**
+	 * Get an instance of the class that is chosen to solve multiple-curve problem cases.
+	 * @return An instance of a class that extends MultipleImplementation.
+	 */
+	public static MultipleImplementation getMultipleImplementation() {
+		/* TODO Choose an implementation */
+		return null;
+	}
+	
+	/**
+	 * Get an instance of the class that is chosen to solve network problem cases.
+	 * @return An instance of a class that extends NetworkImplementation.
+	 */
+	public static NetworkImplementation getNetworkImplementation() {
+		/* TODO Choose an implementation */
+		return null;
+	}
+	
     // Nodes
-    ArrayList<Node> nodes = new ArrayList<>();
-    ArrayList<Segment> segments = new ArrayList<>();
+    ArrayList<Node> nodes;
+    ArrayList<Segment> segments;
    
     // Constructor
     public Simulation() {
@@ -17,14 +73,35 @@ public class Simulation {
     }
 
     public void initialize(){
-		// TODO(wilco): use input reader instead of hard-coded values.
-        nodes.add(new Node(0, 0.5f, 0.5f));
-        nodes.add(new Node(1, 0f, 0f));
-        nodes.add(new Node(2, 0f, 1f));
-        nodes.add(new Node(3, 1f, 1f));
-        nodes.add(new Node(4, 1f, 0f));
-        
-        segments.add(new Segment(nodes.get(0), nodes.get(1)));
+    	// Read the input
+    	FakeInputReader fakeInputReader = getFakeInputReader();
+    	Pair<ProblemType, Node[]> input = fakeInputReader.readInput();
+		ProblemType problemType = input.first();
+		Node[] nodes = input.second();
+		// Solve for the output
+		Segment[] segments = new Segment[0];
+		Node[] newNodes = new Node[0];
+		if (problemType == ProblemType.SINGLE) {
+			segments = getSingleImplementation().getOutput(nodes);
+		} else if (problemType == ProblemType.MULTIPLE) {
+			segments = getMultipleImplementation().getOutput(nodes);
+		} else if (problemType == ProblemType.NETWORK) {
+			Pair<Segment[], Node[]> output = getNetworkImplementation().getOutput(nodes);
+			segments = output.first();
+			newNodes = output.second();
+		}
+		// Convert to arraylists
+		this.nodes = new ArrayList<Node>(nodes.length+newNodes.length);
+		for (Node node : nodes) {
+			this.nodes.add(node);
+		}
+		for (Node node : newNodes) {
+			this.nodes.add(node);
+		}
+		this.segments = new ArrayList<Segment>(segments.length);
+		for (Segment segment : segments) {
+			this.segments.add(segment);
+		}
     }
     
     public boolean getInput() {

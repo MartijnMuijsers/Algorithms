@@ -16,7 +16,7 @@ public abstract class PeachSubmitMain {
 	
 	/**
 	 * Get an instance of the class that is chosen to solve single-curve problem cases.
-	 * @return An instance of a class that extends SingleImplementation
+	 * @return An instance of a class that extends SingleImplementation.
 	 */
 	public static SingleImplementation getSingleImplementation() {
 		/* TODO Choose an implementation */
@@ -25,7 +25,7 @@ public abstract class PeachSubmitMain {
 	
 	/**
 	 * Get an instance of the class that is chosen to solve multiple-curve problem cases.
-	 * @return An instance of a class that extends MultipleImplementation
+	 * @return An instance of a class that extends MultipleImplementation.
 	 */
 	public static MultipleImplementation getMultipleImplementation() {
 		/* TODO Choose an implementation */
@@ -34,7 +34,7 @@ public abstract class PeachSubmitMain {
 	
 	/**
 	 * Get an instance of the class that is chosen to solve network problem cases.
-	 * @return An instance of a class that extends NetworkImplementation
+	 * @return An instance of a class that extends NetworkImplementation.
 	 */
 	public static NetworkImplementation getNetworkImplementation() {
 		/* TODO Choose an implementation */
