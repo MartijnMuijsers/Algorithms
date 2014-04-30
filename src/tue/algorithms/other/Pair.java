@@ -69,15 +69,17 @@ public class Pair<A, B> {
 	
 	@Override
 	public int hashCode() {
-		return first().hashCode()+101+second().hashCode()*second().hashCode();
+		return first().hashCode()
+			+ 101
+			+ second().hashCode() * second().hashCode();
 	}
 	
 	@Override
 	public String toString() {
-		return super.toString()+"["
-				+"first="+first()+", "
-				+"second="+second()
-				+"]";
+		return super.toString() + "["
+			+ "first=" + first() + ", "
+			+ "second=" + second()
+			+ "]";
 	}
 	
 	/* -- END Override equals(), hashCode() and toString() -- */

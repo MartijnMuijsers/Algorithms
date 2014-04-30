@@ -101,11 +101,11 @@ public class Node extends Point {
 	
 	@Override
 	public String toString() {
-		return super.toString()+"["
-				+"id="+getId()+", "
-				+"x="+getX()+", "
-				+"y="+getY()
-				+"]";
+		return super.toString() + "["
+			+ "id=" + getId() + ", "
+			+ "x=" + getX() + ", "
+			+ "y=" + getY()
+			+ "]";
 	}
 	
 	/* -- END Override equals(), hashCode() and toString() -- */

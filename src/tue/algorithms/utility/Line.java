@@ -174,7 +174,7 @@ public class Line {
 	 * @return The resulting line.
 	 */
 	public Line add(float x, float y) {
-		return new Line(getX1()+x, getY1()+y, getX2()+x, getY2()+y);
+		return new Line(getX1() + x, getY1() + y, getX2() + x, getY2() + y);
 	}
 	
 	/**
@@ -204,26 +204,32 @@ public class Line {
 	public boolean equals(Object obj) {
 		if (obj instanceof Line) {
 			Line other = (Line) obj;
-			return (other.getX1() == getX1() && other.getY1() == getY1() && other.getX2() == getX2() && other.getY2() == getY2());
+			return (other.getX1() == getX1() &&
+					other.getY1() == getY1() &&
+					other.getX2() == getX2() &&
+					other.getY2() == getY2());
 		}
 		return false;
 	}
 	
 	@Override
 	public int hashCode() {
-		return (int) ((getX1()*10000)+(getY1()*10000)*(getY1()*10000)+(getX2()*10000)*(getX2()*10000)*(getX2()*10000)+(getY2()*10000)*(getY2()*10000)*(getY2()*10000)*(getY2()*10000));
+		return (int) ((getX1() * 10000)
+			+ (getY1() * 10000) * (getY1() * 10000)
+			+ (getX2() * 10000) * (getX2() * 10000) * (getX2() * 10000)
+			+ (getY2() * 10000) * (getY2() * 10000) * (getY2() * 10000) * (getY2() * 10000));
 	}
-	
+
 	@Override
 	public String toString() {
-		return super.toString()+"["
-				+"x1="+getX1()+", "
-				+"y1="+getY1()+", "
-				+"x2="+getX2()+", "
-				+"y2="+getY2()
-				+"]";
+		return super.toString() + "["
+			+ "x1=" + getX1() + ", "
+			+ "y1=" + getY1() + ", "
+			+ "x2=" + getX2() + ", "
+			+ "y2=" + getY2()
+			+ "]";
 	}
-	
+
 	/* -- END Override equals(), hashCode() and toString() -- */
-	
+
 }

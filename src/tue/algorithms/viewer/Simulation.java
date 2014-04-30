@@ -63,19 +63,19 @@ public class Simulation {
 		return null;
 	}
 	
-    // Nodes
-    ArrayList<Node> nodes;
-    ArrayList<Segment> segments;
-   
-    // Constructor
-    public Simulation() {
+	// Nodes
+	private ArrayList<Node> nodes;
+	private ArrayList<Segment> segments;
 
-    }
+	// Constructor
+	public Simulation() {
 
-    public void initialize(){
-    	// Read the input
-    	FakeInputReader fakeInputReader = getFakeInputReader();
-    	Pair<ProblemType, Node[]> input = fakeInputReader.readInput();
+	}
+
+	public void initialize() {
+		// Read the input
+		FakeInputReader fakeInputReader = getFakeInputReader();
+		Pair<ProblemType, Node[]> input = fakeInputReader.readInput();
 		ProblemType problemType = input.first();
 		Node[] nodes = input.second();
 		// Solve for the output
@@ -102,55 +102,55 @@ public class Simulation {
 		for (Segment segment : segments) {
 			this.segments.add(segment);
 		}
-    }
-    
-    public boolean getInput() {
-        //if ESC is pressed, close program
-        return Keyboard.isKeyDown(Keyboard.KEY_ESCAPE);
-    }
+	}
 
-    public void render(){
-        glClear(GL_COLOR_BUFFER_BIT);
-        glColor3f(1f, 1f, 1f);
-        
-        for (Node node : nodes) {
-            drawNode(node);
-        }
-        
-        for (Segment segment : segments) {
-            drawSegment(segment);
-        }         
-    }
-    
-    private void drawSegment(Segment segment){
-        glBegin(GL_LINES);
-        glVertex3f(segment.getX1(),segment.getY1(),0);
-        glVertex3f(segment.getX2(),segment.getY2(),0);
-        glEnd();
-    }
-    
-    private void drawNode(Node node){
-        drawCircle(node.getX(), node.getY(), 0.005f, 32);
-    }
-    
-    private void drawCircle(float cx, float cy, float r, int num_segments) {
-        final float theta = 2f * 3.1415926f / (float) num_segments;
-        final float c = (float) cos(theta);
-        final float s = (float) sin(theta);
-        float t;
+	public boolean getInput() {
+		//if ESC is pressed, close program
+		return Keyboard.isKeyDown(Keyboard.KEY_ESCAPE);
+	}
 
-        float x = r;// we start at angle = 0 
-        float y = 0;
+	public void render() {
+		glClear(GL_COLOR_BUFFER_BIT);
+		glColor3f(1f, 1f, 1f);
 
-        glBegin(GL_POLYGON);
-        for (int ii = 0; ii < num_segments; ii++) {
-            glVertex2f(x + cx, y + cy);// output vertex 
+		for (Node node : nodes) {
+			drawNode(node);
+		}
 
-            // apply the rotation matrix
-            t = x;
-            x = c * x - s * y;
-            y = s * t + c * y;
-        }
-        glEnd();
-    }
+		for (Segment segment : segments) {
+			drawSegment(segment);
+		}         
+	}
+
+	private void drawSegment(Segment segment) {
+		glBegin(GL_LINES);
+		glVertex3f(segment.getX1(), segment.getY1(), 0);
+		glVertex3f(segment.getX2(), segment.getY2(), 0);
+		glEnd();
+	}
+
+	private void drawNode(Node node) {
+		drawCircle(node.getX(), node.getY(), 0.005f, 32);
+	}
+
+	private void drawCircle(float cx, float cy, float r, int num_segments) {
+		final float theta = 2f * 3.1415926f / (float) num_segments;
+		final float c = (float) cos(theta);
+		final float s = (float) sin(theta);
+		float t;
+
+		float x = r;// we start at angle = 0 
+		float y = 0;
+
+		glBegin(GL_POLYGON);
+		for (int ii = 0; ii < num_segments; ii++) {
+			glVertex2f(x + cx, y + cy);// output vertex 
+
+			// apply the rotation matrix
+			t = x;
+			x = c * x - s * y;
+			y = s * t + c * y;
+		}
+		glEnd();
+	}
 }
