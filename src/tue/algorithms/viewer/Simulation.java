@@ -1,5 +1,6 @@
 package tue.algorithms.viewer;
 
+import java.lang.UnsupportedOperationException;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -33,7 +34,7 @@ public class Simulation {
 	 */
 	public static FakeInputReader getFakeInputReader() {
 		/* TODO Choose an implementation */
-		return null;
+		throw new UnsupportedOperationException("getFakeInputReader() not implemented.");
 	}
 	
 	/**
@@ -42,7 +43,7 @@ public class Simulation {
 	 */
 	public static SingleImplementation getSingleImplementation() {
 		/* TODO Choose an implementation */
-		return null;
+		throw new UnsupportedOperationException("getSingleImplementation() not implemented.");
 	}
 	
 	/**
@@ -51,7 +52,7 @@ public class Simulation {
 	 */
 	public static MultipleImplementation getMultipleImplementation() {
 		/* TODO Choose an implementation */
-		return null;
+		throw new UnsupportedOperationException("getMultipleImplementation() not implemented.");
 	}
 	
 	/**
@@ -60,7 +61,7 @@ public class Simulation {
 	 */
 	public static NetworkImplementation getNetworkImplementation() {
 		/* TODO Choose an implementation */
-		return null;
+		throw new UnsupportedOperationException("getNetworkImplementation() not implemented.");
 	}
 	
 	// Nodes
