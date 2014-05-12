@@ -10,6 +10,7 @@ import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import java.lang.UnsupportedOperationException;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -109,6 +110,9 @@ public class Simulation {
     
     // Save
     private boolean saveKeyDown;
+    
+    // Open
+    private boolean openKeyDown;
 
     // Constructor
     public Simulation() {
@@ -119,6 +123,7 @@ public class Simulation {
         clearKeyDown = false;
         showSegments = true;
         saveKeyDown = false;
+        openKeyDown = false;
     }
 
     public void initialize() {
@@ -202,6 +207,13 @@ public class Simulation {
         }
         saveKeyDown = Keyboard.isKeyDown(Keyboard.KEY_S);  
         
+        // Open
+        if (Keyboard.isKeyDown(Keyboard.KEY_O) && !openKeyDown) {
+            open();
+        }
+        openKeyDown = Keyboard.isKeyDown(Keyboard.KEY_O);  
+                
+        
         //if ESC is pressed, close program
         return Keyboard.isKeyDown(Keyboard.KEY_ESCAPE);
     }
@@ -236,6 +248,28 @@ public class Simulation {
             Logger.getLogger(Simulation.class.getName()).log(Level.SEVERE, null, ex);
         }
         buildFile(file);
+    }
+    
+    public void open() throws FileNotFoundException{
+        JFileChooser openFile = new JFileChooser();
+        if (openFile.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            File file = openFile.getSelectedFile();
+            Scanner scanner = new Scanner(file);
+            String line = scanner.nextLine();
+            ProblemType pType = ProblemType.valueOf(line.substring(12).toUpperCase());
+            line = scanner.nextLine();
+            int numberOfNodes = Integer.parseInt(line.substring(0, line.indexOf(' ')));
+            nodes.clear();
+            
+            for (int i = 0; i < numberOfNodes; i++) {
+                nodes.add(new Node(scanner.nextInt(), scanner.nextFloat(), scanner.nextFloat()));
+            }
+            scanner.close();
+            
+            problemType = pType;
+            
+            showSegments = false;
+        }
     }
     
     public void render() {
