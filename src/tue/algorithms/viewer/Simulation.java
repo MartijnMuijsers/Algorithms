@@ -185,8 +185,17 @@ public class Simulation {
     private void addNode() {
         float clickX = (float) Mouse.getX() / Camera.width * 1.05263157895f - 0.025f;
         float clickY = 1 - ((float) Mouse.getY() / Camera.heigth * 1.05263157895f - 0.025f);
-        int clickID = nodes.size() + 1;
-        nodes.add(new Node(clickID, clickX, clickY));
+        boolean found = false;
+        ArrayList<Node> newList = new ArrayList<>();
+        int i = 1;
+        for (Node node : nodes) {
+            newList.add(new Node(i,node.getX(),node.getY()));
+            ++i;
+        }
+        newList.add(new Node(newList.size()+1,clickX,clickY));
+        
+        nodes = newList;
+        
     }
 
     public boolean getInput() throws IOException {
