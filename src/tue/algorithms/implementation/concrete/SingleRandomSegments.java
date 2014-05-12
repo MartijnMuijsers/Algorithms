@@ -25,6 +25,9 @@ public class SingleRandomSegments extends SingleImplementation {
 				segments.add(segment);
 			}
 		}
+                
+                
+                
 		Segment[] resultSegments = new Segment[segments.size()];
 		int i = 0;
 		for (Segment segment : segments) {

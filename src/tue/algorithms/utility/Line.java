@@ -1,5 +1,7 @@
 package tue.algorithms.utility;
 
+import static java.lang.Math.abs;
+
 /**
  * <p>
  * Utility class that represents a line from one point to another point.
@@ -131,6 +133,14 @@ public class Line {
 	 */
 	public float length() {
 		return getVector().length();
+	}
+        
+        /**
+	 * Get the manhattan distance of the line.
+	 * @return The distance as a float.
+	 */
+	public float manhattanDistance() {
+		return abs(this.x1-this.x2)+abs(this.y1-this.y2);
 	}
 	
 	/**
