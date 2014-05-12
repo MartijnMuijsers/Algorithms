@@ -56,16 +56,17 @@ The third and final algorithm will attempt to create a road network from the nod
 \section{Introduction}
 \label{se:introduction}
 \maxsize{2 pages}
-The problem that we attempt to solve is that of reconstructing a set of points back into curves. 
+The problem that we attempt to solve is that of reconstructing a set of points back into curves in the 2D plane. 
 This problem is split into three different parts. The first two require the reconstruction into curves, in the first case there is only one curve, whereas in the second case there are mutiple. 
 This means that in the second case it is also required to distinguish multiple different curves from each other.\\
+The third part of the problem requires reconstruction of a road network.\\
 All nodes are points in a 2D plane, given by floating points ranging from 0 to 1. 
-The nodes are not determined randomly, but are determined beforehand. In practice, these datasets can be created by laserscanners, or in the case of the network, by following roads and giving the location at specific intervals.\\
+The nodes are not determined randomly, but are determined beforehand. In practice, these datasets can be created by laserscanners, or in the case of the network, by following roads and giving the location at some interval.\\
 There are multiple known solutions to these problems. One of these is known as 'The Crust Algorithm'[1], which first creates a Volonoi diagram, then uses Delaunay triangulation between the Volonoi diagram and the Volonoi vertices.\\
 The Crust Algorithm solves the first problem that is described above, but needs additional work to determine the multiple curve problem.\\
 The running time of the Crust algorithm is dominated by the Delaunay triangulation. 
 Deleaunay triangulation has a worst case running time of $nlog(n)$ when using the Divide and Conquer method described by Guibas and Stolfi [2].\\
-Delaunay triangulation can also be used to create a relatively small set of edges for the third problem, after which a recilinear spanning graph or straight lines can be determined between points. These straight lines can then be connected to from a road network.\\
+Delaunay triangulation can also be used to create a relatively small set of edges for the third problem, after which a recilinear spanning graph or straight lines can be determined between points. These straight lines can then be connected to form a road network.\\
 
 % TODO: Remove introduction description
 
@@ -137,8 +138,6 @@ Relate the outcome of the experiments to your theoretical analysis.
 
 Note that the experimental data in itself are not the main result: the conclusions
 you can draw are what makes the data interesting.
-
-
 
 
 
