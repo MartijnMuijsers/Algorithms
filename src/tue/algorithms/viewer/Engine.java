@@ -13,18 +13,17 @@ import org.lwjgl.util.Dimension;
 public class Engine {
 	/*---------------- vars ----------------*/
 	private Simulation simulation;
-	private Timer timer;
 	private Camera camera;
-	private Dimension resolution;
+	static Dimension resolution;
 
 	/*---------------- main ----------------*/
 	public static void main(String[] args) throws IOException, LWJGLException {
 		Engine engine = new Engine();
 
 		// Initialize
-		engine.resolution = new Dimension(640, 640);
-		engine.initDisplay(engine.resolution);
-		engine.initProjection(engine.resolution);
+		resolution = new Dimension(640, 640);
+		engine.initDisplay(resolution);
+		engine.initProjection(resolution);
 		engine.initInput();
 		engine.initSimulation();
 
@@ -65,15 +64,20 @@ public class Engine {
 	}
 
 	private void doSimulation() {
-		timer = new Timer();
 		while (!Display.isCloseRequested()) {
 			if (Display.wasResized()) {
 				camera.updateResolution();
 			}
-			timer.calculateFPS();
 			if (getInput()) {
 				break; // ESC is pressed
 			}
+                        String title = "DBL Algorithms";
+                        title += " problemType: " + simulation.problemType.name();
+                        if (simulation.editMode){
+                            title += " editMode: ON ";
+                        }
+                        title += " [Toggle editMode = E, Recalculate = R] ";
+                        Display.setTitle(title);
 			render();
 		}
 	}
