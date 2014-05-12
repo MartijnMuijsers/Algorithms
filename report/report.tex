@@ -27,7 +27,7 @@
 \newenvironment{proof}{\emph{Proof.}}{\hfill $\Box$ \medskip\\}
 
 % TODO(robwu): Choose a more descriptive title
-\title{DBL Algorithms (2IO90)}
+\title{2D curve and network reconstruction}
 \author{
 A. van den Boogaart \and
 W. Brouwer \and
@@ -39,59 +39,16 @@ R. Wu
 
 \begin{document}
 
-% TODO(robwu): Remove the first section.
-\section*{\begin{center} Guidelines for DBL Algorithms reports \\ {\normalsize M. de Berg} \end{center}}
-This document contains guidelines for the report that has to be written for the course
-\emph{DBL Algorithms} (2IO90). It serves several purposes. First of all, it describes the structure
-your document should have: the sections it should contain,
-the general contents of those sections and their maximum length.
-Second, it explains which (parts of the) sections should already be written for
-the intermediate report that has to be handed in at the end of the fourth week of the project.
-Finally, it gives some hints on how to write certain sections.
-The main part of this document---everything except the current page---is
-written in the same format your paper should have.
-
-You may use the \LaTeX source file of this document as a template for your report.
-For your convenience I have already added commands for theorems, proof, etcetera,
-which can be used by writing, for example:
-\verb#\begin{theorem} ... \end{theorem}#.
-
-\section*{About the intermediate and the final report}
-The report for this {\sc dbl} project should be written in the form of a paper.
-This means that you should write it as if you want to submit it to a scientific
-journal. Thus, do not write things like ``For the course 2IO90 we had to write a report
-on reconstructing curves and networks.''. There are several requirements for
-the reports:
-\begin{itemize}
-\item The reports should be written using 11\;pt font, and it should be for A4 paper 
-      with reasonable (not too large) margins. If you use \LaTeX for preparing
-      your paper---this is the preferred way of doing it---then use
-      \verb#\usepackage{a4wide}#.
-\item The maximum total length of the
-      final report is 20~pages. This includes everything from the title and abstract until
-      the references. Do not use appendices. You do not need to use all 20 pages,
-      although if you use significantly less than 20 pages it is likely that
-      your paper is not sufficiently detailed or clear, that your experimental evaluation is
-      not extensive enough, or that your paper could profit from more figures.
-      The minimum number of pages is~16.
-\item The number of pages for the intermediate report should be at least 8 and at most~11.
-      It should contain (most of) Section~\ref{se:introduction}, Section~\ref{se:algorithms},
-      and the references. You are expected to revise these sections for the final report, based
-      on the feedback you get on the intermediate report and on your findings in the second half
-      of the project. 
-\end{itemize}
-
-
-% TODO(robwu): Remove until here.
-
-
 \newpage
 
 \maketitle
 
 \begin{abstract}
-In the abstract you give an overview---typically one short paragraph---of the contents of
-your paper: you describe the problem you have studied, and what the main results are.
+We present three algorithms that connect all nodes in an unorganised set in the 2D plane in an aestetically pleasing manner. 
+The first algorithm will reconstruct a set of nodes into a single curve, such that no lines intersect. 
+The second algorithm will create multiple curves from the set of nodes, also in such a way that no lines intersect. 
+The third and final algorithm will attempt to create a road network from the nodes, and can add additional nodes when intersections occur.\\
+
 \end{abstract}
 
 
@@ -99,6 +56,15 @@ your paper: you describe the problem you have studied, and what the main results
 \section{Introduction}
 \label{se:introduction}
 \maxsize{2 pages}
+The problem that we attempt to solve is that of reconstructing a set of points back into curves. 
+This problem is split into three different parts. The first two require the reconstruction into curves, in the first case there is only one curve, whereas in the second case there are mutiple. 
+This means that in the second case it is also required to distinguish multiple different curves from each other.\\
+All nodes are points in a 2D plane, given by floating points ranging from 0 to 1. 
+The nodes are not determined randomly, but are determined beforehand. In practice, these datasets can be created by laserscanners, or in the case of the network, by following roads and giving the location at specific intervals.\\
+There are multiple known solutions to these problems. One of these is known as 'The Crust Algorithm'[1], which first creates a Volonoi diagram, then uses Delaunay triangulation between the Volonoi diagram and the Volonoi vertices.\\
+The Crust Algorithm solves the first problem that is described above, but needs additional code to determine the multiple curve problem.\\
+
+
 The introduction usually starts with a description of and
 a motivation for the general problem area.
 %
