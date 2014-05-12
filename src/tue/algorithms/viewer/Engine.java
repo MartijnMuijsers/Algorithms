@@ -75,7 +75,7 @@ public class Engine {
             }
             String title = "";
             title += " problemType: " + simulation.problemType.name();
-            title += "  [R = recalculate | C = clear | S = save | O = open] ";
+            title += "  [R = recalculate | C = clear | S = save | O = open | T = type] ";
             Display.setTitle(title);
             render();
         }

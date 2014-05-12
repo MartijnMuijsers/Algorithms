@@ -102,6 +102,9 @@ public class Simulation {
     // Recalculate
     private boolean recalculateKeyDown;
     
+    // Type
+    private boolean typeKeyDown;
+    
     // Clear
     private boolean clearKeyDown;
     private boolean showSegments;
@@ -122,6 +125,7 @@ public class Simulation {
         saveKeyDown = false;
         openKeyDown = false;
         brushMode = false;
+        typeKeyDown = false;
     }
 
     public void initialize() {
@@ -165,6 +169,16 @@ public class Simulation {
         }
     }
 
+    private void toggleType(){
+        if (problemType == ProblemType.SINGLE){
+            problemType = ProblemType.MULTIPLE;
+        } else if (problemType == ProblemType.MULTIPLE){
+            problemType = ProblemType.NETWORK;
+        } else if (problemType == ProblemType.NETWORK){
+            problemType = ProblemType.SINGLE;
+        } 
+    }
+    
     private void deleteNodes(){
         float clickX = (float) Mouse.getX() / Camera.width * 1.05263157895f - 0.025f;
         float clickY = 1 - ((float) Mouse.getY() / Camera.heigth * 1.05263157895f - 0.025f);
@@ -240,7 +254,13 @@ public class Simulation {
             open();
         }
         openKeyDown = Keyboard.isKeyDown(Keyboard.KEY_O);  
-                
+ 
+        // Type
+        if (Keyboard.isKeyDown(Keyboard.KEY_T) && !typeKeyDown) {
+            toggleType();
+        }
+        typeKeyDown = Keyboard.isKeyDown(Keyboard.KEY_T);          
+        
         //if ESC is pressed, close program
         return Keyboard.isKeyDown(Keyboard.KEY_ESCAPE);
     }
