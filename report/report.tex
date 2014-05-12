@@ -62,8 +62,12 @@ This means that in the second case it is also required to distinguish multiple d
 All nodes are points in a 2D plane, given by floating points ranging from 0 to 1. 
 The nodes are not determined randomly, but are determined beforehand. In practice, these datasets can be created by laserscanners, or in the case of the network, by following roads and giving the location at specific intervals.\\
 There are multiple known solutions to these problems. One of these is known as 'The Crust Algorithm'[1], which first creates a Volonoi diagram, then uses Delaunay triangulation between the Volonoi diagram and the Volonoi vertices.\\
-The Crust Algorithm solves the first problem that is described above, but needs additional code to determine the multiple curve problem.\\
+The Crust Algorithm solves the first problem that is described above, but needs additional work to determine the multiple curve problem.\\
+The running time of the Crust algorithm is dominated by the Delaunay triangulation. 
+Deleaunay triangulation has a worst case running time of $nlog(n)$ when using the Divide and Conquer method described by Guibas and Stolfi [2].\\
+Delaunay triangulation can also be used to create a relatively small set of edges for the third problem, after which a recilinear spanning graph or straight lines can be determined between points. These straight lines can then be connected to from a road network.\\
 
+% TODO: Remove introduction description
 
 The introduction usually starts with a description of and
 a motivation for the general problem area.
@@ -95,10 +99,14 @@ Personally, however, I do not find these overviews very useful: I prefer to
 integrate this with the previous part of the introduction, where the overview
 of the results is given.
 
+%TODO: Remove until here
+
 \section{The algorithms}
 \label{se:algorithms}
 \maxsize{8 pages. Use subsections where appropriate.}
-%
+%TODO: Add algorithm descriptions
+
+%TODO: Remove project guidelines
 The description of the algorithms should be such that a programmer can
 implement them without much difficulty. It is good practice to first explain the
 main ideas behind the algorithm at a more intuitive level, and then give a
@@ -116,8 +124,9 @@ and the amount of storage they use. Also try to say something about the quality 
 be able to prove that the algorithm is guaranteed to find the correct solution if the
 input has certain well-defined properties, or you might be able to give examples
 of inputs for which the algorithm will fail to give a correct solution.
+%TODO: Remove until here
 
-
+%TODO: Remove all below this point for interim report
 \section{Experimental evaluation}
 \label{se:evaluation}
 \maxsize{8 pages. Use subsections where appropriate.}
