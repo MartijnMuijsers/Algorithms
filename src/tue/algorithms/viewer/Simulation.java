@@ -1,8 +1,11 @@
 package tue.algorithms.viewer;
 
-import java.lang.UnsupportedOperationException;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
+import java.lang.UnsupportedOperationException;
+import java.util.ArrayList;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_LINES;
 import static org.lwjgl.opengl.GL11.GL_POLYGON;
@@ -12,13 +15,9 @@ import static org.lwjgl.opengl.GL11.glColor3f;
 import static org.lwjgl.opengl.GL11.glEnd;
 import static org.lwjgl.opengl.GL11.glVertex2f;
 import static org.lwjgl.opengl.GL11.glVertex3f;
-
-import java.util.ArrayList;
-
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.util.Dimension;
 
+import tue.algorithms.implementation.concrete.NetworkRMST;
 import tue.algorithms.implementation.general.MultipleImplementation;
 import tue.algorithms.implementation.general.NetworkImplementation;
 import tue.algorithms.implementation.general.ProblemType;
@@ -71,8 +70,8 @@ public class Simulation {
      * @return An instance of a class that extends NetworkImplementation.
      */
     public static NetworkImplementation getNetworkImplementation() {
-        /* TODO Choose an implementation */
-        throw new UnsupportedOperationException("getNetworkImplementation() not implemented.");
+        
+        return new NetworkRMST();
     }
 
     // Problem type
@@ -109,7 +108,7 @@ public class Simulation {
         // Read the input
         fakeInputReader = getFakeInputReader();
         input = fakeInputReader.readInput();
-        problemType = /*input.first();*/ ProblemType.SINGLE;
+        problemType = /*input.first();*/ ProblemType.NETWORK;
         inputNodes = input.second();
         newNetworkNodes = new Node[0];
         
