@@ -279,16 +279,18 @@ public class Simulation {
     
     public void render() {
         glClear(GL_COLOR_BUFFER_BIT);
+        
         glColor3f(1f, 1f, 1f);
-
-        for (Node node : nodes) {
-            drawNode(node);
-        }
-
         if (showSegments) {
             for (Segment segment : segments) {
                 drawSegment(segment);
             }
+        }
+        
+        glColor3f(1f, 1f, 0.4f);
+
+        for (Node node : nodes) {
+            drawNode(node);
         }
     }
 
