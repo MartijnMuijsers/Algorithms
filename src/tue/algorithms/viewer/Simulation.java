@@ -2,19 +2,16 @@ package tue.algorithms.viewer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
-import java.lang.UnsupportedOperationException;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -100,8 +97,6 @@ public class Simulation {
     private ArrayList<Segment> segments;
 
     // Edit boolean
-    public boolean editMode;
-    private boolean editModeToggleKeyDown;
     private boolean editModeMouseButtonDown;
 
     // Recalculate
@@ -110,6 +105,7 @@ public class Simulation {
     // Clear
     private boolean clearKeyDown;
     private boolean showSegments;
+    private boolean brushMode;
     
     // Save
     private boolean saveKeyDown;
@@ -119,14 +115,13 @@ public class Simulation {
 
     // Constructor
     public Simulation() {
-        editMode = false;
-        editModeToggleKeyDown = false;
         editModeMouseButtonDown = false;
         recalculateKeyDown = false;
         clearKeyDown = false;
         showSegments = true;
         saveKeyDown = false;
         openKeyDown = false;
+        brushMode = false;
     }
 
     public void initialize() {
@@ -170,6 +165,23 @@ public class Simulation {
         }
     }
 
+    private void deleteNodes(){
+        float clickX = (float) Mouse.getX() / Camera.width * 1.05263157895f - 0.025f;
+        float clickY = 1 - ((float) Mouse.getY() / Camera.heigth * 1.05263157895f - 0.025f);
+        Node mouseNode = new Node(10000000,clickX,clickY);
+        try{       
+        for (Node node : nodes) {
+            if (node.subtract(mouseNode).length()<0.025){
+                nodes.remove(node);
+                calculateSegments();
+            }
+        }
+        }
+        catch (ConcurrentModificationException e){
+            
+        }
+    }
+    
     private void addNode() {
         float clickX = (float) Mouse.getX() / Camera.width * 1.05263157895f - 0.025f;
         float clickY = 1 - ((float) Mouse.getY() / Camera.heigth * 1.05263157895f - 0.025f);
@@ -179,17 +191,21 @@ public class Simulation {
 
     public boolean getInput() throws IOException {
         if (Mouse.isButtonDown(0) && !editModeMouseButtonDown) {
-            if (editMode) {
                 addNode();
-            }
         }
         editModeMouseButtonDown = Mouse.isButtonDown(0);
         
-        // Edit mode
-        if (Keyboard.isKeyDown(Keyboard.KEY_E) && !editModeToggleKeyDown) {
-            editMode = !editMode;
+        if (!brushMode && Mouse.isButtonDown(1)) {
+                brushMode = true;
         }
-        editModeToggleKeyDown = Keyboard.isKeyDown(Keyboard.KEY_E);
+        
+        if (brushMode && !Mouse.isButtonDown(1)){
+            brushMode = false;
+        }
+        
+        if (brushMode){
+            deleteNodes();
+        }
 
         // Recalculate
         if (Keyboard.isKeyDown(Keyboard.KEY_R) && !recalculateKeyDown) {
@@ -216,7 +232,6 @@ public class Simulation {
         }
         openKeyDown = Keyboard.isKeyDown(Keyboard.KEY_O);  
                 
-        
         //if ESC is pressed, close program
         return Keyboard.isKeyDown(Keyboard.KEY_ESCAPE);
     }
@@ -281,14 +296,22 @@ public class Simulation {
         glClear(GL_COLOR_BUFFER_BIT);
         glColor3f(1f, 1f, 1f);
 
+        try{
         for (Node node : nodes) {
             drawNode(node);
+        }
+        } catch(ConcurrentModificationException e){
+            
         }
 
         if (showSegments) {
             for (Segment segment : segments) {
                 drawSegment(segment);
             }
+        }
+        glColor3f(1f, 0f, 0f);
+        if (brushMode){
+            drawCircle((float) Mouse.getX() / Camera.width * 1.05263157895f - 0.025f, 1.0f -(float) Mouse.getY() / Camera.width * 1.05263157895f + 0.025f, 0.025f, 16);
         }
     }
 
