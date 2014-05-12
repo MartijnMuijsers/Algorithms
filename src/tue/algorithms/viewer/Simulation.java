@@ -241,15 +241,17 @@ public class Simulation {
     public void save() {
         JFileChooser saveFile = new JFileChooser();
         saveFile.showSaveDialog(null);
-        File file = saveFile.getSelectedFile();
-        try {
-            file.createNewFile();
-        } catch (IOException ex) {
-            Logger.getLogger(Simulation.class.getName()).log(Level.SEVERE, null, ex);
+        if (saveFile.getSelectedFile() != null) {
+            File file = saveFile.getSelectedFile();
+            try {
+                file.createNewFile();
+                buildFile(file);
+            } catch (IOException ex) {
+                Logger.getLogger(Simulation.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-        buildFile(file);
     }
-    
+
     public void open() throws FileNotFoundException{
         JFileChooser openFile = new JFileChooser();
         if (openFile.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
