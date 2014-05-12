@@ -65,7 +65,7 @@ public class Engine {
         simulation.initialize();
     }
 
-    private void doSimulation() {
+    private void doSimulation() throws IOException {
         while (!Display.isCloseRequested()) {
             if (Display.wasResized()) {
                 camera.updateResolution();
@@ -75,7 +75,7 @@ public class Engine {
             }
             String title = "";
             title += " problemType: " + simulation.problemType.name();
-            title += " [E = edit mode | R = recalculate | C = clear] ";
+            title += " [E = edit | R = recalculate | C = clear | S = save | O = open] ";
             if (simulation.editMode) {
                 title += " edit mode ";
             }
@@ -84,7 +84,7 @@ public class Engine {
         }
     }
 
-    private boolean getInput() {
+    private boolean getInput() throws IOException {
         return simulation.getInput();
     }
 

@@ -1,9 +1,20 @@
 package tue.algorithms.viewer;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import java.lang.UnsupportedOperationException;
 import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -99,6 +110,12 @@ public class Simulation {
     // Clear
     private boolean clearKeyDown;
     private boolean showSegments;
+    
+    // Save
+    private boolean saveKeyDown;
+    
+    // Open
+    private boolean openKeyDown;
 
     // Constructor
     public Simulation() {
@@ -108,6 +125,8 @@ public class Simulation {
         recalculateKeyDown = false;
         clearKeyDown = false;
         showSegments = true;
+        saveKeyDown = false;
+        openKeyDown = false;
     }
 
     public void initialize() {
@@ -158,7 +177,7 @@ public class Simulation {
         nodes.add(new Node(clickID, clickX, clickY));
     }
 
-    public boolean getInput() {
+    public boolean getInput() throws IOException {
         if (Mouse.isButtonDown(0) && !editModeMouseButtonDown) {
             if (editMode) {
                 addNode();
@@ -172,23 +191,92 @@ public class Simulation {
         }
         editModeToggleKeyDown = Keyboard.isKeyDown(Keyboard.KEY_E);
 
-        // Recalculate mode
+        // Recalculate
         if (Keyboard.isKeyDown(Keyboard.KEY_R) && !recalculateKeyDown) {
             calculateSegments();
             showSegments = true;
         }
         recalculateKeyDown = Keyboard.isKeyDown(Keyboard.KEY_R);
 
-        // Clear mode
+        // Clear
         if (Keyboard.isKeyDown(Keyboard.KEY_C) && !clearKeyDown) {
             showSegments = false;
         }
         clearKeyDown = Keyboard.isKeyDown(Keyboard.KEY_C);        
         
+        // Save
+        if (Keyboard.isKeyDown(Keyboard.KEY_S) && !saveKeyDown) {
+            save();
+        }
+        saveKeyDown = Keyboard.isKeyDown(Keyboard.KEY_S);  
+        
+        // Open
+        if (Keyboard.isKeyDown(Keyboard.KEY_O) && !openKeyDown) {
+            open();
+        }
+        openKeyDown = Keyboard.isKeyDown(Keyboard.KEY_O);  
+                
+        
         //if ESC is pressed, close program
         return Keyboard.isKeyDown(Keyboard.KEY_ESCAPE);
     }
 
+    public void buildFile(File file){
+        try (PrintStream fileStream = new PrintStream(file);) {
+            fileStream.print("reconstruct ");
+            if (problemType.equals(ProblemType.SINGLE)){
+                fileStream.println("single");
+            } else if (problemType.equals(ProblemType.MULTIPLE)){
+                fileStream.println("multiple");
+            } else {
+                fileStream.println("network");
+            } 
+            fileStream.println(nodes.size() + " number of sample points");         
+            for (Node node : nodes) {
+			fileStream.println(node.getId() + " " + node.getX() + " " + node.getY());
+            }
+            fileStream.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(Simulation.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void save() {
+        JFileChooser saveFile = new JFileChooser();
+        saveFile.showSaveDialog(null);
+        if (saveFile.getSelectedFile() != null) {
+            File file = saveFile.getSelectedFile();
+            try {
+                file.createNewFile();
+                buildFile(file);
+            } catch (IOException ex) {
+                Logger.getLogger(Simulation.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    public void open() throws FileNotFoundException{
+        JFileChooser openFile = new JFileChooser();
+        if (openFile.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            File file = openFile.getSelectedFile();
+            Scanner scanner = new Scanner(file);
+            String line = scanner.nextLine();
+            ProblemType pType = ProblemType.valueOf(line.substring(12).toUpperCase());
+            line = scanner.nextLine();
+            int numberOfNodes = Integer.parseInt(line.substring(0, line.indexOf(' ')));
+            nodes.clear();
+            
+            for (int i = 0; i < numberOfNodes; i++) {
+                nodes.add(new Node(scanner.nextInt(), scanner.nextFloat(), scanner.nextFloat()));
+            }
+            scanner.close();
+            
+            problemType = pType;
+            
+            showSegments = false;
+        }
+    }
+    
     public void render() {
         glClear(GL_COLOR_BUFFER_BIT);
         glColor3f(1f, 1f, 1f);
