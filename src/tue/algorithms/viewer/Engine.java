@@ -13,17 +13,17 @@ import org.lwjgl.util.Dimension;
 public class Engine {
 	/*---------------- vars ----------------*/
 	private Simulation simulation;
-	private Camera camera;
-	static Dimension resolution;
+        private Dimension resolution;
+	public static Camera camera;
 
 	/*---------------- main ----------------*/
 	public static void main(String[] args) throws IOException, LWJGLException {
 		Engine engine = new Engine();
 
 		// Initialize
-		resolution = new Dimension(640, 640);
-		engine.initDisplay(resolution);
-		engine.initProjection(resolution);
+		engine.resolution = new Dimension(640, 640);
+		engine.initDisplay(engine.resolution);
+		engine.initProjection(engine.resolution);
 		engine.initInput();
 		engine.initSimulation();
 

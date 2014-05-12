@@ -17,7 +17,6 @@ import java.util.ArrayList;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.util.Dimension;
 
 import tue.algorithms.implementation.general.MultipleImplementation;
 import tue.algorithms.implementation.general.NetworkImplementation;
@@ -112,7 +111,7 @@ public class Simulation {
         problemType = /*input.first();*/ ProblemType.SINGLE;
         inputNodes = input.second();
         newNetworkNodes = new Node[0];
-        
+
         // Convert to arraylists
         this.nodes = new ArrayList<>(inputNodes.length + newNetworkNodes.length);
         for (Node node : inputNodes) {
@@ -129,7 +128,7 @@ public class Simulation {
 
     private void calculateSegments() {
         Node[] allNodes = nodes.toArray(new Node[nodes.size()]);
-        
+
         if (problemType == ProblemType.SINGLE) {
             calculatedSegments = getSingleImplementation().getOutput(allNodes);
         } else if (problemType == ProblemType.MULTIPLE) {
@@ -147,8 +146,8 @@ public class Simulation {
     }
 
     private void addNode() {
-        float clickX = (float) Mouse.getX() / Engine.resolution.getWidth() * 1.05263157895f - 0.025f;
-        float clickY = 1 - ((float) Mouse.getY() / Engine.resolution.getHeight() * 1.05263157895f - 0.025f);
+        float clickX = (float) Mouse.getX() / Camera.width * 1.05263157895f - 0.025f;
+        float clickY = 1 - ((float) Mouse.getY() / Camera.heigth * 1.05263157895f - 0.025f);
         int clickID = nodes.size() + 1;
         nodes.add(new Node(clickID, clickX, clickY));
     }
