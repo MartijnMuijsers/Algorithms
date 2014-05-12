@@ -4,17 +4,17 @@ import org.lwjgl.opengl.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Camera {
-	private int width;
-	private int heigth;
+	public static int width;
+	public static int heigth;
 
 	public Camera(int w, int h) {
-		this.width = w;
-		this.heigth = h;
+		width = w;
+		heigth = h;
 	}
 
-	public void setDimension(int width, int heigth) {
-		this.width = width;
-		this.heigth = heigth;
+	public void setDimension(int w, int h) {
+		width = w;
+		heigth = h;
 	}
 
 	public void setProjection(int width, int heigth) {
