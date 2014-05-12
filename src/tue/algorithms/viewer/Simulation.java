@@ -16,11 +16,15 @@ import java.util.ArrayList;
 
 import org.lwjgl.input.Keyboard;
 
+import tue.algorithms.implementation.concrete.MultipleRandomSegments;
+import tue.algorithms.implementation.concrete.NetworkRandomSegments;
+import tue.algorithms.implementation.concrete.SingleSpider;
 import tue.algorithms.implementation.general.MultipleImplementation;
 import tue.algorithms.implementation.general.NetworkImplementation;
 import tue.algorithms.implementation.general.ProblemType;
 import tue.algorithms.implementation.general.SingleImplementation;
 import tue.algorithms.other.Pair;
+import tue.algorithms.test.CasePregivenSingleTest;
 import tue.algorithms.test.FakeInputReader;
 import tue.algorithms.utility.Node;
 import tue.algorithms.utility.Segment;
@@ -32,8 +36,8 @@ public class Simulation {
 	 * @return An instance of a class that extends FakeInputReader.
 	 */
 	public static FakeInputReader getFakeInputReader() {
-		/* TODO Choose an implementation */
-		return null;
+		//return new CaseWilcoViewerTest();
+		return new CasePregivenSingleTest();
 	}
 	
 	/**
@@ -41,8 +45,7 @@ public class Simulation {
 	 * @return An instance of a class that extends SingleImplementation.
 	 */
 	public static SingleImplementation getSingleImplementation() {
-		/* TODO Choose an implementation */
-		return null;
+		return new SingleSpider();
 	}
 	
 	/**
@@ -50,8 +53,7 @@ public class Simulation {
 	 * @return An instance of a class that extends MultipleImplementation.
 	 */
 	public static MultipleImplementation getMultipleImplementation() {
-		/* TODO Choose an implementation */
-		return null;
+		return new MultipleRandomSegments();
 	}
 	
 	/**
@@ -59,8 +61,7 @@ public class Simulation {
 	 * @return An instance of a class that extends NetworkImplementation.
 	 */
 	public static NetworkImplementation getNetworkImplementation() {
-		/* TODO Choose an implementation */
-		return null;
+		return new NetworkRandomSegments();
 	}
 	
 	// Nodes

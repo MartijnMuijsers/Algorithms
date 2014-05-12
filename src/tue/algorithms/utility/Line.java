@@ -1,5 +1,7 @@
 package tue.algorithms.utility;
 
+import java.awt.geom.Line2D;
+
 /**
  * <p>
  * Utility class that represents a line from one point to another point.
@@ -197,6 +199,18 @@ public class Line {
 	}
 	
 	/* -- END Manipulation methods for adding and subtracting points -- */
+	
+	/* -- START Method to check for intersection -- */
+	
+	public boolean intersectsWith(Line line) {
+		Line2D line1 = new Line2D.Float(getX1(), getY1(), getX2(), getY2());
+		Line2D line2 = new Line2D.Float(line.getX1(), line.getY1(), line.getX2(), line.getY2());
+		//System.out.println("Checking if "+this+" intersects with "+line);
+		//System.out.println("...="+(line2.intersectsLine(line1)));
+		return (line2.intersectsLine(line1));
+	}
+	
+	/* -- END Method to check for intersection -- */
 	
 	/* -- START Override equals(), hashCode() and toString() -- */
 	

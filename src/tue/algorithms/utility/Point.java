@@ -80,6 +80,15 @@ public class Point {
 		return Math.atan2(getY(), getX());
 	}
 	
+	/**
+	 * Get the angle between this point and another point.
+	 * @param point The other point.
+	 * @return The angle as a double.
+	 */
+	public double getAngleTo(Point point) {
+		return getLineFromHereToPoint(point).getAngle();
+	}
+	
 	/* -- END Getters for useful information -- */
 	
 	/* -- START Manipulation methods for adding and subtracting points -- */
@@ -123,6 +132,41 @@ public class Point {
 	}
 	
 	/* -- END Manipulation methods for adding and subtracting points -- */
+	
+	/* -- START Manipulation methods for changing coordinates -- */
+	
+	/**
+	 * Get a point that has the same y-coordinate as this one, but a different, given x-coordinate.
+	 * @param x The x-coordinate of the point to return.
+	 * @return The point with the correct coordinates.
+	 */
+	public Point withXAs(float x) {
+		return new Point(x, getY());
+	}
+	
+	/**
+	 * Get a point that has the same x-coordinate as this one, but a different, given y-coordinate.
+	 * @param y The y-coordinate of the point to return.
+	 * @return The point with the correct coordinates.
+	 */
+	public Point withYAs(float y) {
+		return new Point(getX(), y);
+	}
+	
+	/* -- END Manipulation methods for changing coordinates -- */
+	
+	/* -- START Method to get the distance between points -- */
+	
+	/**
+	 * Get the distance between this point and another.
+	 * @param point The other point.
+	 * @return The Euclidian distance as a float.
+	 */
+	public float getDistanceTo(Point point) {
+		return this.subtract(point).length();
+	}
+	
+	/* -- END Method to get the distance between points -- */
 	
 	/* -- START Methods to get the line between points -- */
 	
