@@ -95,6 +95,10 @@ public class Simulation {
 
     // Recalculate
     private boolean recalculateKeyDown;
+    
+    // Clear
+    private boolean clearKeyDown;
+    private boolean showSegments;
 
     // Constructor
     public Simulation() {
@@ -102,6 +106,8 @@ public class Simulation {
         editModeToggleKeyDown = false;
         editModeMouseButtonDown = false;
         recalculateKeyDown = false;
+        clearKeyDown = false;
+        showSegments = true;
     }
 
     public void initialize() {
@@ -159,17 +165,26 @@ public class Simulation {
             }
         }
         editModeMouseButtonDown = Mouse.isButtonDown(0);
-
+        
+        // Edit mode
         if (Keyboard.isKeyDown(Keyboard.KEY_E) && !editModeToggleKeyDown) {
             editMode = !editMode;
         }
         editModeToggleKeyDown = Keyboard.isKeyDown(Keyboard.KEY_E);
 
+        // Recalculate mode
         if (Keyboard.isKeyDown(Keyboard.KEY_R) && !recalculateKeyDown) {
             calculateSegments();
+            showSegments = true;
         }
         recalculateKeyDown = Keyboard.isKeyDown(Keyboard.KEY_R);
 
+        // Clear mode
+        if (Keyboard.isKeyDown(Keyboard.KEY_C) && !clearKeyDown) {
+            showSegments = false;
+        }
+        clearKeyDown = Keyboard.isKeyDown(Keyboard.KEY_C);        
+        
         //if ESC is pressed, close program
         return Keyboard.isKeyDown(Keyboard.KEY_ESCAPE);
     }
@@ -182,8 +197,10 @@ public class Simulation {
             drawNode(node);
         }
 
-        for (Segment segment : segments) {
-            drawSegment(segment);
+        if (showSegments) {
+            for (Segment segment : segments) {
+                drawSegment(segment);
+            }
         }
     }
 

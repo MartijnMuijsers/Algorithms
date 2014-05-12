@@ -11,91 +11,93 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.util.Dimension;
 
 public class Engine {
-	/*---------------- vars ----------------*/
-	private Simulation simulation;
-        private Dimension resolution;
-	public static Camera camera;
+    /*---------------- vars ----------------*/
 
-	/*---------------- main ----------------*/
-	public static void main(String[] args) throws IOException, LWJGLException {
-		Engine engine = new Engine();
+    private Simulation simulation;
+    private Dimension resolution;
+    public static Camera camera;
 
-		// Initialize
-		engine.resolution = new Dimension(640, 640);
-		engine.initDisplay(engine.resolution);
-		engine.initProjection(engine.resolution);
-		engine.initInput();
-		engine.initSimulation();
+    /*---------------- main ----------------*/
+    public static void main(String[] args) throws IOException, LWJGLException {
+        Engine engine = new Engine();
 
-		// Run simulation
-		engine.doSimulation();
+        // Initialize
+        engine.resolution = new Dimension(640, 640);
+        engine.initDisplay(engine.resolution);
+        engine.initProjection(engine.resolution);
+        engine.initInput();
+        engine.initSimulation();
 
-		// Close 
-		engine.cleanUp();
-	}
-	/*-------------- methods ---------------*/
-	private void initProjection(Dimension r) {
-		camera = new Camera(r.getWidth(), r.getHeight());
-		camera.initialize();
-	}
+        // Run simulation
+        engine.doSimulation();
 
-	private void initDisplay(Dimension r) {
-		try {
-			Display.setDisplayMode(new DisplayMode(r.getWidth(), r.getHeight()));
-			Display.setTitle("DBL Algorithms");
-			Display.setResizable(true);
-			Display.create(new PixelFormat(0, 16, 1));
-		} catch (LWJGLException e) {
-		}
-	}
+        // Close 
+        engine.cleanUp();
+    }
+    /*-------------- methods ---------------*/
 
-	private void initInput() {
-		try {
-			Keyboard.create();
-			Mouse.create();                  
-		} catch (LWJGLException e) {
-			Logger.getLogger(Engine.class.getName()).log(Level.SEVERE, null, e);
-		}
-	}
+    private void initProjection(Dimension r) {
+        camera = new Camera(r.getWidth(), r.getHeight());
+        camera.initialize();
+    }
 
-	private void initSimulation() {
-		simulation = new Simulation();
-		simulation.initialize();
-	}
+    private void initDisplay(Dimension r) {
+        try {
+            Display.setDisplayMode(new DisplayMode(r.getWidth(), r.getHeight()));
+            Display.setTitle("DBL Algorithms");
+            Display.setResizable(true);
+            Display.create(new PixelFormat(0, 16, 1));
+        } catch (LWJGLException e) {
+        }
+    }
 
-	private void doSimulation() {
-		while (!Display.isCloseRequested()) {
-			if (Display.wasResized()) {
-				camera.updateResolution();
-			}
-			if (getInput()) {
-				break; // ESC is pressed
-			}
-                        String title = "DBL Algorithms";
-                        title += " problemType: " + simulation.problemType.name();
-                        if (simulation.editMode){
-                            title += " editMode: ON ";
-                        }
-                        title += " [Toggle editMode = E, Recalculate = R] ";
-                        Display.setTitle(title);
-			render();
-		}
-	}
+    private void initInput() {
+        try {
+            Keyboard.create();
+            Mouse.create();
+        } catch (LWJGLException e) {
+            Logger.getLogger(Engine.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
 
-	private boolean getInput() {
-		return simulation.getInput();
-	}
+    private void initSimulation() {
+        simulation = new Simulation();
+        simulation.initialize();
+    }
 
-	private void render() {
-		simulation.render();
-		Display.update();
-		Display.sync(60);
-	}
+    private void doSimulation() {
+        while (!Display.isCloseRequested()) {
+            if (Display.wasResized()) {
+                camera.updateResolution();
+            }
+            if (getInput()) {
+                break; // ESC is pressed
+            }
+            String title = "";
+            title += " problemType: " + simulation.problemType.name();
+            title += " [E = edit mode | R = recalculate | C = clear] ";
+            if (simulation.editMode) {
+                title += " edit mode ";
+            }
+            Display.setTitle(title);
+            render();
+        }
+    }
 
-	private void cleanUp() {
-		Display.destroy();
-		Keyboard.destroy();
-		Mouse.destroy();
-	}
+    private boolean getInput() {
+        return simulation.getInput();
+    }
+
+    private void render() {
+        simulation.render();
+        Display.update();
+        Display.sync(60);
+    }
+
+    private void cleanUp() {
+        Display.destroy();
+        Keyboard.destroy();
+        Mouse.destroy();
+    }
 
 }
