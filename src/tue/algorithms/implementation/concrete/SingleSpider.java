@@ -43,13 +43,11 @@ public class SingleSpider extends SingleImplementation {
 	public static class Spider {
 		
 		public Spider(HashSet<Node> nodes) {
-			foundSegments = new ArrayList<Segment>();
-			viewpoints = new ArrayList<Viewpoint>();
-			nodesToDo = nodes;
+			this.nodes = nodes;
 			minimalDistance = new HashMap<Node, Float>();
-			for (Node n : nodesToDo) {
+			for (Node n : nodes) {
 				float minDistance = Float.MAX_VALUE;
-				for (Node m : nodesToDo) {
+				for (Node m : nodes) {
 					if (!n.equals(m)) {
 						float distance = n.getDistanceTo(m);
 						if (distance < minDistance) {
@@ -63,83 +61,133 @@ public class SingleSpider extends SingleImplementation {
 		
 		public ArrayList<Segment> foundSegments;
 		public ArrayList<Viewpoint> viewpoints;
-		public HashSet<Node> nodesToDo; // zet in begin naar input
+		public HashSet<Node> nodes;
+		public HashSet<Node> nodesToDo;
 		public HashMap<Node, Float> minimalDistance;
+		public boolean failed = false;
+		public boolean checkLastIntersection = false;
+		
+		public void execute(boolean checkLastIntersection) {
+			this.checkLastIntersection = checkLastIntersection;
+			execute();
+		}
 		
 		public void execute() {
-			// TODO make this a bit better than choosing a random one
-			Node firstNode = nodesToDo.iterator().next();
-			// TODO make this a bit better than just choosing the closest node
-			float minDistanceToFirst = Float.MAX_VALUE;
-			Node closestNodeToFirst = null;
-			for (Node n : nodesToDo) {
-				if (!n.equals(firstNode)) {
-					float distanceToFirst = n.getDistanceTo(firstNode);
-					if (distanceToFirst < minDistanceToFirst) {
-						minDistanceToFirst = distanceToFirst;
-						closestNodeToFirst = n;
+			for (int secondNodeI = 0; secondNodeI < nodes.size()-1; secondNodeI++) {
+				HashSet<Node> nodesToStartWith = new HashSet<Node>();
+				for (Node node : nodes) {
+					nodesToStartWith.add(node);
+				}
+				int firstNodeTime = 0;
+				for (Node firstNode : nodesToStartWith) {
+					failed = false;
+					firstNodeTime++;
+					//////System.out.println("First node with firstNodeTime="+firstNodeTime + " and secondNodeI="+secondNodeI);
+					nodesToDo = new HashSet<Node>();
+					for (Node node : nodes) {
+						nodesToDo.add(node);
 					}
-				}
-			}
-			foundSegments.add(new Segment(firstNode, closestNodeToFirst));
-			nodesToDo.remove(firstNode);
-			nodesToDo.remove(closestNodeToFirst);
-			// assuming there is already one segment present now
-			while (true) {
-				System.out.println("Main loop with nodesToDo.size()="+nodesToDo.size()+" and foundSegments.size()="+foundSegments.size());
-				if (nodesToDo.size() == 0) {
-					// we're done
-					System.out.println("We're done!");
-					break;
-				}
-				Segment lastSegment = foundSegments.get(foundSegments.size()-1);
-				Viewpoint viewpoint = new Viewpoint(lastSegment.getNode2(), lastSegment.getNode1());
-				Segment newSegment = viewpoint.getCurrentSegment();
-				if (newSegment == null) {
-					//System.out.println("New segment is null");
-					int viewpointToRewindTo = -1;
-					float minLikelihoodDifferenceToNextSegment = Float.MAX_VALUE;
-					{
-						int i = 0;
-						for (Viewpoint v : viewpoints) {
-							float likelihoodDifferenceToNextSegment = v.getLikelihoodDifferenceToNextSegment();
-							if (likelihoodDifferenceToNextSegment < minLikelihoodDifferenceToNextSegment) {
-								minLikelihoodDifferenceToNextSegment = likelihoodDifferenceToNextSegment;
-								viewpointToRewindTo = i;
+					foundSegments = new ArrayList<Segment>();
+					viewpoints = new ArrayList<Viewpoint>();
+					nodesToDo.remove(firstNode);
+					final Node finalFirstNode = firstNode;
+					// choose the closest node
+					float minDistanceToFirst = Float.MAX_VALUE;
+					ArrayList<Node> nodesToSortByDistanceToFirstNode = new ArrayList<Node>();
+					for (Node node : nodesToDo) {
+						nodesToSortByDistanceToFirstNode.add(node);
+					}
+					Collections.sort(nodesToSortByDistanceToFirstNode, new Comparator<Node>() {
+						@Override
+						public int compare(Node arg0, Node arg1) {
+							float dist0 = arg0.getDistanceTo(finalFirstNode);
+							float dist1 = arg1.getDistanceTo(finalFirstNode);
+							if (dist0 < dist1) {
+								return -1;
+							} else if (dist0 > dist1) {
+								return 1;
 							}
-							i++;
+							return 0;
+						}
+					});
+					Node closestNodeToFirst = nodesToSortByDistanceToFirstNode.get(secondNodeI);
+					foundSegments.add(new Segment(firstNode, closestNodeToFirst));
+					nodesToDo.remove(closestNodeToFirst);
+					// assuming there is already one segment present now
+					while (true) {
+						//System.out.println("Main loop with nodesToDo.size()="+nodesToDo.size()+" and foundSegments.size()="+foundSegments.size());
+						if (nodesToDo.size() == 0) {
+							// we're done
+							////System.out.println("We're done!");
+							break;
+						}
+						Segment lastSegment = foundSegments.get(foundSegments.size()-1);
+						Viewpoint viewpoint = new Viewpoint(lastSegment.getNode2(), lastSegment.getNode1());
+						Segment newSegment = viewpoint.getCurrentSegment();
+						if (newSegment == null) {
+							//System.out.println("New segment is null");
+							int viewpointToRewindTo = -1;
+							float minLikelihoodDifferenceToNextSegment = Float.MAX_VALUE;
+							{
+								int i = 0;
+								for (Viewpoint v : viewpoints) {
+									float likelihoodDifferenceToNextSegment = v.getLikelihoodDifferenceToNextSegment();
+									if (likelihoodDifferenceToNextSegment < minLikelihoodDifferenceToNextSegment) {
+										minLikelihoodDifferenceToNextSegment = likelihoodDifferenceToNextSegment;
+										viewpointToRewindTo = i;
+									}
+									i++;
+								}
+							}
+							if (viewpointToRewindTo == -1) {
+								// algorithm has completely absolutely failed! Woohoo! TODO
+								// meaning: every Viewpoint has run out of Holidays to try
+								////System.out.println("Algorithm has absolutely failed!");
+								failed = true;
+								// perhaps restart?
+								break;
+							}
+							for (int i = viewpoints.size()-1; i > viewpointToRewindTo; i--) {
+								Viewpoint v = viewpoints.get(i);
+								viewpoints.remove(i);
+							}
+							for (int i = foundSegments.size()-1; i > viewpointToRewindTo; i--) {
+								Segment segmentToRemove = foundSegments.get(i);
+								//System.out.println("Added node when rewinding ("+segmentToRemove.getNode2().getId()+")");
+								nodesToDo.add(segmentToRemove.getNode2());
+								foundSegments.remove(i);
+							}
+							Viewpoint actualViewpointToRewindTo = viewpoints.get(viewpointToRewindTo);
+							actualViewpointToRewindTo.goToNextSegment();
+							foundSegments.add(actualViewpointToRewindTo.getCurrentSegment());
+							continue;
+						}
+						//System.out.println("New segment is not null");
+						foundSegments.add(newSegment);
+						nodesToDo.remove(newSegment.getNode2());
+						//System.out.println("Removed a node ("+newSegment.getNode2().getId()+")");
+						viewpoints.add(viewpoint);
+					}
+					Segment lastSegment = new Segment(foundSegments.get(foundSegments.size()-1).getNode2(), firstNode);
+					if (checkLastIntersection) {
+						for (Segment segment : foundSegments) {
+							if (segment.getNode1Id() == lastSegment.getNode1Id() || segment.getNode2Id() == lastSegment.getNode1Id() || segment.getNode1Id() == lastSegment.getNode2Id() || segment.getNode2Id() == lastSegment.getNode2Id()) {
+								continue;
+							}
+							if (lastSegment.intersectsWith(segment)) {
+								////System.out.println("Failed by intersection");
+								failed = true;
+								break;
+							}
 						}
 					}
-					if (viewpointToRewindTo == -1) {
-						// algorithm has completely absolutely failed! Woohoo! TODO
-						// meaning: every Viewpoint has run out of Holidays to try
-						System.out.println("Algorithm has absolutely failed!");
-						// perhaps restart?
+					foundSegments.add(lastSegment);
+					////System.out.println("Done! (result size " + foundSegments.size() + ")");
+					if (!failed) {
 						break;
 					}
-					for (int i = viewpoints.size()-1; i > viewpointToRewindTo; i--) {
-						Viewpoint v = viewpoints.get(i);
-						viewpoints.remove(i);
-					}
-					for (int i = foundSegments.size()-1; i > viewpointToRewindTo; i--) {
-						Segment segmentToRemove = foundSegments.get(i);
-						System.out.println("Added node when rewinding ("+segmentToRemove.getNode2().getId()+")");
-						nodesToDo.add(segmentToRemove.getNode2());
-						foundSegments.remove(i);
-					}
-					Viewpoint actualViewpointToRewindTo = viewpoints.get(viewpointToRewindTo);
-					actualViewpointToRewindTo.goToNextSegment();
-					foundSegments.add(actualViewpointToRewindTo.getCurrentSegment());
-					continue;
 				}
-				//System.out.println("New segment is not null");
-				foundSegments.add(newSegment);
-				nodesToDo.remove(newSegment.getNode2());
-				System.out.println("Removed a node ("+newSegment.getNode2().getId()+")");
-				viewpoints.add(viewpoint);
 			}
-			foundSegments.add(new Segment(foundSegments.get(foundSegments.size()-1).getNode2(), firstNode));
-			System.out.println("Done! (result size " + foundSegments.size() + ")");
 		}
 		
 		public class Viewpoint {
@@ -167,7 +215,7 @@ public class SingleSpider extends SingleImplementation {
 						continue;
 					}
 					// get likelihood
-					float likelihood = n.getDistanceTo(standingAt)/minimalDistance.get(standingAt)*10+((float) (getAngularDifference(angleBetweenStandingAtAndComingFrom, standingAt.getAngleTo(n))*5/Math.PI));
+					float likelihood = n.getDistanceTo(standingAt)/minimalDistance.get(standingAt)+((float) (getAngularDifference(angleBetweenStandingAtAndComingFrom, standingAt.getAngleTo(n))*5/Math.PI));
 					// add to holidays
 					//System.out.println("Added node with n="+n+" and likelihood="+likelihood);
 					holidays.add(new Holiday(n, likelihood));
@@ -224,12 +272,19 @@ public class SingleSpider extends SingleImplementation {
 
 	@Override
 	public Segment[] getOutput(Node[] input) {
+		System.out.println("Running (random id = " + ((int) (Math.random()*100000)) + ")");
 		HashSet<Node> inputSet = new HashSet<Node>();
 		for (Node n : input) {
 			inputSet.add(n);
 		}
-		Spider spider = new Spider(inputSet);
+		Spider spider = null;
+		spider = new Spider(inputSet);
 		spider.execute();
+		if (spider.failed) {
+			System.out.println("Oh no!");
+			spider = new Spider(inputSet);
+			spider.execute(true);
+		}
 		ArrayList<Segment> outputList = spider.foundSegments;
 		Segment[] output = new Segment[outputList.size()];
 		int i = 0;
@@ -237,6 +292,7 @@ public class SingleSpider extends SingleImplementation {
 			output[i] = s;
 			i++;
 		}
+		System.out.println("Done.");
 		return output;
 	}
 	

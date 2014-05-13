@@ -1,19 +1,7 @@
 package tue.algorithms.viewer;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintStream;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
-import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JFileChooser;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_LINES;
 import static org.lwjgl.opengl.GL11.GL_POLYGON;
@@ -23,7 +11,22 @@ import static org.lwjgl.opengl.GL11.glColor3f;
 import static org.lwjgl.opengl.GL11.glEnd;
 import static org.lwjgl.opengl.GL11.glVertex2f;
 import static org.lwjgl.opengl.GL11.glVertex3f;
-import org.lwjgl.util.Dimension;
+
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
+
+import javax.swing.JFileChooser;
+
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 
 import tue.algorithms.implementation.concrete.NetworkRMST;
 import tue.algorithms.implementation.general.MultipleImplementation;
@@ -57,7 +60,7 @@ public class Simulation {
     public static SingleImplementation getSingleImplementation() {
         /* TODO Choose an implementation */
         //throw new UnsupportedOperationException("getSingleImplementation() not implemented.");
-        return new tue.algorithms.implementation.concrete.SingleRandomSegments();
+        return new tue.algorithms.implementation.concrete.SingleSpider();
     }
 
     /**
@@ -128,7 +131,7 @@ public class Simulation {
         // Read the input
         fakeInputReader = getFakeInputReader();
         input = fakeInputReader.readInput();
-        problemType = /*input.first();*/ ProblemType.NETWORK;
+        problemType = /*input.first();*/ ProblemType.SINGLE;
         inputNodes = input.second();
         newNetworkNodes = new Node[0];
 
