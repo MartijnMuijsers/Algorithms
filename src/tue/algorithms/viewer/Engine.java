@@ -46,7 +46,7 @@ public class Engine {
             Display.setDisplayMode(new DisplayMode(r.getWidth(), r.getHeight()));
             Display.setTitle("DBL Algorithms");
             Display.setResizable(true);
-            Display.create(new PixelFormat(0, 16, 1));
+            Display.create(new PixelFormat(0, 8, 0, 4));
         } catch (LWJGLException e) {
         }
     }
@@ -75,7 +75,7 @@ public class Engine {
             }
             String title = "";
             title += " problemType: " + simulation.problemType.name();
-            title += "  [R = recalculate | C = clear | S = save | O = open] ";
+            title += "  [R = recalculate | C = clear | S = save | O = open | T = type] ";
             Display.setTitle(title);
             render();
         }

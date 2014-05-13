@@ -9,6 +9,7 @@ import static org.lwjgl.opengl.GL11.glBegin;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glColor3f;
 import static org.lwjgl.opengl.GL11.glEnd;
+import static org.lwjgl.opengl.GL11.glLineWidth;
 import static org.lwjgl.opengl.GL11.glVertex2f;
 import static org.lwjgl.opengl.GL11.glVertex3f;
 
@@ -105,6 +106,9 @@ public class Simulation {
     // Recalculate
     private boolean recalculateKeyDown;
     
+    // Type
+    private boolean typeKeyDown;
+    
     // Clear
     private boolean clearKeyDown;
     private boolean showSegments;
@@ -125,6 +129,7 @@ public class Simulation {
         saveKeyDown = false;
         openKeyDown = false;
         brushMode = false;
+        typeKeyDown = false;
     }
 
     public void initialize() {
@@ -168,9 +173,19 @@ public class Simulation {
         }
     }
 
+    private void toggleType(){
+        if (problemType == ProblemType.SINGLE){
+            problemType = ProblemType.MULTIPLE;
+        } else if (problemType == ProblemType.MULTIPLE){
+            problemType = ProblemType.NETWORK;
+        } else if (problemType == ProblemType.NETWORK){
+            problemType = ProblemType.SINGLE;
+        } 
+    }
+    
     private void deleteNodes(){
-        float clickX = (float) Mouse.getX() / Camera.width * 1.05263157895f - 0.025f;
-        float clickY = 1 - ((float) Mouse.getY() / Camera.heigth * 1.05263157895f - 0.025f);
+        float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
+        float clickY = (float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
         Node mouseNode = new Node(10000000,clickX,clickY);
         try{       
         for (Node node : nodes) {
@@ -184,12 +199,21 @@ public class Simulation {
             
         }
     }
-    
+   
     private void addNode() {
-        float clickX = (float) Mouse.getX() / Camera.width * 1.05263157895f - 0.025f;
-        float clickY = 1 - ((float) Mouse.getY() / Camera.heigth * 1.05263157895f - 0.025f);
-        int clickID = nodes.size() + 1;
-        nodes.add(new Node(clickID, clickX, clickY));
+        float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
+        float clickY = ((float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR);
+        if (clickX >= 0 && clickX <= 1 && clickY >= 0 && clickY <= 1) {
+            ArrayList<Node> newList = new ArrayList<>();
+            int i = 1;
+            for (Node node : nodes) {
+                newList.add(new Node(i, node.getX(), node.getY()));
+                ++i;
+            }
+            newList.add(new Node(newList.size() + 1, clickX, clickY));
+
+            nodes = newList;
+        }
     }
 
     public boolean getInput() throws IOException {
@@ -234,7 +258,13 @@ public class Simulation {
             open();
         }
         openKeyDown = Keyboard.isKeyDown(Keyboard.KEY_O);  
-                
+ 
+        // Type
+        if (Keyboard.isKeyDown(Keyboard.KEY_T) && !typeKeyDown) {
+            toggleType();
+        }
+        typeKeyDown = Keyboard.isKeyDown(Keyboard.KEY_T);          
+        
         //if ESC is pressed, close program
         return Keyboard.isKeyDown(Keyboard.KEY_ESCAPE);
     }
@@ -297,24 +327,28 @@ public class Simulation {
     
     public void render() {
         glClear(GL_COLOR_BUFFER_BIT);
+        
         glColor3f(1f, 1f, 1f);
 
-        try{
-        for (Node node : nodes) {
-            drawNode(node);
-        }
-        } catch(ConcurrentModificationException e){
-            
-        }
-
+        glLineWidth(2f);
         if (showSegments) {
             for (Segment segment : segments) {
                 drawSegment(segment);
             }
         }
+        
+        glColor3f(1f, 1f, 0.0f);
+        try {
+            for (Node node : nodes) {
+                drawNode(node);
+            }
+        } catch(ConcurrentModificationException e) {
+            
+        }
+        
         glColor3f(1f, 0f, 0f);
         if (brushMode){
-            drawCircle((float) Mouse.getX() / Camera.width * 1.05263157895f - 0.025f, 1.0f -(float) Mouse.getY() / Camera.width * 1.05263157895f + 0.025f, 0.025f, 16);
+            drawCircle((float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR, (float) Mouse.getY() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR, Camera.OFFSETFACTOR, 16);
         }
     }
 
