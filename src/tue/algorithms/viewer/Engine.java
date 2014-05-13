@@ -46,7 +46,7 @@ public class Engine {
             Display.setDisplayMode(new DisplayMode(r.getWidth(), r.getHeight()));
             Display.setTitle("DBL Algorithms");
             Display.setResizable(true);
-            Display.create(new PixelFormat(0, 16, 1));
+            Display.create(new PixelFormat(0, 8, 0, 4));
         } catch (LWJGLException e) {
         }
     }

@@ -21,6 +21,7 @@ import static org.lwjgl.opengl.GL11.glBegin;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glColor3f;
 import static org.lwjgl.opengl.GL11.glEnd;
+import static org.lwjgl.opengl.GL11.glLineWidth;
 import static org.lwjgl.opengl.GL11.glVertex2f;
 import static org.lwjgl.opengl.GL11.glVertex3f;
 import org.lwjgl.util.Dimension;
@@ -180,8 +181,8 @@ public class Simulation {
     }
     
     private void deleteNodes(){
-        float clickX = (float) Mouse.getX() / Camera.width * 1.05263157895f - 0.025f;
-        float clickY = 1 - ((float) Mouse.getY() / Camera.heigth * 1.05263157895f - 0.025f);
+        float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
+        float clickY = (float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
         Node mouseNode = new Node(10000000,clickX,clickY);
         try{       
         for (Node node : nodes) {
@@ -195,21 +196,21 @@ public class Simulation {
             
         }
     }
-    
+   
     private void addNode() {
-        float clickX = (float) Mouse.getX() / Camera.width * 1.05263157895f - 0.025f;
-        float clickY = 1 - ((float) Mouse.getY() / Camera.heigth * 1.05263157895f - 0.025f);
-        boolean found = false;
-        ArrayList<Node> newList = new ArrayList<>();
-        int i = 1;
-        for (Node node : nodes) {
-            newList.add(new Node(i,node.getX(),node.getY()));
-            ++i;
+        float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
+        float clickY = ((float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR);
+        if (clickX >= 0 && clickX <= 1 && clickY >= 0 && clickY <= 1) {
+            ArrayList<Node> newList = new ArrayList<>();
+            int i = 1;
+            for (Node node : nodes) {
+                newList.add(new Node(i, node.getX(), node.getY()));
+                ++i;
+            }
+            newList.add(new Node(newList.size() + 1, clickX, clickY));
+
+            nodes = newList;
         }
-        newList.add(new Node(newList.size()+1,clickX,clickY));
-        
-        nodes = newList;
-        
     }
 
     public boolean getInput() throws IOException {
@@ -326,13 +327,14 @@ public class Simulation {
         
         glColor3f(1f, 1f, 1f);
 
-
+        glLineWidth(2f);
         if (showSegments) {
             for (Segment segment : segments) {
                 drawSegment(segment);
             }
         }
-        glColor3f(1f, 1f, 0.4f);
+        
+        glColor3f(1f, 1f, 0.0f);
         try {
             for (Node node : nodes) {
                 drawNode(node);
@@ -343,7 +345,7 @@ public class Simulation {
         
         glColor3f(1f, 0f, 0f);
         if (brushMode){
-            drawCircle((float) Mouse.getX() / Camera.width * 1.05263157895f - 0.025f, 1.0f -(float) Mouse.getY() / Camera.width * 1.05263157895f + 0.025f, 0.025f, 16);
+            drawCircle((float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR, (float) Mouse.getY() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR, Camera.OFFSETFACTOR, 16);
         }
     }
 
