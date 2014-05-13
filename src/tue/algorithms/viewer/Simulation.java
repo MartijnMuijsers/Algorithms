@@ -22,6 +22,10 @@ import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glColor3f;
 import static org.lwjgl.opengl.GL11.glEnd;
 import static org.lwjgl.opengl.GL11.glLineWidth;
+import static org.lwjgl.opengl.GL11.glPopMatrix;
+import static org.lwjgl.opengl.GL11.glPushMatrix;
+import static org.lwjgl.opengl.GL11.glScalef;
+import static org.lwjgl.opengl.GL11.glTranslatef;
 import static org.lwjgl.opengl.GL11.glVertex2f;
 import static org.lwjgl.opengl.GL11.glVertex3f;
 import org.lwjgl.util.Dimension;
@@ -188,7 +192,6 @@ public class Simulation {
         for (Node node : nodes) {
             if (node.subtract(mouseNode).length()<0.025){
                 nodes.remove(node);
-                calculateSegments();
             }
         }
         }
@@ -326,26 +329,35 @@ public class Simulation {
         glClear(GL_COLOR_BUFFER_BIT);
         
         glColor3f(1f, 1f, 1f);
-
         glLineWidth(2f);
         if (showSegments) {
             for (Segment segment : segments) {
                 drawSegment(segment);
             }
         }
-        
-        glColor3f(1f, 1f, 0.0f);
-        try {
-            for (Node node : nodes) {
-                drawNode(node);
+    
+        glColor3f(1f, 1f, 0f);
+        float ratio = ((float)Camera.width) / Camera.heigth;
+        for (Node node : nodes) {
+            glPushMatrix();
+            glTranslatef(node.getX(), node.getY(), 0);
+            float pointSize = Math.min(Camera.width, Camera.heigth);
+            glScalef(600/pointSize, 600/pointSize, 1);
+            if (ratio > 1f) {
+                glScalef(1f/ratio, 1f, 1);
+            } else if (ratio < 1f) {
+                glScalef(1f, 1f/ratio, 1);
             }
-        } catch(ConcurrentModificationException e) {
-            
+            drawNode(node);
+            glPopMatrix();
         }
-        
+
         glColor3f(1f, 0f, 0f);
         if (brushMode){
-            drawCircle((float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR, (float) Mouse.getY() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR, Camera.OFFSETFACTOR, 16);
+            glPushMatrix();
+            glTranslatef((float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR, (float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR, 0);
+            drawCircle( Camera.OFFSETFACTOR, 16);
+            glPopMatrix();
         }
     }
 
@@ -357,10 +369,10 @@ public class Simulation {
     }
 
     private void drawNode(Node node) {
-        drawCircle(node.getX(), node.getY(), 0.005f, 32);
+        drawCircle(0.005f, 32);
     }
 
-    private void drawCircle(float cx, float cy, float r, int num_segments) {
+    private void drawCircle(float r, int num_segments) {
         final float theta = 2f * 3.1415926f / (float) num_segments;
         final float c = (float) cos(theta);
         final float s = (float) sin(theta);
@@ -371,7 +383,7 @@ public class Simulation {
 
         glBegin(GL_POLYGON);
         for (int ii = 0; ii < num_segments; ii++) {
-            glVertex2f(x + cx, y + cy);// output vertex 
+            glVertex2f(x, y);// output vertex 
 
             // apply the rotation matrix
             t = x;
