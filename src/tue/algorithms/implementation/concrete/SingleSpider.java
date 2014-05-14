@@ -272,7 +272,7 @@ public class SingleSpider extends SingleImplementation {
 
 	@Override
 	public Segment[] getOutput(Node[] input) {
-		System.out.println("Running (random id = " + ((int) (Math.random()*100000)) + ")");
+		System.out.println("Running Spider (random id = " + ((int) (Math.random()*100000)) + ")");
 		HashSet<Node> inputSet = new HashSet<Node>();
 		for (Node n : input) {
 			inputSet.add(n);
