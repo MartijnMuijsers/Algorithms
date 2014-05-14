@@ -2,7 +2,7 @@ package tue.algorithms.viewer;
 
 import tue.algorithms.implementation.concrete.MultipleRandomSegments;
 import tue.algorithms.implementation.concrete.NetworkRMST;
-import tue.algorithms.implementation.concrete.SingleSpider;
+import tue.algorithms.implementation.concrete.SingleSpiderNew;
 import tue.algorithms.implementation.general.MultipleImplementation;
 import tue.algorithms.implementation.general.NetworkImplementation;
 import tue.algorithms.implementation.general.ProblemType;
@@ -28,7 +28,7 @@ public abstract class SimulationSettings {
      * @return An instance of a class that extends SingleImplementation.
      */
     public static SingleImplementation getSingleImplementation() {
-        return new SingleSpider();
+        return new SingleSpiderNew();
     }
 
     /**

@@ -357,7 +357,12 @@ public class Simulation {
                 int numberOfNodes = Integer.parseInt(line.substring(0, line.indexOf(' ')));
                 nodes.clear();
                 for (int i = 0; i < numberOfNodes; i++) {
-                    nodes.add(new Node(scanner.nextInt(), scanner.nextFloat(), scanner.nextFloat()));
+                	String a = scanner.next();
+                	String b = scanner.next();
+                	String c = scanner.next();
+                    nodes.add(new Node(Integer.parseInt(a),
+                    		Float.parseFloat(b),
+                    		Float.parseFloat(c)));
                 }
             }
             problemType = pType;

@@ -13,7 +13,8 @@ import tue.algorithms.utility.Segment;
 
 public class SingleSpiderNew extends SingleImplementation {
 	
-public static double pi2 = Math.PI*2;
+	public static final double pi = Math.PI;
+	public static final double pi2 = Math.PI*2;
 	
 	public static Comparator<Holiday> holidayComparator = new Comparator<Holiday>() {
 		
@@ -29,21 +30,67 @@ public static double pi2 = Math.PI*2;
 		
 	};
 	
+	/** CHANGED SINCE SingleSpider.java !!! **/
 	public static double getAngularDifference(double angle1, double angle2) {
 		double dif = angle1-angle2;
 		while (dif < 0) {
 			dif += pi2;
 		}
-		while (dif > pi2) {
+		while (dif >= pi2) {
 			dif -= pi2;
+		}
+		if (dif >= pi) {
+			dif = pi2-dif;
 		}
 		return Math.min(dif, pi2-dif);
 	}
 	
-public static class Spider {
+	public static boolean anglesSortOfEqual(double a1, double a2) {
+		while (a1 < 0) {
+			a1 += pi2;
+		}
+		while (a1 >= pi2) {
+			a1 -= pi2;
+		}
+		while (a2 < 0) {
+			a2 += pi2;
+		}
+		while (a2 >= pi2) {
+			a2 -= pi2;
+		}
+		double dif = a1-a2;
+		if (Math.abs(dif) < 0.00000000001) {
+			return true;
+		}
+		if (Math.abs(dif-pi2) < 0.00000000001) {
+			return true;
+		}
+		if (Math.abs(dif+pi2) < 0.00000000001) {
+			return true;
+		}
+		return false;
+	}
+	
+	public static float invertIfSmallerThanOne(float x) {
+		if (x < 1) {
+			return 1/x;
+		}
+		return x;
+	}
+	
+	public static class Spider {
 		
 		public Spider(HashSet<Node> nodes) {
-			this.nodes = nodes;
+			this.nodes = new HashSet<Node>();
+			for (Node node : nodes) {
+				this.nodes.add(node);
+			}
+			this.nodesToDo = new HashSet<Node>();
+			for (Node node : nodes) {
+				this.nodesToDo.add(node);
+			}
+			this.foundSegments = new ArrayList<Segment>();
+			this.viewpoints = new ArrayList<Viewpoint>();
 			minimalDistance = new HashMap<Node, Float>();
 			for (Node n : nodes) {
 				float minDistance = Float.MAX_VALUE;
@@ -66,21 +113,50 @@ public static class Spider {
 		public HashMap<Node, Float> minimalDistance;
 		
 		public void execute() {
-			Node firstNode = deNodeDieDeKleineYHeeft();
-			Node secondNode = closestToFirst();
-			Node thirdNode = inIederGevalNietDeEersteMaarClosestToSecond();
-			foundSegments.add(new Segment(firstNode, closestNodeToFirst));
-			foundSegments.add(new Segment(secondNode, closestNodeToSecond));
+			Node firstNode = null;
+			{
+				float smallestY = 1000000000;
+				for (Node n : nodesToDo) {
+					float y = n.getY();
+					if (y < smallestY) {
+						firstNode = n;
+						smallestY = y;
+					}
+				}
+			}
 			nodesToDo.remove(firstNode);
+			Node secondNode = null;
+			{
+				float smallestDistance = 1000000000;
+				for (Node n : nodesToDo) {
+					float distance = n.getDistanceTo(firstNode);
+					if (distance < smallestDistance) {
+						secondNode = n;
+						smallestDistance = distance;
+					}
+				}
+			}
 			nodesToDo.remove(secondNode);
+			Node thirdNode = null;
+			{
+				float smallestDistance = 1000000000;
+				for (Node n : nodesToDo) {
+					float distance = n.getDistanceTo(secondNode);
+					if (distance < smallestDistance) {
+						thirdNode = n;
+						smallestDistance = distance;
+					}
+				}
+			}
 			nodesToDo.remove(thirdNode);
+			foundSegments.add(new Segment(firstNode, secondNode));
+			foundSegments.add(new Segment(secondNode, thirdNode));
 			// assuming there is already one segment present now
 			while (true) {
 				if (nodesToDo.size() == 0) {
 					break;
 				}
-				Segment lastSegment = foundSegments.get(foundSegments.size()-1);
-				Viewpoint viewpoint = new Viewpoint(lastSegment.getNode2(), lastSegment.getNode1());
+				Viewpoint viewpoint = new Viewpoint(viewpoints.size());
 				Segment newSegment = viewpoint.getCurrentSegment();
 				if (newSegment == null) {
 					return;
@@ -96,15 +172,22 @@ public static class Spider {
 		
 		public class Viewpoint {
 			
-			public Viewpoint(Node standingAt, Node comingFrom) {
+			private int id;
+			
+			public Viewpoint(int id) {
+				this.id = id;
 				holidays = new ArrayList<Holiday>();
-				this.standingAt = viewpoints.get(id-1).getFoundSegment().getNode2();
-				this.comingFrom = viewpoints.get(id-1).getFoundSegment().getNode1();
-				this.comingFrom = viewpoints.get(id-2).getFoundSegment().getNode1();
-				this.comingFrom = comingFrom;
-				angleBetweenStandingAtAndComingFrom = standingAt.getAngleTo(comingFrom);
-				// calculate holidays
-				//System.out.println("Calculating holidays for viewpoint...");
+				this.standingAt = foundSegments.get(id+1).getNode2();
+				this.comingFrom = foundSegments.get(id+1).getNode1();
+				this.lookingBack = foundSegments.get(id).getNode1();
+				double angleBetweenComingFromAndStandingAt = comingFrom.getAngleTo(standingAt);
+				double angleBetweenLookingBackAndComingFrom = lookingBack.getAngleTo(comingFrom);
+				double angularDifferenceBetweenThoseTwo = getAngularDifference(angleBetweenComingFromAndStandingAt, angleBetweenLookingBackAndComingFrom);
+				if (anglesSortOfEqual(angleBetweenComingFromAndStandingAt-angularDifferenceBetweenThoseTwo, angleBetweenLookingBackAndComingFrom)) {
+					expectedAngle = angleBetweenLookingBackAndComingFrom-angularDifferenceBetweenThoseTwo;
+				} else {
+					expectedAngle = angleBetweenLookingBackAndComingFrom+angularDifferenceBetweenThoseTwo;
+				}
 				for (Node n : nodesToDo) {
 					// check for intersections with existing segments
 					Segment segmentToBe = new Segment(n, standingAt);
@@ -117,13 +200,11 @@ public static class Spider {
 						}
 					}
 					if (intersects) {
-						//System.out.println("Intersects, so nope");
 						continue;
 					}
 					// get likelihood
-					float likelihood = n.getDistanceTo(standingAt)/minimalDistance.get(standingAt)+((float) (getAngularDifference(angleBetweenStandingAtAndComingFrom, standingAt.getAngleTo(n))*5/Math.PI));
+					float likelihood = invertIfSmallerThanOne(n.getDistanceTo(standingAt)/minimalDistance.get(standingAt))+((float) (getAngularDifference(expectedAngle, standingAt.getAngleTo(n))*5/Math.PI));
 					// add to holidays
-					//System.out.println("Added node with n="+n+" and likelihood="+likelihood);
 					holidays.add(new Holiday(n, likelihood));
 				}
 				Collections.sort(holidays, holidayComparator);
@@ -133,17 +214,14 @@ public static class Spider {
 			public ArrayList<Holiday> holidays;
 			public Node standingAt;
 			public Node comingFrom;
-			public double angleBetweenStandingAtAndComingFrom;
+			public Node lookingBack;
+			public double expectedAngle;
 			public int currentHolidayIndex;
 			
 			public Segment getCurrentSegment() {
-				//System.out.println("Getting current segment from a Viewpoint...");
-				//System.out.println("That Viewpoint has currentHolidayIndex="+currentHolidayIndex+" and holidays.size()="+holidays.size());
 				if (currentHolidayIndex >= holidays.size()) {
-					//System.out.println("^ Ouch, returning null");
 					return null;
 				}
-				//System.out.println("^ Not returning null");
 				return new Segment(standingAt, holidays.get(currentHolidayIndex).goingTo);
 			}
 			
@@ -159,13 +237,20 @@ public static class Spider {
 				
 			}
 			
+			public Segment getFoundSegment() {
+				return foundSegments.get(id+2);
+			}
+			
 		}
 		
 	}
 	
 	@Override
 	public Segment[] getOutput(Node[] input) {
-		System.out.println("Running SpiderNew (random id = " + ((int) (Math.random()*100000)) + ")");
+		System.out.println("Running SpiderNew:");
+		System.out.println("- random id = " + ((int) (Math.random()*100000)));
+		System.out.println("- input size = " + input.length);
+		long startTime = System.nanoTime();
 		HashSet<Node> inputSet = new HashSet<Node>();
 		for (Node n : input) {
 			inputSet.add(n);
@@ -180,7 +265,9 @@ public static class Spider {
 			output[i] = s;
 			i++;
 		}
-		System.out.println("Done.");
+		System.out.println("Done:");
+		long time = (System.nanoTime()-startTime)/1000000;
+		System.out.println("- time taken (millis) = " + time);
 		return output;
 	}
 	
