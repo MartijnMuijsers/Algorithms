@@ -50,7 +50,7 @@ public class Simulation {
     public static FakeInputReader getFakeInputReader() {
         /* TODO Choose an implementation */
         //throw new UnsupportedOperationException("getFakeInputReader() not implemented.");
-        return new tue.algorithms.test.CaseWilcoViewerTest();
+        return new tue.algorithms.test.CaseEmpty();
     }
 
     /**
@@ -99,28 +99,21 @@ public class Simulation {
 
     // Nodes
     private ArrayList<Node> nodes;
+    private ArrayList<Node> tempNodes;
     private ArrayList<Segment> segments;
 
-    // Edit boolean
+    // Keypress memory
     private boolean editModeMouseButtonDown;
-
-    // Recalculate
+    private boolean clearKeyDown;
     private boolean recalculateKeyDown;
-    
-    // Type
     private boolean typeKeyDown;
+    private boolean saveKeyDown;
+    private boolean openKeyDown;
     
     // Clear
-    private boolean clearKeyDown;
     private boolean showSegments;
     private boolean brushMode;
     
-    // Save
-    private boolean saveKeyDown;
-    
-    // Open
-    private boolean openKeyDown;
-
     // Constructor
     public Simulation() {
         editModeMouseButtonDown = false;
@@ -154,82 +147,64 @@ public class Simulation {
         calculatedSegments = new Segment[0];
         calculateSegments();
     }
-
-    private void calculateSegments() {
-        Node[] allNodes = nodes.toArray(new Node[nodes.size()]);
-
-        if (problemType == ProblemType.SINGLE) {
-            calculatedSegments = getSingleImplementation().getOutput(allNodes);
-        } else if (problemType == ProblemType.MULTIPLE) {
-            calculatedSegments = getMultipleImplementation().getOutput(allNodes);
-        } else if (problemType == ProblemType.NETWORK) {
-            Pair<Segment[], Node[]> output = getNetworkImplementation().getOutput(allNodes);
-            calculatedSegments = output.first();
-            newNetworkNodes = output.second();
+ 
+    public void render() {
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        glColor3f(1f, 1f, 1f);
+        glLineWidth(2f);
+        if (showSegments) {
+            for (Segment segment : segments) {
+                drawSegment(segment);
+            }
+        }
+    
+        glColor3f(1f, 1f, 0f);
+        float ratio = ((float)Camera.width) / Camera.heigth;
+        for (Node node : nodes) {
+            glPushMatrix();
+            glTranslatef(node.getX(), node.getY(), 0);
+            float pointSize = Math.min(Camera.width, Camera.heigth);
+            glScalef(600/pointSize, 600/pointSize, 1);
+            if (ratio > 1f) {
+                glScalef(1f/ratio, 1f, 1);
+            } else if (ratio < 1f) {
+                glScalef(1f, 1f/ratio, 1);
+            }
+            drawNode();
+            glPopMatrix();
         }
 
-        this.segments = new ArrayList<Segment>(calculatedSegments.length);
-        for (Segment segment : calculatedSegments) {
-            this.segments.add(segment);
+        glColor3f(1f, 0f, 0f);
+        if (brushMode){
+            glPushMatrix();
+            glTranslatef((float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR, (float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR, 0);
+                        float pointSize = Math.min(Camera.width, Camera.heigth);
+            glScalef(600/pointSize, 600/pointSize, 1);
+            if (ratio > 1f) {
+                glScalef(1f/ratio, 1f, 1);
+            } else if (ratio < 1f) {
+                glScalef(1f, 1f/ratio, 1);
+            }
+            drawCircle( Camera.OFFSETFACTOR, 16);
+            glPopMatrix();
         }
-    }
-
-    private void toggleType(){
-        if (problemType == ProblemType.SINGLE){
-            problemType = ProblemType.MULTIPLE;
-        } else if (problemType == ProblemType.MULTIPLE){
-            problemType = ProblemType.NETWORK;
-        } else if (problemType == ProblemType.NETWORK){
-            problemType = ProblemType.SINGLE;
-        } 
     }
     
-    private void deleteNodes(){
-        float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
-        float clickY = (float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
-        Node mouseNode = new Node(10000000,clickX,clickY);
-        try{       
-        for (Node node : nodes) {
-            if (node.subtract(mouseNode).length()<0.025){
-                nodes.remove(node);
-            }
-        }
-        }
-        catch (ConcurrentModificationException e){
-            
-        }
-    }
-   
-    private void addNode() {
-        float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
-        float clickY = ((float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR);
-        if (clickX >= 0 && clickX <= 1 && clickY >= 0 && clickY <= 1) {
-            ArrayList<Node> newList = new ArrayList<>();
-            int i = 1;
-            for (Node node : nodes) {
-                newList.add(new Node(i, node.getX(), node.getY()));
-                ++i;
-            }
-            newList.add(new Node(newList.size() + 1, clickX, clickY));
-
-            nodes = newList;
-        }
-    }
-
     public boolean getInput() throws IOException {
+        // Add
         if (Mouse.isButtonDown(0) && !editModeMouseButtonDown) {
                 addNode();
         }
         editModeMouseButtonDown = Mouse.isButtonDown(0);
         
+        // Erase
         if (!brushMode && Mouse.isButtonDown(1)) {
                 brushMode = true;
         }
-        
         if (brushMode && !Mouse.isButtonDown(1)){
             brushMode = false;
         }
-        
         if (brushMode){
             deleteNodes();
         }
@@ -268,8 +243,80 @@ public class Simulation {
         //if ESC is pressed, close program
         return Keyboard.isKeyDown(Keyboard.KEY_ESCAPE);
     }
+    
+    private void calculateSegments() {
+        Node[] allNodes = nodes.toArray(new Node[nodes.size()]);
 
-    public void buildFile(File file){
+        if (problemType == ProblemType.SINGLE) {
+            calculatedSegments = getSingleImplementation().getOutput(allNodes);
+        } else if (problemType == ProblemType.MULTIPLE) {
+            calculatedSegments = getMultipleImplementation().getOutput(allNodes);
+        } else if (problemType == ProblemType.NETWORK) {
+            Pair<Segment[], Node[]> output = getNetworkImplementation().getOutput(allNodes);
+            calculatedSegments = output.first();
+            newNetworkNodes = output.second();
+        }
+
+        this.segments = new ArrayList<>(calculatedSegments.length);
+        for (Segment segment : calculatedSegments) {
+            this.segments.add(segment);
+        }
+    }
+
+    private void toggleType(){
+        if (problemType == ProblemType.SINGLE){
+            problemType = ProblemType.MULTIPLE;
+        } else if (problemType == ProblemType.MULTIPLE){
+            problemType = ProblemType.NETWORK;
+        } else if (problemType == ProblemType.NETWORK){
+            problemType = ProblemType.SINGLE;
+        } 
+    }
+    
+    private void deleteNodes() {
+        float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
+        float clickY = (float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
+        Node mouseNode = new Node(0, clickX, clickY);
+
+        boolean modified = false;
+        ArrayList<Node> nodesToDelete = new ArrayList<>();
+        for (Node node : nodes) {
+            if (node.subtract(mouseNode).length() < 0.025) {
+                nodesToDelete.add(node);
+                modified = true;
+            }
+        }
+        if (modified) {
+            tempNodes = new ArrayList<>(nodes);
+            for (Node n : nodesToDelete) {
+                tempNodes.remove(n);
+            }            
+            int i = 0;
+            for (Node n : tempNodes) {
+                n = new Node(i + 1, n.getX(), n.getY());
+                ++i;
+            }
+            nodes = tempNodes;
+        }
+    }
+
+    private void addNode() {
+        float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
+        float clickY = ((float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR);
+        if (clickX >= 0 && clickX <= 1 && clickY >= 0 && clickY <= 1) {
+            tempNodes = new ArrayList<>();
+            int i = 1;
+            for (Node node : nodes) {
+                tempNodes.add(new Node(i, node.getX(), node.getY()));
+                ++i;
+            }
+            tempNodes.add(new Node(tempNodes.size() + 1, clickX, clickY));
+
+            nodes = tempNodes;
+        }
+    }
+
+    private void buildFile(File file){
         try (PrintStream fileStream = new PrintStream(file);) {
             fileStream.print("reconstruct ");
             if (problemType.equals(ProblemType.SINGLE)){
@@ -289,7 +336,7 @@ public class Simulation {
         }
     }
     
-    public void save() {
+    private void save() {
         JFileChooser saveFile = new JFileChooser();
         saveFile.showSaveDialog(null);
         if (saveFile.getSelectedFile() != null) {
@@ -303,64 +350,26 @@ public class Simulation {
         }
     }
 
-    public void open() throws FileNotFoundException{
+    private void open() throws FileNotFoundException{
         JFileChooser openFile = new JFileChooser();
         if (openFile.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             File file = openFile.getSelectedFile();
-            Scanner scanner = new Scanner(file);
-            String line = scanner.nextLine();
-            ProblemType pType = ProblemType.valueOf(line.substring(12).toUpperCase());
-            line = scanner.nextLine();
-            int numberOfNodes = Integer.parseInt(line.substring(0, line.indexOf(' ')));
-            nodes.clear();
-            
-            for (int i = 0; i < numberOfNodes; i++) {
-                nodes.add(new Node(scanner.nextInt(), scanner.nextFloat(), scanner.nextFloat()));
+            ProblemType pType;
+            try (Scanner scanner = new Scanner(file)) {
+                String line = scanner.nextLine();
+                pType = ProblemType.valueOf(line.substring(12).toUpperCase());
+                line = scanner.nextLine();
+                int numberOfNodes = Integer.parseInt(line.substring(0, line.indexOf(' ')));
+                nodes.clear();
+                for (int i = 0; i < numberOfNodes; i++) {
+                    nodes.add(new Node(scanner.nextInt(), scanner.nextFloat(), scanner.nextFloat()));
+                }
             }
-            scanner.close();
-            
             problemType = pType;
-            
             showSegments = false;
         }
     }
     
-    public void render() {
-        glClear(GL_COLOR_BUFFER_BIT);
-        
-        glColor3f(1f, 1f, 1f);
-        glLineWidth(2f);
-        if (showSegments) {
-            for (Segment segment : segments) {
-                drawSegment(segment);
-            }
-        }
-    
-        glColor3f(1f, 1f, 0f);
-        float ratio = ((float)Camera.width) / Camera.heigth;
-        for (Node node : nodes) {
-            glPushMatrix();
-            glTranslatef(node.getX(), node.getY(), 0);
-            float pointSize = Math.min(Camera.width, Camera.heigth);
-            glScalef(600/pointSize, 600/pointSize, 1);
-            if (ratio > 1f) {
-                glScalef(1f/ratio, 1f, 1);
-            } else if (ratio < 1f) {
-                glScalef(1f, 1f/ratio, 1);
-            }
-            drawNode(node);
-            glPopMatrix();
-        }
-
-        glColor3f(1f, 0f, 0f);
-        if (brushMode){
-            glPushMatrix();
-            glTranslatef((float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR, (float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR, 0);
-            drawCircle( Camera.OFFSETFACTOR, 16);
-            glPopMatrix();
-        }
-    }
-
     private void drawSegment(Segment segment) {
         glBegin(GL_LINES);
         glVertex3f(segment.getX1(), segment.getY1(), 0);
@@ -368,7 +377,7 @@ public class Simulation {
         glEnd();
     }
 
-    private void drawNode(Node node) {
+    private void drawNode() {
         drawCircle(0.005f, 32);
     }
 
