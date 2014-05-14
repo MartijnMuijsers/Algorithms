@@ -18,7 +18,6 @@ import static org.lwjgl.opengl.GL11.glVertex2f;
 import static org.lwjgl.opengl.GL11.glVertex3f;
 
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,7 +32,6 @@ import javax.swing.JFileChooser;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-import tue.algorithms.implementation.concrete.NetworkRMST;
 import tue.algorithms.implementation.general.MultipleImplementation;
 import tue.algorithms.implementation.general.NetworkImplementation;
 import tue.algorithms.implementation.general.ProblemType;
@@ -45,15 +43,13 @@ import tue.algorithms.utility.Segment;
 
 public class Simulation {
 
-    /**
+	/**
      * Get an instance of the class that is chosen to provide input.
      *
      * @return An instance of a class that extends FakeInputReader.
      */
     public static FakeInputReader getFakeInputReader() {
-        /* TODO Choose an implementation */
-        //throw new UnsupportedOperationException("getFakeInputReader() not implemented.");
-        return new tue.algorithms.test.CaseEmpty();
+        return SimulationSettings.getFakeInputReader();
     }
 
     /**
@@ -63,9 +59,7 @@ public class Simulation {
      * @return An instance of a class that extends SingleImplementation.
      */
     public static SingleImplementation getSingleImplementation() {
-        /* TODO Choose an implementation */
-        //throw new UnsupportedOperationException("getSingleImplementation() not implemented.");
-        return new tue.algorithms.implementation.concrete.SingleSpider();
+    	return SimulationSettings.getSingleImplementation();
     }
 
     /**
@@ -75,8 +69,7 @@ public class Simulation {
      * @return An instance of a class that extends MultipleImplementation.
      */
     public static MultipleImplementation getMultipleImplementation() {
-        /* TODO Choose an implementation */
-        throw new UnsupportedOperationException("getMultipleImplementation() not implemented.");
+    	return SimulationSettings.getMultipleImplementation();
     }
 
     /**
@@ -86,8 +79,7 @@ public class Simulation {
      * @return An instance of a class that extends NetworkImplementation.
      */
     public static NetworkImplementation getNetworkImplementation() {
-        
-        return new NetworkRMST();
+        return SimulationSettings.getNetworkImplementation();
     }
 
     // Problem type
