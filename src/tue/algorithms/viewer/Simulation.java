@@ -160,7 +160,7 @@ public class Simulation {
             glPushMatrix();
             glTranslatef(node.getX(), node.getY(), 0);
             float pointSize = Math.min(Camera.width, Camera.heigth);
-            glScalef(600/pointSize, 600/pointSize, 1);
+            glScalef(640/pointSize, 640/pointSize, 1);
             if (ratio > 1f) {
                 glScalef(1f/ratio, 1f, 1);
             } else if (ratio < 1f) {
@@ -175,7 +175,7 @@ public class Simulation {
             glPushMatrix();
             glTranslatef((float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR, 1 - ((float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR), 0);
                         float pointSize = Math.min(Camera.width, Camera.heigth);
-            glScalef(600/pointSize, 600/pointSize, 1);
+            glScalef(640/pointSize, 640/pointSize, 1);
             if (ratio > 1f) {
                 glScalef(1f/ratio, 1f, 1);
             } else if (ratio < 1f) {
@@ -378,7 +378,7 @@ public class Simulation {
     }
 
     private void drawNode() {
-        drawCircle(0.005f, 32);
+        drawCircle(0.0054f, 18);
     }
 
     private void drawCircle(float r, int num_segments) {
