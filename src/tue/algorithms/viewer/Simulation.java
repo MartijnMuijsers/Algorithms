@@ -145,6 +145,7 @@ public class Simulation {
 
         // Output
         calculatedSegments = new Segment[0];
+        this.segments = new ArrayList<>(calculatedSegments.length);
     }
  
     public void render() {
