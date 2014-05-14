@@ -47,7 +47,6 @@ public class Camera {
 
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_STENCIL_TEST);
-        glBlendFunc(GL_SRC_ALPHA_SATURATE, GL_ONE);
         glEnable(GL_BLEND);
         glEnable(GL_POLYGON_SMOOTH);
         glEnable(GL_MULTISAMPLE);
