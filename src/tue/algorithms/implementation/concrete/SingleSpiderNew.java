@@ -8,7 +8,6 @@ import java.util.HashSet;
 
 import tue.algorithms.implementation.concrete.SingleSpiderNew.Spider.Viewpoint.Holiday;
 import tue.algorithms.implementation.general.SingleImplementation;
-import tue.algorithms.other.Debug;
 import tue.algorithms.utility.Node;
 import tue.algorithms.utility.Segment;
 
@@ -248,10 +247,9 @@ public class SingleSpiderNew extends SingleImplementation {
 	
 	@Override
 	public Segment[] getOutput(Node[] input) {
-		Debug.log("Running SpiderNew:");
+		/*Debug.log("Running SpiderNew:");
 		Debug.log("- random id = " + ((int) (Math.random()*100000)));
-		Debug.log("- input size = " + input.length);
-		long startTime = System.nanoTime();
+		Debug.log("- input size = " + input.length);*/
 		HashSet<Node> inputSet = new HashSet<Node>();
 		for (Node n : input) {
 			inputSet.add(n);
@@ -266,9 +264,7 @@ public class SingleSpiderNew extends SingleImplementation {
 			output[i] = s;
 			i++;
 		}
-		Debug.log("Done:");
-		long time = (System.nanoTime()-startTime)/1000000;
-		Debug.log("- time taken (millis) = " + time);
+		/*Debug.log("Done:");*/
 		return output;
 	}
 	

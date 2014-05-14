@@ -245,22 +245,31 @@ public class Simulation {
 
         if (problemType == ProblemType.SINGLE) {
         	SingleImplementation singleImplementation = getSingleImplementation();
-        	Debug.log("Running single implementation '" + singleImplementation.getClass().getCanonicalName() + "'...");
+        	Debug.log("Running single implementation...");
+        	Debug.log("Name: '" + singleImplementation.getClass().getCanonicalName() + "'");
+        	Debug.log("Input size: " + allNodes.length);
         	long startTime = System.nanoTime();
             calculatedSegments = singleImplementation.getOutput(allNodes);
             Debug.log("Time taken (millis): " + (System.nanoTime()-startTime)/1000000);
+            System.out.println("-----");
         } else if (problemType == ProblemType.MULTIPLE) {
         	MultipleImplementation multipleImplementation = getMultipleImplementation();
-        	Debug.log("Running multiple implementation '" + multipleImplementation.getClass().getCanonicalName() + "'...");
+        	Debug.log("Running multiple implementation...");
+        	Debug.log("Name: '" + multipleImplementation.getClass().getCanonicalName() + "'");
+        	Debug.log("Input size: " + allNodes.length);
         	long startTime = System.nanoTime();
             calculatedSegments = multipleImplementation.getOutput(allNodes);
             Debug.log("Time taken (millis): " + (System.nanoTime()-startTime)/1000000);
+            System.out.println("-----");
         } else if (problemType == ProblemType.NETWORK) {
         	NetworkImplementation networkImplementation = getNetworkImplementation();
-        	Debug.log("Running network implementation '" + networkImplementation.getClass().getCanonicalName() + "'...");
+        	Debug.log("Running network implementation...");
+        	Debug.log("Name: '" + networkImplementation.getClass().getCanonicalName() + "'");
+        	Debug.log("Input size: " + allNodes.length);
         	long startTime = System.nanoTime();
             Pair<Segment[], Node[]> output = networkImplementation.getOutput(allNodes);
             Debug.log("Time taken (millis): " + (System.nanoTime()-startTime)/1000000);
+            System.out.println("-----");
             calculatedSegments = output.first();
             newNetworkNodes = output.second();
         }
