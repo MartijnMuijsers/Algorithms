@@ -36,6 +36,7 @@ import tue.algorithms.implementation.general.MultipleImplementation;
 import tue.algorithms.implementation.general.NetworkImplementation;
 import tue.algorithms.implementation.general.ProblemType;
 import tue.algorithms.implementation.general.SingleImplementation;
+import tue.algorithms.other.Debug;
 import tue.algorithms.other.Pair;
 import tue.algorithms.test.FakeInputReader;
 import tue.algorithms.utility.Node;
@@ -243,11 +244,23 @@ public class Simulation {
         Node[] allNodes = nodes.toArray(new Node[nodes.size()]);
 
         if (problemType == ProblemType.SINGLE) {
-            calculatedSegments = getSingleImplementation().getOutput(allNodes);
+        	SingleImplementation singleImplementation = getSingleImplementation();
+        	Debug.log("Running single implementation '" + singleImplementation.getClass().getCanonicalName() + "'...");
+        	long startTime = System.nanoTime();
+            calculatedSegments = singleImplementation.getOutput(allNodes);
+            Debug.log("Time taken (millis): " + (System.nanoTime()-startTime)/1000000);
         } else if (problemType == ProblemType.MULTIPLE) {
-            calculatedSegments = getMultipleImplementation().getOutput(allNodes);
+        	MultipleImplementation multipleImplementation = getMultipleImplementation();
+        	Debug.log("Running multiple implementation '" + multipleImplementation.getClass().getCanonicalName() + "'...");
+        	long startTime = System.nanoTime();
+            calculatedSegments = multipleImplementation.getOutput(allNodes);
+            Debug.log("Time taken (millis): " + (System.nanoTime()-startTime)/1000000);
         } else if (problemType == ProblemType.NETWORK) {
-            Pair<Segment[], Node[]> output = getNetworkImplementation().getOutput(allNodes);
+        	NetworkImplementation networkImplementation = getNetworkImplementation();
+        	Debug.log("Running network implementation '" + networkImplementation.getClass().getCanonicalName() + "'...");
+        	long startTime = System.nanoTime();
+            Pair<Segment[], Node[]> output = networkImplementation.getOutput(allNodes);
+            Debug.log("Time taken (millis): " + (System.nanoTime()-startTime)/1000000);
             calculatedSegments = output.first();
             newNetworkNodes = output.second();
         }
