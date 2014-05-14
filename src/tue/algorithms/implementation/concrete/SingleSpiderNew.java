@@ -14,11 +14,11 @@ import tue.algorithms.utility.Segment;
 public class SingleSpiderNew extends SingleImplementation {
 	
 	public static float distanceFormula(float x) {
-		return x;
+		return x*x;
 	}
 	
 	public static float angleFormula(float x) {
-		return x*2;
+		return x*x;
 	}
 	
 	public static final double pi = Math.PI;
