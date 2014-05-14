@@ -148,7 +148,6 @@ public class Simulation {
 
         // Output
         calculatedSegments = new Segment[0];
-        calculateSegments();
     }
  
     public void render() {
