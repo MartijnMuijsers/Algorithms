@@ -154,6 +154,18 @@ public class Line {
 		return getVector().getAngle();
 	}
 	
+        /**
+	 * Get the slope of the line.
+	 * @return The slope as a float.
+	 */
+	public float getSlope() {
+            if (x1 - x2 == 0) {
+                return Float.MAX_VALUE;
+            } else {
+                return (y1 - y2) / (x1 - x2);
+            }
+	}
+	
 	/* -- END Getters for useful information -- */
 	
 	/* -- START Manipulation method to invert line -- */
