@@ -125,7 +125,7 @@ public class Simulation {
         // Read the input
         fakeInputReader = getFakeInputReader();
         input = fakeInputReader.readInput();
-        problemType = /*input.first();*/ ProblemType.SINGLE;
+        problemType = /*input.first();*/ SimulationSettings.getInitialProblemType();
         inputNodes = input.second();
         newNetworkNodes = new Node[0];
 
