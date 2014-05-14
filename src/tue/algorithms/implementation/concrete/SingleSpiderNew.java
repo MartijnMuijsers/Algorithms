@@ -13,6 +13,14 @@ import tue.algorithms.utility.Segment;
 
 public class SingleSpiderNew extends SingleImplementation {
 	
+	public static float distanceFormula(float x) {
+		return x;
+	}
+	
+	public static float angleFormula(float x) {
+		return x*2;
+	}
+	
 	public static final double pi = Math.PI;
 	public static final double pi2 = Math.PI*2;
 	
@@ -203,7 +211,7 @@ public class SingleSpiderNew extends SingleImplementation {
 						continue;
 					}
 					// get likelihood
-					float likelihood = invertIfSmallerThanOne(n.getDistanceTo(standingAt)/minimalDistance.get(standingAt))+((float) (getAngularDifference(expectedAngle, standingAt.getAngleTo(n))*5/Math.PI));
+					float likelihood = distanceFormula(invertIfSmallerThanOne(n.getDistanceTo(standingAt)/minimalDistance.get(standingAt)))+angleFormula(((float) (getAngularDifference(expectedAngle, standingAt.getAngleTo(n))/Math.PI)));
 					// add to holidays
 					holidays.add(new Holiday(n, likelihood));
 				}
