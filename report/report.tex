@@ -52,17 +52,23 @@ The third and final algorithm will attempt to create a road network from the nod
 \end{abstract}
 
 
-
+\newpage
 \section{Introduction}
 \label{se:introduction}
 \maxsize{2 pages}
 The problem that we attempt to solve is that of reconstructing a set of points back into curves in the 2D plane. 
-This problem is split into three different parts. The first two require the reconstruction into curves, in the first case there is only one curve, whereas in the second case there are mutiple. 
+This problem is split into three different parts. The first two require the reconstruction of a set of points into curves, in the first case there is only one curve, whereas in the second case there are mutiple. The third part of the problem requires reconstructing to a road network.\\
 This means that in the second case it is also required to distinguish multiple different curves from each other.\\
-The third part of the problem requires reconstruction of a road network.\\
+ It is important to note that the points are not given in order, since the goal is for the algorithm to determine the order, after which we can connect these points to reconstruct the curve.\\
+ The multiple curve problem has the additional problem of finding out which points belong to which curve.\\
+ Both algorithms have some constraints; Curve segments should not intersect each other and all points in the input must be used in the curve.\\
+The third part of the problem requires reconstruction of a road network. This algorithm could be used to create a road map after data has been collected using the GPS locations of cars.\\
+The goal of the algorithm is to create a reasonable representation of the road network, such that a person would agree with the representation that the algorithm gives. As with the other algorithms, there are some constraints.\\
+All points need to have at least one possible path to every other point and lines cannot intersect one another, however, unlike with the other problems, points can be added to alleviate intersecting lines.\\
 All nodes are points in a 2D plane, given by floating points ranging from 0 to 1. 
-The nodes are not determined randomly, but are determined beforehand. In practice, these datasets can be created by laserscanners, or in the case of the network, by following roads and giving the location at some interval.\\
-There are multiple known solutions to these problems. One of these is known as 'The Crust Algorithm'[1], which first creates a Volonoi diagram, then uses Delaunay triangulation between the Volonoi diagram and the Volonoi vertices.\\
+The nodes are not determined randomly, but are determined beforehand. In practice, these datasets can be created by laser scanners, or in the case of the network, by following roads and giving the location at some interval.\\
+%TODO: Redo algorithms to represent actual solutions.
+There are multiple known solutions to these problems. One of these is 'The Crust Algorithm'[1], which first creates a Volonoi diagram, then uses Delaunay triangulation between the Volonoi diagram and the Volonoi vertices.\\
 The Crust Algorithm solves the first problem that is described above, but needs additional work to determine the multiple curve problem.\\
 The running time of the Crust algorithm is dominated by the Delaunay triangulation. 
 Deleaunay triangulation has a worst case running time of $nlog(n)$ when using the Divide and Conquer method described by Guibas and Stolfi [2].\\
@@ -106,7 +112,15 @@ of the results is given.
 \label{se:algorithms}
 \maxsize{8 pages. Use subsections where appropriate.}
 %TODO: Add algorithm descriptions
+\subsection*{Single curve reconstruction}
+Convex hull.\\
 
+\subsection*{Multiple curve reconstruction}
+
+\subsection*{Network reconstruction}
+Adjecency matrix.
+Minimum spanning tree.
+\\
 %TODO: Remove project guidelines
 The description of the algorithms should be such that a programmer can
 implement them without much difficulty. It is good practice to first explain the
