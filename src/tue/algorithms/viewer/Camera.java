@@ -6,7 +6,9 @@ import static org.lwjgl.opengl.GL11.*;
 public class Camera {
 	public static int width;
 	public static int heigth;
-
+    public final static float SCALINGFACTOR = 0.95f;
+    public final static float OFFSETFACTOR = 0.025f;
+    
 	public Camera(int w, int h) {
 		width = w;
 		heigth = h;
@@ -21,8 +23,8 @@ public class Camera {
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		glOrtho(0, width, heigth, 0, 1, -1);
-		glTranslatef(width*0.025f, heigth*0.025f, 0);
-		glScalef(width*0.95f, heigth*0.95f, 1f);
+		glTranslatef(width*OFFSETFACTOR, heigth*OFFSETFACTOR, 0);
+		glScalef(width*SCALINGFACTOR, heigth*SCALINGFACTOR, 1f);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 	}
