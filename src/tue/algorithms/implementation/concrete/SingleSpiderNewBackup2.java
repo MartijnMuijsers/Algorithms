@@ -6,7 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import tue.algorithms.implementation.concrete.SingleSpiderNew.Spider.Viewpoint.Holiday;
+import tue.algorithms.implementation.concrete.SingleSpiderNewBackup2.Spider.Viewpoint.Holiday;
 import tue.algorithms.implementation.general.SingleImplementation;
 import tue.algorithms.other.Debug;
 import tue.algorithms.utility.Node;
@@ -17,7 +17,7 @@ import tue.algorithms.utility.Segment;
  * 
  * @author Martijn
  */
-public class SingleSpiderNew extends SingleImplementation {
+public class SingleSpiderNewBackup2 extends SingleImplementation {
 	
 	/* -- START Parameters as formulas -- */
 	
@@ -344,12 +344,6 @@ public class SingleSpiderNew extends SingleImplementation {
 			
 			public Segment getFoundSegment() {
 				return foundSegments.get(id+2);
-			}
-			
-			public float getLikelihoodForANode(Node n) {
-				for (Holiday holiday : holidays) {
-					
-				}
 			}
 			
 		}

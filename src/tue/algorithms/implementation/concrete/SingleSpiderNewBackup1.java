@@ -6,18 +6,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import tue.algorithms.implementation.concrete.SingleSpiderNew.Spider.Viewpoint.Holiday;
+import tue.algorithms.implementation.concrete.SingleSpiderNewBackup1.Spider.Viewpoint.Holiday;
 import tue.algorithms.implementation.general.SingleImplementation;
-import tue.algorithms.other.Debug;
 import tue.algorithms.utility.Node;
 import tue.algorithms.utility.Segment;
 
-/**
- * Just a backup, don't change please, this is purely for reference.
- * 
- * @author Martijn
- */
-public class SingleSpiderNew extends SingleImplementation {
+public class SingleSpiderNewBackup1 extends SingleImplementation {
 	
 	/* -- START Parameters as formulas -- */
 	
@@ -38,15 +32,10 @@ public class SingleSpiderNew extends SingleImplementation {
 	
 	/** Where x = initial likelihood (likelihood of the first holiday from that viewpoint) **/
 	public static float maxLikelihoodFormula(float x) {
-		return maxLikelihoodFactor*x;
+		return 3*x;
 	}
 	
 	/* -- END Parameters as formulas -- */
-	
-	public static final float initialMaxLikelihoodFactor = 1.5f;
-	public static final float maxLikelihoodFactorIncreaseFactor = 1.2f;
-	
-	public static float maxLikelihoodFactor;
 	
 	public static final double pi = Math.PI;
 	public static final double pi2 = Math.PI*2;
@@ -152,7 +141,6 @@ public class SingleSpiderNew extends SingleImplementation {
 		public HashMap<Node, Float> minimalDistance;
 		
 		public void execute() {
-			maxLikelihoodFactor = initialMaxLikelihoodFactor;
 			Node firstNode = null;
 			{
 				float smallestY = 1000000000;
@@ -191,73 +179,25 @@ public class SingleSpiderNew extends SingleImplementation {
 			nodesToDo.remove(thirdNode);
 			foundSegments.add(new Segment(firstNode, secondNode));
 			foundSegments.add(new Segment(secondNode, thirdNode));
-			// assuming here that at least two segments are present
+			// assuming there is already one segment present now
 			while (true) {
-				boolean doRewind = false;
 				if (nodesToDo.size() == 0) {
 					// try to make last segment, if fails, do a rewind TODO, else break
-					Segment lastSegment = new Segment(foundSegments.get(foundSegments.size()-1).getNode2(), firstNode);
-					foundSegments.add(lastSegment);
-					// ^ TODO check intersections: not allowed!
 					break;
 				}
 				Viewpoint viewpoint = new Viewpoint(viewpoints.size());
 				Segment newSegment = viewpoint.getCurrentSegment();
 				if (newSegment == null) {
-					doRewind = true;
-				} else {
-					foundSegments.add(newSegment);
-					nodesToDo.remove(newSegment.getNode2());
-					viewpoints.add(viewpoint);
+					return;
 				}
-				if (doRewind) {
-					///Debug.log("Doing a rewind at viewpoints.size() = " + viewpoints.size());
-					boolean successfulRewind = false;
-					for (int u = viewpoints.size()-1; u >= 0; u--) {
-						Viewpoint v = viewpoints.get(u);
-						v.goToNextSegment();
-						Segment newRewindSegment = v.getCurrentSegment();
-						if (newRewindSegment != null) {
-							///Debug.log("Rewind successful at u = " + u);
-							// remove all stuffs
-							for (int z = viewpoints.size()-1; z > u; z--) {
-								viewpoints.remove(z);
-								Segment segmentToRemove = foundSegments.get(z+2);
-								Node nodeToAddToNodesToDo = segmentToRemove.getNode2();
-								nodesToDo.add(nodeToAddToNodesToDo);
-								foundSegments.remove(z+2);
-							}
-							Segment segmentToRemove = foundSegments.get(u+2);
-							Node nodeToAddToNodesToDo = segmentToRemove.getNode2();
-							nodesToDo.add(nodeToAddToNodesToDo);
-							foundSegments.remove(u+2);
-							// add new segment
-							foundSegments.add(newRewindSegment);
-							nodesToDo.add(newRewindSegment.getNode2());
-							// finish rewind
-							successfulRewind = true;
-							break;
-						}
-					}
-					if (!successfulRewind) {
-						maxLikelihoodFactor *= maxLikelihoodFactorIncreaseFactor;
-						Debug.log("Max likelihood factor is now " + maxLikelihoodFactor);
-						///Scanner scanner = new Scanner(System.in);
-						///scanner.nextLine();
-						// remove ALL the shit :D
-						viewpoints.clear();
-						while (foundSegments.size() > 2) {
-							foundSegments.remove(2);
-						}
-						for (Node node : nodes) {
-							nodesToDo.add(node);
-						}
-						nodesToDo.remove(firstNode);
-						nodesToDo.remove(secondNode);
-						nodesToDo.remove(thirdNode);
-					}
-				}
+				//System.out.println("New segment is not null");
+				foundSegments.add(newSegment);
+				nodesToDo.remove(newSegment.getNode2());
+				viewpoints.add(viewpoint);
 			}
+			// should not be done at this point TODO
+			Segment lastSegment = new Segment(foundSegments.get(foundSegments.size()-1).getNode2(), firstNode);
+			foundSegments.add(lastSegment);
 		}
 		
 		public class Viewpoint {
@@ -344,12 +284,6 @@ public class SingleSpiderNew extends SingleImplementation {
 			
 			public Segment getFoundSegment() {
 				return foundSegments.get(id+2);
-			}
-			
-			public float getLikelihoodForANode(Node n) {
-				for (Holiday holiday : holidays) {
-					
-				}
 			}
 			
 		}

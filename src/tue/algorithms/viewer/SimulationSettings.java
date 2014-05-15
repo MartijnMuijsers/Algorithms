@@ -2,7 +2,7 @@ package tue.algorithms.viewer;
 
 import tue.algorithms.implementation.concrete.MultipleRandomSegments;
 import tue.algorithms.implementation.concrete.NetworkRMST;
-import tue.algorithms.implementation.concrete.SingleSpiderNew;
+import tue.algorithms.implementation.concrete.SingleSpiderNewBackup1;
 import tue.algorithms.implementation.general.MultipleImplementation;
 import tue.algorithms.implementation.general.NetworkImplementation;
 import tue.algorithms.implementation.general.ProblemType;
@@ -10,6 +10,11 @@ import tue.algorithms.implementation.general.SingleImplementation;
 import tue.algorithms.test.CaseEmpty;
 import tue.algorithms.test.FakeInputReader;
 
+/**
+ * Settings for the simulation.
+ * 
+ * @author Martijn
+ */
 public abstract class SimulationSettings {
 	
 	/**
@@ -28,7 +33,7 @@ public abstract class SimulationSettings {
      * @return An instance of a class that extends SingleImplementation.
      */
     public static SingleImplementation getSingleImplementation() {
-        return new SingleSpiderNew();
+        return new SingleSpiderNewBackup1();
     }
 
     /**
