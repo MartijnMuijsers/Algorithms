@@ -11,7 +11,7 @@ import tue.algorithms.utility.Segment;
  * Under development. Testing ground here.
  * @author Martijn
  */
-public class SingleImploding extends SingleImplementation {
+public class SingleImploding implements SingleImplementation {
 	
 	@Override
 	public Segment[] getOutput(Node[] input) {

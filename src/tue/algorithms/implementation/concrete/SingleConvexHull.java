@@ -11,7 +11,7 @@ import tue.algorithms.utility.Segment;
  * Single implementation which just returns the convex hull.
  * @author Martijn
  */
-public class SingleConvexHull extends SingleImplementation {
+public class SingleConvexHull implements SingleImplementation {
 	
 	@Override
 	public Segment[] getOutput(Node[] input) {

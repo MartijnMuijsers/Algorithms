@@ -5,11 +5,11 @@ import tue.algorithms.utility.Segment;
 
 /**
  * <p>
- * An abstract class for an implementation of a solution for the single-curve problem.
+ * An interface for an implementation of a solution for the single-curve problem.
  * </p>
  * @author Martijn
  */
-public abstract class SingleImplementation {
+public interface SingleImplementation {
 	
 	/**
 	 * Get the solution to a problem: given nodes as input, find the segments to be best connected,
@@ -17,6 +17,6 @@ public abstract class SingleImplementation {
 	 * @param input The nodes as input
 	 * @return The segments as output
 	 */
-	public abstract Segment[] getOutput(Node[] input);
+	public Segment[] getOutput(Node[] input);
 	
 }

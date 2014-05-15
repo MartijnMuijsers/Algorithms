@@ -17,7 +17,7 @@ import tue.algorithms.utility.Segment;
  * 
  * @author Martijn
  */
-public class SingleSpiderNew extends SingleImplementation {
+public class SingleSpiderNew implements SingleImplementation {
 	
 	/* -- START Parameters as formulas -- */
 	

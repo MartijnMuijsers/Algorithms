@@ -11,7 +11,7 @@ import tue.algorithms.implementation.general.SingleImplementation;
 import tue.algorithms.utility.Node;
 import tue.algorithms.utility.Segment;
 
-public class SingleSpider extends SingleImplementation {
+public class SingleSpider implements SingleImplementation {
 	
 	public static double pi2 = Math.PI*2;
 	

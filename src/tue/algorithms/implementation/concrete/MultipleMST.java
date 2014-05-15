@@ -1,10 +1,10 @@
 package tue.algorithms.implementation.concrete;
 
 import java.util.Comparator;
+
 import tue.algorithms.implementation.general.MultipleImplementation;
 import tue.algorithms.utility.MinimumSpanningTree;
 import tue.algorithms.utility.Node;
-import tue.algorithms.utility.Point;
 import tue.algorithms.utility.Segment;
 
 /**
@@ -12,7 +12,7 @@ import tue.algorithms.utility.Segment;
  *
  * @author Rob
  */
-public class MultipleMST extends MultipleImplementation {
+public class MultipleMST implements MultipleImplementation {
 
     @Override
     public Segment[] getOutput(Node[] input) {

@@ -14,7 +14,7 @@ import tue.algorithms.utility.Segment;
  * This is supposed to be to test a simulation environment.
  * @author Martijn
  */
-public class NetworkRandomSegments extends NetworkImplementation {
+public class NetworkRandomSegments implements NetworkImplementation {
 
 	@Override
 	public Pair<Segment[], Node[]> getOutput(Node[] input) {

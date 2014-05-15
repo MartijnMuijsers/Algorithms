@@ -6,11 +6,11 @@ import tue.algorithms.utility.Segment;
 
 /**
  * <p>
- * An abstract class for an implementation of a solution for the network problem.
+ * An interface for an implementation of a solution for the network problem.
  * </p>
  * @author Martijn
  */
-public abstract class NetworkImplementation {
+public interface NetworkImplementation {
 	
 	/**
 	 * Get the solution to a problem: given nodes as input, find the segments to be best connected,
@@ -19,6 +19,6 @@ public abstract class NetworkImplementation {
 	 * @param input The nodes as input
 	 * @return The segments and added nodes as output
 	 */
-	public abstract Pair<Segment[], Node[]> getOutput(Node[] input);
+	public Pair<Segment[], Node[]> getOutput(Node[] input);
 	
 }

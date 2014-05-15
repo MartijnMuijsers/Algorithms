@@ -3,11 +3,11 @@ package tue.algorithms.implementation.concrete;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+
 import tue.algorithms.implementation.general.NetworkImplementation;
 import tue.algorithms.other.Pair;
 import tue.algorithms.utility.MinimumSpanningTree;
 import tue.algorithms.utility.Node;
-import tue.algorithms.utility.Point;
 import tue.algorithms.utility.Segment;
 
 /**
@@ -15,7 +15,7 @@ import tue.algorithms.utility.Segment;
  *
  * @author Chris
  */
-public class NetworkRMST extends NetworkImplementation {
+public class NetworkRMST implements NetworkImplementation {
 
     @Override
     public Pair<Segment[], Node[]> getOutput(Node[] input) {
