@@ -63,7 +63,7 @@ public class ConnectedNodes {
 
 		// Use tailSet to skip all elements "before" segment.
 		for (Segment other : segments.tailSet(segment, false)) {
-			if (maximum < (isNearVertical ? other.getMaxX() : other.getMaxY())) {
+			if (maximum < (isNearVertical ? other.getMinX() : other.getMinY())) {
 				// Every element "after" segment will never intersect segment.
 				return false;
 			}
