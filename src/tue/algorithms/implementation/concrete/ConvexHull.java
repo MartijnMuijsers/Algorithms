@@ -17,7 +17,7 @@ public abstract class ConvexHull {
 		HashSet<Segment> allSegments = new HashSet<Segment>();
 		for (Node a : input) {
 			for (Node b : input) {
-				if (!a.equals(b)) {
+				if (a.getId() < b.getId()) {
 					allSegments.add(new Segment(a, b));
 				}
 			}
@@ -25,16 +25,19 @@ public abstract class ConvexHull {
 		HashSet<Segment> boundarySegments = new HashSet<Segment>();
 		for (Segment segment : allSegments) {
 			boolean success = true;
-			int foundSide = 0;
+			Side foundSide = null;
 			for (Node n : input) {
 				if (!n.equals(segment.getNode1())) {
 					if (!n.equals(segment.getNode2())) {
-						int side = getSide(n, segment);
-						if (side == 0) {
+						Side side = getSide(n, segment);
+						if (side == Side.ON) {
 							success = false;
 							break;
 						}
-						if (foundSide == 0) {
+						if (side == Side.ON_EXTENDED) {
+							continue;
+						}
+						if (foundSide == null) {
 							foundSide = side;
 						} else {
 							if (side != foundSide) {
@@ -52,23 +55,44 @@ public abstract class ConvexHull {
 		return boundarySegments;
 	}
 	
-	public static int getSide(Point point, Line line) {
+	public static Side getSide(Point point, Line line) {
 		if (line.getX1() == line.getX2()) {
 			if (point.getX() < line.getX1()) {
-				return -1;
+				return Side.TOP_LEFT;
 			} else if (point.getX() > line.getX1()) {
-				return 1;
+				return Side.BOTTOM_RIGHT;
 			}
-			return 0;
+			float minLineY = Math.min(line.getY1(), line.getY2());
+			float maxLineY = Math.max(line.getY1(), line.getY2());
+			if (point.getY() >= minLineY && point.getY() <= maxLineY) {
+				return Side.ON;
+			}
+			return Side.ON_EXTENDED;
 		}
 		float supposedY = line.getSlope()*(point.getX()-line.getX1())+line.getY1();
 		if (point.getY() < supposedY) {
-			return -1;
+			return Side.TOP_LEFT;
 		}
 		if (point.getY() > supposedY) {
-			return 1;
+			return Side.BOTTOM_RIGHT;
 		}
-		return 0;
+		float minLineY = Math.min(line.getY1(), line.getY2());
+		float maxLineY = Math.max(line.getY1(), line.getY2());
+		float minLineX = Math.min(line.getX1(), line.getX2());
+		float maxLineX = Math.max(line.getX1(), line.getX2());
+		if (point.getY() >= minLineY && point.getY() <= maxLineY && point.getX() >= minLineX && point.getX() <= maxLineX) {
+			return Side.ON;
+		}
+		return Side.ON_EXTENDED;
+	}
+	
+	public static enum Side {
+		
+		TOP_LEFT,
+		BOTTOM_RIGHT,
+		ON,
+		ON_EXTENDED
+		
 	}
 	
 }
