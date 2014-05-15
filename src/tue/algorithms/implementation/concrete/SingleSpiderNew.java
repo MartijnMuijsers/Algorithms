@@ -350,6 +350,7 @@ public class SingleSpiderNew extends SingleImplementation {
 				for (Holiday holiday : holidays) {
 					
 				}
+				return 0; // Added by Rob to fix compiler error.
 			}
 			
 		}
