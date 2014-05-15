@@ -1,6 +1,6 @@
 package tue.algorithms.viewer;
 
-import tue.algorithms.implementation.concrete.MultipleRandomSegments;
+import tue.algorithms.implementation.concrete.MultipleMST;
 import tue.algorithms.implementation.concrete.NetworkRMST;
 import tue.algorithms.implementation.concrete.SingleImploding;
 import tue.algorithms.implementation.general.MultipleImplementation;
@@ -43,7 +43,7 @@ public abstract class SimulationSettings {
      * @return An instance of a class that extends MultipleImplementation.
      */
     public static MultipleImplementation getMultipleImplementation() {
-        return new MultipleRandomSegments();
+        return new MultipleMST();
     }
 
     /**
