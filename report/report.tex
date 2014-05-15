@@ -66,47 +66,19 @@ All points need to have at least one possible path to every other point and line
 All nodes are points in a 2D plane, given by floating points ranging from 0 to 1. 
 The nodes are not determined randomly, but are determined beforehand. In practice, these datasets can be created by laser scanners, or in the case of the network, by following roads and giving the location at some interval.\\
 
-%TODO: Redo algorithms to represent actual solutions.
 There are multiple known solutions to these problems. One of these is 'The Crust Algorithm'[1], which first creates a Volonoi diagram, then uses Delaunay triangulation between the Volonoi diagram and the Volonoi vertices.\\
 The Crust Algorithm solves the first problem that is described above, but needs additional work to determine the multiple curve problem.\\
-The running time of the Crust algorithm is dominated by the Delaunay triangulation. 
-Deleaunay triangulation has a worst case running time of $nlog(n)$ when using the Divide and Conquer method described by Guibas and Stolfi [2].\\
-Delaunay triangulation can also be used to create a relatively small set of edges for the third problem, after which a recilinear spanning graph or straight lines can be determined between points. These straight lines can then be connected to form a road network.\\
+Delaunay triangulation could also be used to create a relatively small set of edges for the third problem, after which a recilinear spanning graph or straight lines can be determined between points.\\
+The Crust algorithm is however fairly complicated, and we do not think it is viable to recreate this within the given time.\\
+Another algorithm we looked at, that is useful for the single curve reconstruction, is creating a convex hull. A convex hull will create segments between all the outermost points, such that no unconnected point is outside of the enclosed area. Like putting a rubber band around all the points. This can be very useful for the outermost edges, but after that it is very difficult to extract meaningful information.\\
+A very useful subgraph that we looked at is the rectilinear spanning tree. This is a minimum spanning tree based on rectilinear distance, which is very much like manhattan distance, and is useful because it already has all the properties that the network reconstruction requires; It connects the points in such a way that there is a path from every node to every other node and there are no intersecting lines. \\
+To solve the single curve reconstrution problem, we have chosen for a spider-type algorithm, which will go from point to point and then determines the next best point to go to.\\
+The multiple curve reconstruction problem is solved using a weighted spanning tree, and the network reconstruction problem is also solved using a spanning tree, in this case the rectilinear spanning tree.\\
+After reconstructing this tree we try to find straight lines and connect those, since a spanning tree will not create cycles.\\
+The single curve reconstruction solution has produced good results so far, and has no problems with most inputs.\\
+The result of the network reconstruction are not yet complete, we are often missing edges when adding those would add cycles.\\
 
-% TODO: Remove introduction description
-
-The introduction usually starts with a description of and
-a motivation for the general problem area.
-%
-\crp{You would start by
-describing the general problem of object reconstruction from point data,
-mention how data can be obtained (laser scanners), discuss network reconstruction, etcetera.}
-%
-After introducing the general problem area, you zoom in to the specific problem
-studied in the paper. I like to already discuss previous work here. This way
-you can explain where the specific problem fits into the state-of-the-art
-and why it is interesting. Ideally, the discussion of the previous work
-culminates in a clear statement about what is still missing in the current
-state-of-the-art: namely an answer to the specific problem you study.
-%
-\crp{You would now discuss the specific variants that you study, 
-what is known about them, which general reconstruction methods may or may not apply, and so on.}
-%
-Then you give an overview of your results.
-%
-\crp{You could give a high-level description of the
-approach(es) you have used and relate them to approaches found in the literature.
-State the theoretical guarantees (on running time,
-for instance, or on other aspects) that you may have proved for your algorithms
-and mention the main conclusions from the experiments.}
-%
-Finally, you can give an overview of the structure of the rest of your paper.
-Personally, however, I do not find these overviews very useful: I prefer to
-integrate this with the previous part of the introduction, where the overview
-of the results is given.
-
-%TODO: Remove until here
-
+\newpage
 \section{The algorithms}
 \label{se:algorithms}
 \maxsize{8 pages. Use subsections where appropriate.}
