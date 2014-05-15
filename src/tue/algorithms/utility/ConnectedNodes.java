@@ -63,7 +63,7 @@ public class ConnectedNodes {
 
 		// Use tailSet to skip all elements "before" segment.
 		for (Segment other : segments.tailSet(segment, false)) {
-			if (maximum < (isNearVertical ? other.getMaxX() : other.getMaxY())) {
+			if (maximum < (isNearVertical ? other.getMinX() : other.getMinY())) {
 				// Every element "after" segment will never intersect segment.
 				return false;
 			}
@@ -135,6 +135,41 @@ public class ConnectedNodes {
 		}
 		Segment[] segmentsArray = new Segment[segmentsSet.size()];
 		return segmentsSet.toArray(segmentsArray);
+	}
+
+	/**
+	 * Returns the all segments that have been added to this data structure.
+	 * Note that the order of segments is not specified, do not make any
+	 * assumptions about it!
+	 * Time complexity: O(1)
+	 *
+	 * @return All segments that have been added to this data structure.
+	 */
+	public Segment[] getAllSegments() {
+		return segmentsQH.toArray(new Segment[0]);
+	}
+
+	/**
+	 * Check whether two nodes are connected.
+	 * Time complexity: O(k)
+	 * Where k is the number of segments connected to {@code node1}.
+	 * This number is usually very low, so the running time is usually O(1).
+	 *
+	 * @param node1
+	 * @param node2
+	 * @return Whether there exist a segment that connects the two nodes.
+	 */
+	public boolean isConnected(Node node1, Node node2) {
+		HashSet<Segment> segmentsSet = nodeToSegments.get(node1.getId());
+		if (segmentsSet == null) {
+			return false;
+		}
+		for (Segment segment : segmentsSet) {
+			if (segment.contains(node2)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

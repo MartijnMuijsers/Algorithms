@@ -90,6 +90,14 @@ public class Segment extends Line {
 	public Node getNode2() {
 		return Node.getById(node2id);
 	}
+
+	/**
+	 * @return Whether the segment contains the node
+	 */
+	public boolean contains(Node node) {
+		int nodeId = node.getId();
+		return node1id == nodeId || node2id == nodeId;
+	}
 	
 	/* -- END Getters for node representations of private fields -- */
 	
