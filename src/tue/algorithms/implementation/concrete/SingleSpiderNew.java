@@ -346,11 +346,11 @@ public class SingleSpiderNew extends SingleImplementation {
 				return foundSegments.get(id+2);
 			}
 			
-			public float getLikelihoodForANode(Node n) {
+			/*public float getLikelihoodForANode(Node n) {
 				for (Holiday holiday : holidays) {
 					
 				}
-			}
+			}*/ //TODO last thing changed: commented this method because couldn't compile
 			
 		}
 		

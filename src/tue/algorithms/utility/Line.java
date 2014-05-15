@@ -187,11 +187,18 @@ public class Line {
 	 * @return The slope as a float.
 	 */
 	public float getSlope() {
-            if (x1 - x2 == 0) {
-                return Float.MAX_VALUE;
-            } else {
-                return (y1 - y2) / (x1 - x2);
-            }
+		float dy = y2-y1;
+		float dx = x2-x1;
+        if (dx == 0) {
+        	if (dy > 0) {
+        		return Integer.MAX_VALUE;
+        	}
+        	if (dy < 0) {
+        		return Integer.MIN_VALUE;
+        	}
+        	return 0;
+        }
+		return (dy) / (dx);
 	}
 	
 	/* -- END Getters for useful information -- */

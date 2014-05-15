@@ -8,10 +8,10 @@ import tue.algorithms.utility.Node;
 import tue.algorithms.utility.Segment;
 
 /**
- * Under development. Testing ground here.
+ * Single implementation which just returns the convex hull.
  * @author Martijn
  */
-public class SingleImploding extends SingleImplementation {
+public class SingleConvexHull extends SingleImplementation {
 	
 	@Override
 	public Segment[] getOutput(Node[] input) {
