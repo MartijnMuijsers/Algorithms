@@ -96,6 +96,34 @@ public class Line {
 	public float getY2() {
 		return y2;
 	}
+
+	/**
+	 * @return The minimal X-coordinate of this line.
+	 */
+	public float getMinX() {
+		return x1 < x2 ? x1 : x2;
+	}
+
+	/**
+	 * @return The maximal X-coordinate of this line.
+	 */
+	public float getMaxX() {
+		return x1 < x2 ? x2 : x1;
+	}
+
+	/**
+	 * @return The minimal Y-coordinate of this line.
+	 */
+	public float getMinY() {
+		return y1 < y2 ? y1 : y2;
+	}
+
+	/**
+	 * @return The maximal Y-coordinate of this line.
+	 */
+	public float getMaxY() {
+		return y1 < y2 ? y2 : y1;
+	}
 	
 	/* -- END Public getters for private fields -- */
 	
