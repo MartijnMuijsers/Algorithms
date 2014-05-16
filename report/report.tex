@@ -81,39 +81,79 @@ The result of the network reconstruction are not yet complete, we are often miss
 \newpage
 \section{The algorithms}
 \label{se:algorithms}
-\maxsize{8 pages. Use subsections where appropriate.}
-%TODO: Add algorithm descriptions
-\subsection*{Single curve reconstruction}
-The algorithm to reconstruct a single curve randomly starts at a point. Then it will look at all possible points and picks the one that is most likely, and continues doing this until all points are visited.\\
-If the algorithm cannot find a next point that seems logical, it will return to the previous point and pick the next most likely point to go to.\\
-Every cycle the algorithm determines a value for all unvisited points based on the angle from the line segment constructed in the previous cycle and the distance.
+
+\subsection{Single curve reconstruction}
+To solve reconstruction of a single curve, we took an intuitive approach. After analyzing our own train of though when solving our own test cases, it was clear that our brains were trying to start somewhere on the curve, and following the curve along, making sure no points got forgotten in time.\\
+
+We have attempted to utilize a similar method. We implemented a 'spider'-type algorithm that mainly depends on three important steps:
+\begin{itemize}
+\item Choose a position for the spider to start
+\item Let the spider decide where it wants to go next, based on factors
+\item Let the spider go there and have it connect the two nodes
+\item Go on until the beginning has been reached
+\end{itemize}
+
+This interpretation soon raises the question "So how does it make sure no points are forgotten?"\\
+When two curves come really close to each other, the spider might feel like a node in the other curve is the best place to go, thus probably completely invalidating the rest of the run.\\
+
+A simple solution for this would be to see at the end whether the found curve is a valid curve, and to rewind to a point where the algorithm likely made the wrong choice.\\
+
+\subsubsection{Naive implementation} 
+
+Attempting to implement this solution, which we will name the Spider algorithm from here on, lead to disappointing results. Analyzing the informal description already soon tells you the running time of a naive implementation will definitely not be $O(n!)$, and this is what we found after implementation.\\
+
+Without the recursive strategy of looking back and trying to find a point where a mistake was made, the algorithm performs quite fine and finds a nice line (sometimes intersecting). With the recursive strategy, the algorithm takes too long to run on any amount of points larger than 100, where the points are considerably random.\\
+
+These observations of the naive implementation lead us to create a more clever version of the Spider algorithm, that supported:
+\begin{itemize}
+\item Smart choice of a first position
+\item Smart choice of next node depending on all available factors
+\item A manageable way of remembering possibly valid choices and re-evaluating those choices if necessary
+\item A solid way of identifiying mistakes
+\end{itemize}
+
+
+\subsubsection{Choice of first position} 
+
+The first position of the spider will be chosen by picking the most boundary-like point. The most boundary-like point is the point, which has the largest continuous angular interval where no other points lie. So, if the spider were standing on the most boundary-like point, it could look around that whole angular interval and see no points.\\
+
+The first segments are then chosen by taking the two nearest nodes, and since there are then 3 possibilities to form 2 segments (we do not want to form a triangle unless there are only 3 points, of course) we simply take each of them and process each of them, and see which one fails the least.\\
+
+\subsubsection{Choice of next node} 
+
+If the spider is standing at a certain node, it looks back at the nodes it came from, and decides on the expected angle and distance to the next node. The expected angle is a continued value of a linear formula with the previous 2 angles as anchor points, and the expected distance is a continued value of a linear formula with the previous 2 distances as anchor points. In simpler terms: the change in angle and distance between the two last traversed segments is expected to be closely the angle and distance between the last traversed segment and the next to traverse. If the last traversed distances are 4 and 6, the expected next distance will be 8.\\
+
+The nodes are then sorted and stored by their 'likelihood' to be the best successor. Their likelihood is defined as the result of a (chooseable and possibly adaptive) formula that determines how close the observed angle and distance to a point being evaluated is to the expected angle and distance to observe.\\
+
+The node with the best likelihood is then selected to be the successor and the spider moves to that node. (Whether a smaller or greater likelihood means more likely can depend on implementation if it is mathematically easier. We will not speak about the data representation of likelihood except for the fact that we chose to use a float value decreasing if more likely.)\\
+
+The formula that we used for the likelihood is the sum of squares of the following values: the ratio of distance to the expected distance (if smaller than 1, this value is taken to the power -1), and the absolute difference in angle to the expected angle (in fraction of pi).\\
+
+\subsubsection{Remembering possibly valid choices} 
+
+For the whole path taken, per node it is stored what the though process at that point was (a 'viewpoint'): a sorted list of possible nodes to travel to, and their likelihood. When a mistake is made, we can simply look at the difference of the current likelihood to the next likelihood per viewpoint, and choose the one which is most likely incorrect to change.\\
+
+\subsubsection{Identifying mistakes} 
+
+To identify mistakes, we used the following criteria:
+\begin{itemize}
+\item The node the spider wants to go is VERY likely (a certain factor of difference to the next likelihood) but requires an intersection
+\item The last segment would create an intersection, and it not too long to be removed
+\item Not all nodes have been taken into account when the last node is reached
+\end{itemize}
+
+
+\subsubsection{Open or closed} 
+
+Finally, we would like to spend a word on the detection of whether a curve is open or closed. We first decided that whether a curve is open or closed depends on the factor between the longest segment length and the one-to-longest segment length: if this is large enough, the curve is probably open and we should remove the longest segment.\\
+
+However, the distances between nodes may vary greatly in parts of the curve. Therefore, we decided on a slighly different alternative: whether a curve is open or closed depends on whether there is a segment, for which the factor between its own length and the lengths of its adjacent segments is higher than a certain number. If so, the segment with such highest factor should be removed.\\
 
 \subsection*{Multiple curve reconstruction}
 
 \subsection*{Network reconstruction}
 To reconstruct a network from a set of points, we start by creating a minimum spanning tree between all points using Kruskal's algorithm.\\
 After this we look for straight lines in this new set of points, and check if continuing this line will result in intersections. If they do intersect within a certain distance, then we can connect these lines by adding an additional point to create an intersection.\\
-
-%TODO: Remove project guidelines
-\subparagraph*{Project guide}
-The description of the algorithms should be such that a programmer can
-implement them without much difficulty. It is good practice to first explain the
-main ideas behind the algorithm at a more intuitive level, and then give a
-detailed description (for example using pseudo-code).
-Don't forget to describe which supporting data structures you use:
-linked lists, arrays, search trees, and so on. For standard data structures
-from the literature you do not need to explain how they work; a reference
-to the literature suffices.
-%
-\example{We store the set $P$ of points in a red-black tree~\cite{clrs-ia-01},
-         using the $x$-coordinate of each point as its key.}
-%
-Try to theoretically analyze the worst-case running time of your algorithms
-and the amount of storage they use. Also try to say something about the quality of your algorithm: you might
-be able to prove that the algorithm is guaranteed to find the correct solution if the
-input has certain well-defined properties, or you might be able to give examples
-of inputs for which the algorithm will fail to give a correct solution.
-%TODO: Remove until here
 
 \bibliographystyle{plain}
 
@@ -136,17 +176,6 @@ Applying parallel computation algorithms in the design of serial algorithms.
 
 \end{thebibliography}
 
-
-\begin{itemize}
-\item for journals:
-      Authors. Title of paper. \emph{Journal Name (italic)} volume: page numbers (year).
-      See reference~\cite{m-apca-83}.
-\item for conference proceedings:
-      Authors. Title of paper. In \emph{Proc. Conference Name and number (italic)}, pages xxx--yyy, year.
-      See reference~\cite{a-raoa-02}
-\item for books: Authors. \emph{Book title (italic)}. publisher, year.
-      See reference~\cite{clrs-ia-01}
-\end{itemize}
 
 
 
