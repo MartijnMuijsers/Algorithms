@@ -170,7 +170,7 @@ public class ConnectedNodes {
 			return false;
 		}
 		for (Segment segment : segmentsSet) {
-			if (segment.contains(node2)) {
+			if (segment.isEndPoint(node2)) {
 				return true;
 			}
 		}

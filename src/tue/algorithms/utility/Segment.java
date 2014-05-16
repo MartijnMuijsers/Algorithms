@@ -92,9 +92,10 @@ public class Segment extends Line {
 	}
 
 	/**
-	 * @return Whether the segment contains the node
+	 * @param node
+	 * @return Whether the segment has {@code node} as one of its end points.
 	 */
-	public boolean contains(Node node) {
+	public boolean isEndPoint(Node node) {
 		int nodeId = node.getId();
 		return node1id == nodeId || node2id == nodeId;
 	}
