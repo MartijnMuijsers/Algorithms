@@ -66,12 +66,13 @@ All points need to have at least one possible path to every other point and line
 All nodes are points in a 2D plane, given by floating points ranging from 0 to 1. 
 The nodes are not determined randomly, but are determined beforehand. In practice, these datasets can be created by laser scanners, or in the case of the network, by following roads and giving the location at some interval.\\
 
-There are multiple known solutions to these problems. One of these is 'The Crust Algorithm'[1], which first creates a Volonoi diagram, then uses Delaunay triangulation between the Volonoi diagram and the Volonoi vertices.\\
+There are multiple known solutions to these problems. One of these is 'The Crust Algorithm' \cite{crust}, which first creates a Voronoi diagram, then uses Delaunay triangulation between the Voronoi diagram and the Voronoi vertices.\\
 The Crust Algorithm solves the first problem that is described above, but needs additional work to determine the multiple curve problem.\\
 Delaunay triangulation could also be used to create a relatively small set of edges for the third problem, after which a recilinear spanning graph or straight lines can be determined between points.\\
 The Crust algorithm is however fairly complicated, and we do not think it is viable to recreate this within the given time.\\
-Another algorithm we looked at, that is useful for the single curve reconstruction, is creating a convex hull. A convex hull will create segments between all the outermost points, such that no unconnected point is outside of the enclosed area. Like putting a rubber band around all the points. This can be very useful for the outermost edges, but after that it is very difficult to extract meaningful information.\\
+Another algorithm we looked at, that is useful for the single curve reconstruction, is creating a convex hull. A convex hull will create segments between all the outermost points, such that no unconnected point is outside of the enclosed area. Like putting a rubber band around all the points. This can be very useful for the outermost edges, but does not provide a lot of meaningful information.\\
 A very useful subgraph that we looked at is the rectilinear spanning tree. This is a minimum spanning tree based on rectilinear distance, which is very much like manhattan distance, and is useful because it already has all the properties that the network reconstruction requires; It connects the points in such a way that there is a path from every node to every other node and there are no intersecting lines. \\
+
 To solve the single curve reconstrution problem, we have chosen for a spider-type algorithm, which will go from point to point and then determines the next best point to go to.\\
 The multiple curve reconstruction problem is solved using a weighted spanning tree, and the network reconstruction problem is also solved using a spanning tree, in this case the rectilinear spanning tree.\\
 After reconstructing this tree we try to find straight lines and connect those, since a spanning tree will not create cycles.\\
@@ -157,22 +158,12 @@ After this we look for straight lines in this new set of points, and check if co
 
 \bibliographystyle{plain}
 
-\begin{thebibliography}{}
+\begin{thebibliography}{50}
 
-\bibitem{a-raoa-02}
-S. Albers.
-On randomized online scheduling.
-In \emph{Proc. 34th ACM Sympos. Theory Comput.}, pages 134--143, 2002.
-
-\bibitem{clrs-ia-01}
-T.H. Cormen, C.E. Leiserson, R.L. Rivest and C. Stein.
-\emph{Introduction to Algorithms} (2nd edition).
-MIT Press, 2001.
-
-\bibitem{m-apca-83}
-N. Megiddo.
-Applying parallel computation algorithms in the design of serial algorithms.
-\emph{J. ACM} 30: 852--865 (1983).
+\bibitem{crust}
+Nina Amenta, Marshall Bern, Manolis Kamvysselis.
+A new Voronoi-Based Surface Reconstruction Algorithm
+(1998).
 
 \end{thebibliography}
 
