@@ -33,6 +33,15 @@ public class Line {
 	 * The y-coordinate of the point the line ends at.
 	 */
 	protected final float y2;
+
+	/**
+	 * Normalized coordinates of the line.
+	 * If the line is vertical, then *Left is the top-most point.
+	 */
+	protected final float xLeft;
+	protected final float yLeft;
+	protected final float xRight;
+	protected final float yRight;
 	
 	/* -- END Private final fields -- */
 	
@@ -50,6 +59,18 @@ public class Line {
 		this.y1 = y1;
 		this.x2 = x2;
 		this.y2 = y2;
+
+		if (x1 < x2 || (x1 == x2 && y1 < y2)) {
+			this.xLeft = x1;
+			this.yLeft = y1;
+			this.xRight = x2;
+			this.yRight = y2;
+		} else {
+			this.xLeft = x2;
+			this.yLeft = y2;
+			this.xRight = x1;
+			this.yRight = y1;
+		}
 	}
 	
 	/**
@@ -182,13 +203,23 @@ public class Line {
 		return getVector().getAngle();
 	}
 	
-        /**
+	/**
 	 * Get the slope of the line.
 	 * @return The slope as a float.
 	 */
 	public float getSlope() {
-		float dy = y2-y1;
-		float dx = x2-x1;
+		return getSlope(x2 - x1, y2 - y1);
+	}
+
+	/**
+	 * Get the slope of the line, relative to the left point.
+	 * @return The slope as a float.
+	 */
+	public float getNormalizedSlope() {
+		return getSlope(xRight - xLeft, yRight - yLeft);
+	}
+
+	private static float getSlope(float dx, float dy) {
         if (dx == 0) {
         	if (dy > 0) {
         		return Integer.MAX_VALUE;
@@ -198,7 +229,16 @@ public class Line {
         	}
         	return 0;
         }
-		return (dy) / (dx);
+		if (dy == 0) {
+        	if (dx > 0) {
+        		return Integer.MAX_VALUE;
+        	}
+        	if (dx < 0) {
+        		return Integer.MIN_VALUE;
+        	}
+        	return 0;
+		}
+		return dy / dx;
 	}
 	
 	/* -- END Getters for useful information -- */
@@ -259,12 +299,24 @@ public class Line {
 	
 	/* -- START Method to check for intersection -- */
 	
-	public boolean intersectsWith(Line line) {
+	public boolean intersectsWith(Line other) {
 		Line2D line1 = new Line2D.Float(getX1(), getY1(), getX2(), getY2());
-		Line2D line2 = new Line2D.Float(line.getX1(), line.getY1(), line.getX2(), line.getY2());
-		//System.out.println("Checking if "+this+" intersects with "+line);
-		//System.out.println("...="+(line2.intersectsLine(line1)));
-		return (line2.intersectsLine(line1));
+		Line2D line2 = new Line2D.Float(other.getX1(), other.getY1(), other.getX2(), other.getY2());
+		if (line2.intersectsLine(line1)) {
+			// Tests for touching lines
+			if (xLeft == other.xLeft && yLeft == other.yLeft || xRight == other.xRight && yRight == other.yRight) {
+				// Both lines start or end in the same point. If the slopes are equal, then they overlap.
+				return getNormalizedSlope() == other.getNormalizedSlope();
+			}
+			if (xLeft == other.xRight && yLeft == other.yRight || xRight == other.xLeft && yRight == other.yLeft) {
+				// One line ends in the start point of the other line. They will never intersect, because the
+				// normalized coordinates already ensure that if they overlap, then the previous branch should
+				// have been taken.
+				return false;
+			}
+			return true;
+		}
+		return false;
 	}
 	
 	/* -- END Method to check for intersection -- */
