@@ -151,6 +151,32 @@ Finally, we would like to spend a word on the detection of whether a curve is op
 However, the distances between nodes may vary greatly in parts of the curve. Therefore, we decided on a slighly different alternative: whether a curve is open or closed depends on whether there is a segment, for which the factor between its own length and the lengths of its adjacent segments is higher than a certain number. If so, the segment with such highest factor should be removed.\\
 
 \subsection*{Multiple curve reconstruction}
+\subsubsection*{Background definitions}
+%TODO Define Node/Point, Segment/Line Segment
+
+\subsubsection*{Outline}
+Our multiple curve reconstruction algorithm is based on findings after an evaluation of how humans find curves in a set of points. By consciously observing ourselves while connecting nodes, we have found that the most important factors in determining whether or not to connect a point to another point are 1) the proximity of other points and 2) line segment patterns in the graph constructed so far.
+
+In order to develop an algorithm that uses these concepts, the most important primitives for building the algorithm have to be identified. This step is important, because an algorithm that yields a perfect solution is useless when it takes ages to calculate the result. The two important factors from the previous paragraph resulted in the following supporting primitives:
+
+\begin{itemize}
+\item \textbf{Adjacency matrix} - By calculating an adjacency matrix in advance, the algorithm can find nearby points in constant time.
+\item A data structure that provides information about the connected nodes in a graph. In particular:
+\begin{itemize}
+\item Given a line segment, does it intersect the graph?
+\item Given a node, which segments are connected to it?
+\item Which nodes in the graph are connected to at most one other node?
+\end{itemize}
+\end{itemize}
+
+After creating these primitives, it becomes relatively straightforward to construct a graph from a set of nodes such that the result can be viewed as an appropriate way of connecting the nodes. The details for this algorithm are elaborated in the next section.
+
+\subsubsection*{Description}
+The algorithm takes a set of $n$ Nodes (with an X and Y coordinate) as input, and yields a set of Segments (a data type with two (x,y) coordinates denoting its endpoints).
+
+At first, an Adjacency matrix is constructed from the set of nodes. This takes $O(n^2)$ time. This matrix is stored in a hashmap that maps nodes to an array of node-distance tuples. This list is sorted in ascending order by the distance between the node and key. Because there are $n$ lists to be sorted, and a comparison-based sorting algorithm is mandatory, the running time of this step is $O(n^2 \log(n))$. After this expensive set-up, queries such as finding the Xth closest node to a node can be answered in constant time.
+
+%TODO Explain next step.
 
 \subsection*{Network reconstruction}
 To reconstruct a network from a set of points, we start by creating a minimum spanning tree between all points using Kruskal's algorithm.\\
