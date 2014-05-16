@@ -154,8 +154,6 @@ Finally, we would like to spend a word on the detection of whether a curve is op
 However, the distances between nodes may vary greatly in parts of the curve. Therefore, we decided on a slighly different alternative: whether a curve is open or closed depends on whether there is a segment, for which the factor between its own length and the lengths of its adjacent segments is higher than a certain number. If so, the segment with such highest factor should be removed.\\
 
 \subsection{Multiple curve reconstruction}
-\subsubsection{Background definitions}
-%TODO Define Node/Point, Segment/Line Segment, MST?
 
 \subsubsection{Outline}
 Our multiple curve reconstruction algorithm is based on findings after an evaluation of how humans find curves in a set of points. By consciously observing ourselves while connecting nodes, we have found that the most important factors in determining whether or not to connect a point to another point are 1) the proximity of other points and 2) line segment patterns in the graph constructed so far.
@@ -164,7 +162,7 @@ In order to develop an algorithm that uses these concepts, the most important pr
 
 \begin{itemize}
 \item Adjacency matrix - By calculating an adjacency matrix in advance, the algorithm can find nearby points in constant time.
-\item A data structure that provides information about the connected nodes in a graph. In particular:
+\item \textsc{ConnectedNodes} - A data structure that provides information about the connected nodes in a graph. In particular, it answers the following questions:
 \begin{itemize}
 \item Given a line segment, does it intersect the graph?
 \item Given a node, which segments are connected to it?
@@ -179,7 +177,27 @@ The algorithm takes a set of $n$ Nodes (with an X and Y coordinate) as input, an
 
 At first, an Adjacency matrix is constructed from the set of nodes. This takes $O(n^2)$ time. This matrix is stored in a hashmap that maps nodes to an array of node-distance tuples. This list is sorted in ascending order by the distance between the node and key. Because there are $n$ lists to be sorted, and a comparison-based sorting algorithm is mandatory, the running time of this step is $O(n^2 \log(n))$. After this expensive set-up, queries such as finding the Xth closest node to a node can be answered in constant time.
 
-%TODO Explain next step.
+\textsc{ConnectedNodes} is responsible for maintaining the information about the segments between the nodes. A mapping from nodes to neighbors can be maintained and accessed in constant time: Whenever a new segment is added to the graph, also add the segment to the sets of neighbors of both endpoints.
+
+To know whether a segment intersects the graph, a segment must be compared to all $k$ other segments. When there is no intersection, this algorithm takes $O(k)$ time. This is an acceptable method if the algorithm uses this operation about $k \log(k)$ times, because the final graph will have approximately as many segments as nodes.\\
+If it turns out that this is too slow, then it can be optimized by reducing the query space: If every segment was wrapped in a rectangle, then it is obvious that there are segments that will never intersect some other segment. This concept can be implemented by maintaining four sorted lists of the coordinates of the two opposite corners in the rectangle (minX, minY, maxX, maxY). A disadvantage is that adding or removing segments will no longer take constant time, but $O(\log(k))$ time, because the location of the segment has to be identified using binary search. At the same time, the worst case running time is still $O(log(k))$, but on average it will have a much smaller constant, because the boundaries of the query space can be found using binary search. For a large set of nodes, the rectangles are expected to be small, because the segments will probably connect to a near node rather than a node at the other side of the graph.
+
+After setting up the basic primitives, a MST is calculated, e.g. by calculating the permutation of all segments between all nodes followed by running Kruskal's algorithm \cite{k-osssgtsp-56} on the result. This takes $O(n^2\log(n))$ time and yields $n$ segments. These $n$ Segments are added to \textsc{ConnectedNodes}.
+
+After constructing the adjacency matrix and \textsc{ConnectedNodes} with the MST, follow the following steps:
+
+\begin{enumerate}
+\item Find all segments with only one segment and connect it to its closest neighbor (this takes $O(log(n))$ time).
+
+\item Find all cycles in the graph, e.g. using Depth-First-Search.
+
+\item\label{algo:rob-step-three} Find all segments that are connected to a node with three or more segments, and remove these from the graph, provided that it does not break a cycle.
+
+\item Find all overlapping cycles and try to split the cycles, by trying to disconnect the segments past the common path (the set of consecutive segments that the cycles have in common) and reconnecting the two nodes with degree 1. If this step fails to split the cycle, revert the attempt and continue with the next overlapping cycle until all overlapping cycles have been processed.
+
+\end{enumerate}
+
+This algorithm might give even better results if the distance between nodes is accounted for at step \ref{algo:rob-step-three}
 
 \subsection{Network Algorithm}
 \subsubsection{Background definitions}
