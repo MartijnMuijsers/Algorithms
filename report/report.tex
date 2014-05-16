@@ -6,6 +6,7 @@
 \usepackage{tikz}
 \usepackage{algorithm}
 \usepackage{algorithmic}
+\usepackage{parskip}
 
 \newcommand{\maxsize}[1]{\begin{quotation} {\sl \noindent Maximum size: #1.} \end{quotation}}
 
@@ -50,44 +51,59 @@ R. Wu
 We present three algorithms that connect all nodes in an unorganised set in the 2D plane in an aestetically pleasing manner. 
 The first algorithm will reconstruct a set of nodes into a single curve, such that no lines intersect. 
 The second algorithm will create multiple curves from the set of nodes, also in such a way that no lines intersect. 
-The third and final algorithm will attempt to create a road network from the nodes, and can add additional nodes when intersections occur.\\
+The third and final algorithm will attempt to create a road network from the nodes, and can add additional nodes when intersections occur.
 
 \end{abstract}
 
 \section{Introduction}
 \label{se:introduction}
-\maxsize{2 pages}
 The problem that we attempt to solve is that of reconstructing a set of points back into curves in the 2D plane. 
-This problem is split into three different parts. The first two require the reconstruction of a set of points into curves, in the first case there is only one curve, whereas in the second case there are mutiple. The third part of the problem requires reconstructing to a road network.\\
-This means that in the second case it is also required to distinguish multiple different curves from each other.\\
- It is important to note that the points are not given in order, since the goal is for the algorithm to determine the order, after which we can connect these points to reconstruct the curve.\\
- The multiple curve problem has the additional problem of finding out which points belong to which curve.\\
- Both algorithms have some constraints; Curve segments should not intersect each other and all points in the input must be used in the curve.\\
-The third part of the problem requires reconstruction of a road network. This algorithm could be used to create a road map after data has been collected using the GPS locations of cars.\\
-The goal of the algorithm is to create a reasonable representation of the road network, such that a person would agree with the representation that the algorithm gives. As with the other algorithms, there are some constraints.\\
-All points need to have at least one possible path to every other point and lines cannot intersect one another, however, unlike with the other problems, points can be added to alleviate intersecting lines.\\
+This problem is split into three different parts. The first two require the reconstruction of a set of points into curves, in the first case there is only one curve, whereas in the second case there are multiple. The third part of the problem requires reconstructing to a road network.
+
+This means that in the second case it is also required to distinguish multiple different curves from each other.
+
+It is important to note that the points are not given in order, since the goal is for the algorithm to determine the order, after which we can connect these points to reconstruct the curve.
+The multiple curve problem has the additional problem of finding out which points belong to which curve.
+
+Both algorithms have some constraints; Curve segments should not intersect each other and all points in the input must be used in the curve.
+
+The third part of the problem requires reconstruction of a road network. This algorithm could be used to create a road map after data has been collected using the GPS locations of cars.
+
+The goal of the algorithm is to create a reasonable representation of the road network, such that a person would agree with the representation that the algorithm gives. As with the other algorithms, there are some constraints.
+
+All points need to have at least one possible path to every other point and lines cannot intersect one another, however, unlike with the other problems, points can be added to alleviate intersecting lines.
+
 All nodes are points in a 2D plane, given by floating points ranging from 0 to 1. 
-The nodes are not determined randomly, but are determined beforehand. In practice, these datasets can be created by laser scanners, or in the case of the network, by following roads and giving the location at some interval.\\
+The nodes are not determined randomly, but are determined beforehand. In practice, these datasets can be created by laser scanners, or in the case of the network, by following roads and giving the location at some interval.
 
-There are multiple known solutions to these problems. One of these is 'The Crust Algorithm' \cite{crust}, which first creates a Voronoi diagram, then uses Delaunay triangulation between the Voronoi diagram and the Voronoi vertices.\\
-The Crust Algorithm solves the first problem that is described above, but needs additional work to determine the multiple curve problem.\\
-Delaunay triangulation could also be used to create a relatively small set of edges for the third problem, after which a recilinear spanning graph or straight lines can be determined between points.\\
-The Crust algorithm is however fairly complicated, and we do not think it is viable to recreate this within the given time.\\
-Another algorithm we looked at, that is useful for the single curve reconstruction, is creating a convex hull. A convex hull will create segments between all the outermost points, such that no unconnected point is outside of the enclosed area. Like putting a rubber band around all the points. This can be very useful for the outermost edges, but does not provide a lot of meaningful information.\\
-A very useful subgraph that we looked at is the rectilinear spanning tree. This is a minimum spanning tree based on rectilinear distance, which is very much like manhattan distance, and is useful because it already has all the properties that the network reconstruction requires; It connects the points in such a way that there is a path from every node to every other node and there are no intersecting lines. \\
+There are multiple known solutions to these problems. One of these is 'The Crust Algorithm' \cite{crust}, which first creates a Voronoi diagram, then uses Delaunay triangulation between the Voronoi diagram and the Voronoi vertices.
 
-To solve the single curve reconstrution problem, we have chosen for a spider-type algorithm, which will go from point to point and then determines the next best point to go to.\\
-The multiple curve reconstruction problem is solved using a weighted spanning tree, and the network reconstruction problem is also solved using a spanning tree, in this case the rectilinear spanning tree.\\
-After reconstructing this tree we try to find straight lines and connect those, since a spanning tree will not create cycles.\\
-The single curve reconstruction solution has produced good results so far, and has no problems with most inputs.\\
-The result of the network reconstruction are not yet complete, we are often missing edges when adding those would add cycles.\\
+The Crust Algorithm solves the first problem that is described above, but needs additional work to determine the multiple curve problem.
+
+Delaunay triangulation could also be used to create a relatively small set of edges for the third problem, after which a recilinear spanning graph or straight lines can be determined between points.
+
+The Crust algorithm is however fairly complicated, and we do not think it is viable to recreate this within the given time.
+
+Another algorithm we looked at, that is useful for the single curve reconstruction, is creating a convex hull. A convex hull will create segments between all the outermost points, such that no unconnected point is outside of the enclosed area. Like putting a rubber band around all the points. This can be very useful for the outermost edges, but does not provide a lot of meaningful information.
+
+A very useful subgraph that we looked at is the rectilinear spanning tree. This is a minimum spanning tree based on rectilinear distance, which is very much like manhattan distance, and is useful because it already has all the properties that the network reconstruction requires; It connects the points in such a way that there is a path from every node to every other node and there are no intersecting lines.
+
+To solve the single curve reconstruction problem, we have chosen for a spider-type algorithm, which will go from point to point and then determines the next best point to go to.
+
+The multiple curve reconstruction problem is solved using a weighted spanning tree, and the network reconstruction problem is also solved using a spanning tree, in this case the rectilinear spanning tree.
+
+After reconstructing this tree we try to find straight lines and connect those, since a spanning tree will not create cycles.
+
+The single curve reconstruction solution has produced good results so far, and has no problems with most inputs.
+
+The result of the network reconstruction are not yet complete, we are often missing edges when adding those would add cycles.
 
 \newpage
 \section{The algorithms}
 \label{se:algorithms}
 
 \subsection{Single curve reconstruction}
-To solve reconstruction of a single curve, we took an intuitive approach. After analyzing our own train of though when solving our own test cases, it was clear that our brains were trying to start somewhere on the curve, and following the curve along, making sure no points got forgotten in time.\\
+To solve reconstruction of a single curve, we took an intuitive approach. After analyzing our own train of though when solving our own test cases, it was clear that our brains were trying to start somewhere on the curve, and following the curve along, making sure no points got forgotten in time.
 
 We have attempted to utilize a similar method. We implemented a 'spider'-type algorithm that mainly depends on three important steps:
 \begin{itemize}
@@ -97,45 +113,45 @@ We have attempted to utilize a similar method. We implemented a 'spider'-type al
 \item Go on until the beginning has been reached
 \end{itemize}
 
-This interpretation soon raises the question "So how does it make sure no points are forgotten?"\\
-When two curves come really close to each other, the spider might feel like a node in the other curve is the best place to go, thus probably completely invalidating the rest of the run.\\
+This interpretation soon raises the question "So how does it make sure no points are forgotten?".
+When two curves come really close to each other, the spider might feel like a node in the other curve is the best place to go, thus probably completely invalidating the rest of the run.
 
-A simple solution for this would be to see at the end whether the found curve is a valid curve, and to rewind to a point where the algorithm likely made the wrong choice.\\
+A simple solution for this would be to see at the end whether the found curve is a valid curve, and to rewind to a point where the algorithm likely made the wrong choice.
 
 \subsubsection{Naive implementation} 
 
-Attempting to implement this solution, which we will name the Spider algorithm from here on, lead to disappointing results. Analyzing the informal description already soon tells you the running time of a naive implementation will definitely not be $O(n!)$, and this is what we found after implementation.\\
+Attempting to implement this solution, which we will name the Spider algorithm from here on, lead to disappointing results. Analyzing the informal description already soon tells you the running time of a naive implementation will definitely not be $O(n!)$, and this is what we found after implementation.
 
-Without the recursive strategy of looking back and trying to find a point where a mistake was made, the algorithm performs quite fine and finds a nice line (sometimes intersecting). With the recursive strategy, the algorithm takes too long to run on any amount of points larger than 100, where the points are considerably random.\\
+Without the recursive strategy of looking back and trying to find a point where a mistake was made, the algorithm performs quite fine and finds a nice line (sometimes intersecting). With the recursive strategy, the algorithm takes too long to run on any amount of points larger than 100, where the points are considerably random.
 
 These observations of the naive implementation lead us to create a more clever version of the Spider algorithm, that supported:
 \begin{itemize}
 \item Smart choice of a first position
 \item Smart choice of next node depending on all available factors
 \item A manageable way of remembering possibly valid choices and re-evaluating those choices if necessary
-\item A solid way of identifiying mistakes
+\item A solid way of identifying mistakes
 \end{itemize}
 
 
 \subsubsection{Choice of first position} 
 
-The first position of the spider will be chosen by picking the most boundary-like point. The most boundary-like point is the point, which has the largest continuous angular interval where no other points lie. So, if the spider were standing on the most boundary-like point, it could look around that whole angular interval and see no points.\\
+The first position of the spider will be chosen by picking the most boundary-like point. The most boundary-like point is the point, which has the largest continuous angular interval where no other points lie. So, if the spider were standing on the most boundary-like point, it could look around that whole angular interval and see no points.
 
-The first segments are then chosen by taking the two nearest nodes, and since there are then 3 possibilities to form 2 segments (we do not want to form a triangle unless there are only 3 points, of course) we simply take each of them and process each of them, and see which one fails the least.\\
+The first segments are then chosen by taking the two nearest nodes, and since there are then 3 possibilities to form 2 segments (we do not want to form a triangle unless there are only 3 points, of course) we simply take each of them and process each of them, and see which one fails the least.
 
 \subsubsection{Choice of next node} 
 
-If the spider is standing at a certain node, it looks back at the nodes it came from, and decides on the expected angle and distance to the next node. The expected angle is a continued value of a linear formula with the previous 2 angles as anchor points, and the expected distance is a continued value of a linear formula with the previous 2 distances as anchor points. In simpler terms: the change in angle and distance between the two last traversed segments is expected to be closely the angle and distance between the last traversed segment and the next to traverse. If the last traversed distances are 4 and 6, the expected next distance will be 8.\\
+If the spider is standing at a certain node, it looks back at the nodes it came from, and decides on the expected angle and distance to the next node. The expected angle is a continued value of a linear formula with the previous 2 angles as anchor points, and the expected distance is a continued value of a linear formula with the previous 2 distances as anchor points. In simpler terms: the change in angle and distance between the two last traversed segments is expected to be closely the angle and distance between the last traversed segment and the next to traverse. If the last traversed distances are 4 and 6, the expected next distance will be 8.
 
-The nodes are then sorted and stored by their 'likelihood' to be the best successor. Their likelihood is defined as the result of a (chooseable and possibly adaptive) formula that determines how close the observed angle and distance to a point being evaluated is to the expected angle and distance to observe.\\
+The nodes are then sorted and stored by their 'likelihood' to be the best successor. Their likelihood is defined as the result of a (chooseable and possibly adaptive) formula that determines how close the observed angle and distance to a point being evaluated is to the expected angle and distance to observe.
 
-The node with the best likelihood is then selected to be the successor and the spider moves to that node. (Whether a smaller or greater likelihood means more likely can depend on implementation if it is mathematically easier. We will not speak about the data representation of likelihood except for the fact that we chose to use a float value decreasing if more likely.)\\
+The node with the best likelihood is then selected to be the successor and the spider moves to that node. (Whether a smaller or greater likelihood means more likely can depend on implementation if it is mathematically easier. We will not speak about the data representation of likelihood except for the fact that we chose to use a float value decreasing if more likely.)
 
-The formula that we used for the likelihood is the sum of squares of the following values: the ratio of distance to the expected distance (if smaller than 1, this value is taken to the power -1), and the absolute difference in angle to the expected angle (in fraction of pi).\\
+The formula that we used for the likelihood is the sum of squares of the following values: the ratio of distance to the expected distance (if smaller than 1, this value is taken to the power -1), and the absolute difference in angle to the expected angle (in fraction of pi).
 
 \subsubsection{Remembering possibly valid choices} 
 
-For the whole path taken, per node it is stored what the though process at that point was (a 'viewpoint'): a sorted list of possible nodes to travel to, and their likelihood. When a mistake is made, we can simply look at the difference of the current likelihood to the next likelihood per viewpoint, and choose the one which is most likely incorrect to change.\\
+For the whole path taken, per node it is stored what the though process at that point was (a 'viewpoint'): a sorted list of possible nodes to travel to, and their likelihood. When a mistake is made, we can simply look at the difference of the current likelihood to the next likelihood per viewpoint, and choose the one which is most likely incorrect to change.
 
 \subsubsection{Identifying mistakes} 
 
@@ -149,9 +165,9 @@ To identify mistakes, we used the following criteria:
 
 \subsubsection{Open or closed} 
 
-Finally, we would like to spend a word on the detection of whether a curve is open or closed. We first decided that whether a curve is open or closed depends on the factor between the longest segment length and the one-to-longest segment length: if this is large enough, the curve is probably open and we should remove the longest segment.\\
+Finally, we would like to spend a word on the detection of whether a curve is open or closed. We first decided that whether a curve is open or closed depends on the factor between the longest segment length and the one-to-longest segment length: if this is large enough, the curve is probably open and we should remove the longest segment.
 
-However, the distances between nodes may vary greatly in parts of the curve. Therefore, we decided on a slighly different alternative: whether a curve is open or closed depends on whether there is a segment, for which the factor between its own length and the lengths of its adjacent segments is higher than a certain number. If so, the segment with such highest factor should be removed.\\
+However, the distances between nodes may vary greatly in parts of the curve. Therefore, we decided on a slightly different alternative: whether a curve is open or closed depends on whether there is a segment, for which the factor between its own length and the lengths of its adjacent segments is higher than a certain number. If so, the segment with such highest factor should be removed.
 
 \subsection{Multiple curve reconstruction}
 
@@ -220,8 +236,12 @@ The algorithm consists of the following steps:
   \end{enumerate}
   
 \subsubsection{Description}
-Given the set $V$ of points in $\mathbb{R}^2$ we first generate a graph $G$ in which every point $p\in V$ is connected to every point $q \in V$. Then the algorithms computes the $RMST$, see algorithm \ref{alg:RMSTalg}, using kruskal's algorithm \cite{k-osssgtsp-56}, for $G$ resulting in a connected graph that gives a good approximation of the road network but some straight road segments may not be connected, see figure \ref{fig:RMST}. We now find a set of points $S$ for which every $s \in S$ is a endpoint of a road segment, see algorithm \ref{alg:RNminalg}. For these points a edge $e \in E$ is found such that $e=(s,x)$ where $x \in V$. The slope of the edge determines the direction for the road segment for which $s$ is the endpoint. A line $l_1$ perpendicular to the slope is calculated and it is checked whether a nearby point $x \in V$ is below $l_1$ for $e$ with a negative slope or if $x$ is above $l_1$ for $e$ with a positive slope, see figure \ref{fig:RNmin}. Finally we calculate $RN_{com}$, see algorithm \ref{alg:RNcomalg}. First we find all segments $e \in E$ for which the slope of the following segment $e' \in E$ is divergent. For the segment $e$ we draw a line in the same direction and look for a intersection with a segment $x \in E$, see figure \ref{fig:RNcom}. If the distance between $e$ and $x$ is sufficiently small segment $e'$ is removed from $RN_{min}$ and a new segment from $e$ to $x$ is added to $RN_{com}$.
-\\
+Given the set $V$ of points in $\mathbb{R}^2$ we first generate a graph $G$ in which every point $p\in V$ is connected to every point $q \in V$. Then the algorithms computes the $RMST$, see algorithm \ref{alg:RMSTalg}, using Kruskal's algorithm \cite{k-osssgtsp-56}, for $G$ resulting in a connected graph that gives a good approximation of the road network but some straight road segments may not be connected, see figure \ref{fig:RMST}.
+
+We now find a set of points $S$ for which every $s \in S$ is a endpoint of a road segment, see algorithm \ref{alg:RNminalg}. For these points a edge $e \in E$ is found such that $e=(s,x)$ where $x \in V$. The slope of the edge determines the direction for the road segment for which $s$ is the endpoint. A line $l_1$ perpendicular to the slope is calculated and it is checked whether a nearby point $x \in V$ is below $l_1$ for $e$ with a negative slope or if $x$ is above $l_1$ for $e$ with a positive slope, see figure \ref{fig:RNmin}.
+
+Finally we calculate $RN_{com}$, see algorithm \ref{alg:RNcomalg}. First we find all segments $e \in E$ for which the slope of the following segment $e' \in E$ is divergent. For the segment $e$ we draw a line in the same direction and look for a intersection with a segment $x \in E$, see figure \ref{fig:RNcom}. If the distance between $e$ and $x$ is sufficiently small segment $e'$ is removed from $RN_{min}$ and a new segment from $e$ to $x$ is added to $RN_{com}$.
+
 \begin{figure}
 \begin{tikzpicture}
 \draw [fill] (7,0.5) circle [radius=0.05];
@@ -372,7 +392,7 @@ Given the set $V$ of points in $\mathbb{R}^2$ we first generate a graph $G$ in w
 \draw [color=red, fill] (20,0.5) circle [radius=0.05];
 
 \end{tikzpicture}
-\caption{Calculation steps for $RN_{com}$. Left: Edge $e'$ with divergent angle in red. Middle: Blue line intersects at $p$. Right:$e'$ is remove from $RN_{min}$ and new edge $s$ is added to $RN_{com}$ }
+\caption{Calculation steps for $RN_{com}$. Left: Edge $e'$ with divergent angle in red. Middle: Blue line intersects at $p$. Right: $e'$ is remove from $RN_{min}$ and new edge $s$ is added to $RN_{com}$ }
 \label{fig:RNcom}
 \end{figure}
 
