@@ -31,8 +31,12 @@ The algorithm consists of the following steps:
   \end{enumerate}
   
 \subsubsection{Description}
-Given the set $V$ of points in $\mathbb{R}^2$ we first generate a graph $G$ in which every point $p\in V$ is connected to every point $q \in V$. Then the algorithms computes the $RMST$, see algorithm \ref{alg:RMSTalg}, using kruskal's algorithm \cite{k-osssgtsp-56}, for $G$ resulting in a connected graph that gives a good approximation of the road network but some straight road segments may not be connected, see figure \ref{fig:RMST}. We now find a set of points $S$ for which every $s \in S$ is a endpoint of a road segment, see algorithm \ref{alg:RNminalg}. For these points a edge $e \in E$ is found such that $e=(s,x)$ where $x \in V$. The slope of the edge determines the direction for the road segment for which $s$ is the endpoint. A line $l_1$ perpendicular to the slope is calculated and it is checked whether a nearby point $x \in V$ is below $l_1$ for $e$ with a negative slope or if $x$ is above $l_1$ for $e$ with a positive slope, see figure \ref{fig:RNmin}. Finally we calculate $RN_{com}$, see algorithm \ref{alg:RNcomalg}. First we find all segments $e \in E$ for which the slope of the following segment $e' \in E$ is divergent. For the segment $e$ we draw a line in the same direction and look for a intersection with a segment $x \in E$, see figure \ref{fig:RNcom}. If the distance between $e$ and $x$ is sufficiently small segment $e'$ is removed from $RN_{min}$ and a new segment from $e$ to $x$ is added to $RN_{com}$.
-\\
+Given the set $V$ of points in $\mathbb{R}^2$ we first generate a graph $G$ in which every point $p\in V$ is connected to every point $q \in V$. Then the algorithms computes the $RMST$, see algorithm \ref{alg:RMSTalg}, using kruskal's algorithm \cite{k-osssgtsp-56}, for $G$ resulting in a connected graph that gives a good approximation of the road network but some straight road segments may not be connected, see figure \ref{fig:RMST}.
+ 
+ We now find a set of points $S$ for which every $s \in S$ is a endpoint of a road segment, see algorithm \ref{alg:RNminalg}. For these points a edge $e \in E$ is found such that $e=(s,x)$ where $x \in V$. The slope of the edge determines the direction for the road segment for which $s$ is the endpoint. A line $l_1$ perpendicular to the slope is calculated and it is checked whether a nearby point $x \in V$ is below $l_1$ for $e$ with a negative slope or if $x$ is above $l_1$ for $e$ with a positive slope, see figure \ref{fig:RNmin}. 
+ 
+ Finally we calculate $RN_{com}$, see algorithm \ref{alg:RNcomalg}. First we find all segments $e \in E$ for which the slope of the following segment $e' \in E$ is divergent. For the segment $e$ we draw a line in the same direction and look for a intersection with a segment $x \in E$, see figure \ref{fig:RNcom}. If the distance between $e$ and $x$ is sufficiently small segment $e'$ is removed from $RN_{min}$ and a new segment from $e$ to $x$ is added to $RN_{com}$.
+
 \begin{figure}
 \begin{tikzpicture}
 \draw [fill] (7,0.5) circle [radius=0.05];
@@ -183,7 +187,7 @@ Given the set $V$ of points in $\mathbb{R}^2$ we first generate a graph $G$ in w
 \draw [color=red, fill] (20,0.5) circle [radius=0.05];
 
 \end{tikzpicture}
-\caption{Calculation steps for $RN_{com}$. Left: Edge $e'$ with divergent angle in red. Middle: Blue line intersects at $p$. Right:$e'$ is remove from $RN_{min}$ and new edge $s$ is added to $RN_{com}$ }
+\caption{Calculation steps for $RN_{com}$. Left: Edge $e'$ with divergent angle in red. Middle: Blue line intersects at $p$. Right: $e'$ is remove from $RN_{min}$ and new edge $s$ is added to $RN_{com}$ }
 \label{fig:RNcom}
 \end{figure}
 
@@ -262,44 +266,6 @@ In \emph{Proceedings of the American Mathematical Society},7: 48-50, 1956.
 D. Chen, L.J. Guibas, J. Hershberger, J. Sun.
 Road Network Reconstruction for Organizing Paths.
 In \emph{Proceedings  of  21st  ACM-SIAM  Symposium  on  Discrete  Algorithms}, 10: 1309-1320, 2010.
-
-\bibitem{a-raoa-02}
-S. Albers.
-On randomized online scheduling.
-In \emph{Proc. 34th ACM Sympos. Theory Comput.}, pages 134--143, 2002.
-
-\bibitem{clrs-ia-01}
-T.H. Cormen, C.E. Leiserson, R.L. Rivest and C. Stein.
-\emph{Introduction to Algorithms} (2nd edition).
-MIT Press, 2001.
-
-\bibitem{m-apca-83}
-N. Megiddo.
-Applying parallel computation algorithms in the design of serial algorithms.
-\emph{J. ACM} 30: 852--865 (1983).
-
 \end{thebibliography}
-
-
-\begin{itemize}
-\item for journals:
-      Authors. Title of paper. \emph{Journal Name (italic)} volume: page numbers (year).
-      See reference~\cite{m-apca-83}.
-\item for conference proceedings:
-      Authors. Title of paper. In \emph{Proc. Conference Name and number (italic)}, pages xxx--yyy, year.
-      See reference~\cite{a-raoa-02}
-\item for books: Authors. \emph{Book title (italic)}. publisher, year.
-      See reference~\cite{clrs-ia-01}
-\end{itemize}
-Note that names of journals and conferences are usually abbreviated. There is a more
-or less standard way of doing this (for example, \emph{J. ACM} is stands for \emph{Journal of the ACM},
-but how you do it exactly is not so important,
-as long as you are consistent and list all the necessary information.
-
-
-
-
-
-
 \end{document}
 
