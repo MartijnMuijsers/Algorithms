@@ -155,7 +155,7 @@ However, the distances between nodes may vary greatly in parts of the curve. The
 
 \subsection{Multiple curve reconstruction}
 \subsubsection{Background definitions}
-%TODO Define Node/Point, Segment/Line Segment
+%TODO Define Node/Point, Segment/Line Segment, MST?
 
 \subsubsection{Outline}
 Our multiple curve reconstruction algorithm is based on findings after an evaluation of how humans find curves in a set of points. By consciously observing ourselves while connecting nodes, we have found that the most important factors in determining whether or not to connect a point to another point are 1) the proximity of other points and 2) line segment patterns in the graph constructed so far.
@@ -163,7 +163,7 @@ Our multiple curve reconstruction algorithm is based on findings after an evalua
 In order to develop an algorithm that uses these concepts, the most important primitives for building the algorithm have to be identified. This step is important, because an algorithm that yields a perfect solution is useless when it takes ages to calculate the result. The two important factors from the previous paragraph resulted in the following supporting primitives:
 
 \begin{itemize}
-\item \textbf{Adjacency matrix} - By calculating an adjacency matrix in advance, the algorithm can find nearby points in constant time.
+\item Adjacency matrix - By calculating an adjacency matrix in advance, the algorithm can find nearby points in constant time.
 \item A data structure that provides information about the connected nodes in a graph. In particular:
 \begin{itemize}
 \item Given a line segment, does it intersect the graph?
@@ -172,7 +172,7 @@ In order to develop an algorithm that uses these concepts, the most important pr
 \end{itemize}
 \end{itemize}
 
-After creating these primitives, it becomes relatively straightforward to construct a graph from a set of nodes such that the result can be viewed as an appropriate way of connecting the nodes. The details for this algorithm are elaborated in the next section.
+The actual algorithm starts with calculating a minimum spanning tree for all input nodes. Thereafter, nodes that are not yet connected with two other nodes are located and connected to the most appropriate neighbor. These neighbors are found with help of the previously mentioned primitives. Finally, clusters of coherent nodes are separated from other nodes. The details for this algorithm are elaborated in the next section.
 
 \subsubsection{Description}
 The algorithm takes a set of $n$ Nodes (with an X and Y coordinate) as input, and yields a set of Segments (a data type with two (x,y) coordinates denoting its endpoints).
