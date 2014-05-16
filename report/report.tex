@@ -48,7 +48,7 @@ R. Wu
 \maketitle
 
 \begin{abstract}
-We present three algorithms that connect all nodes in an unorganised set in the 2D plane in an aestetically pleasing manner. 
+We present three algorithms that connect all nodes in an unorganised set in the 2D plane in an aesthetically pleasing manner. 
 The first algorithm will reconstruct a set of nodes into a single curve, such that no lines intersect. 
 The second algorithm will create multiple curves from the set of nodes, also in such a way that no lines intersect. 
 The third and final algorithm will attempt to create a road network from the nodes, and can add additional nodes when intersections occur.
@@ -57,46 +57,27 @@ The third and final algorithm will attempt to create a road network from the nod
 
 \section{Introduction}
 \label{se:introduction}
-The problem that we attempt to solve is that of reconstructing a set of points back into curves in the 2D plane. 
-This problem is split into three different parts. The first two require the reconstruction of a set of points into curves, in the first case there is only one curve, whereas in the second case there are multiple. The third part of the problem requires reconstructing to a road network.
+The to be presented algorithms will solve the problem of reconstructing curves for a given set of points in the 2D plane. This problem has three slightly different forms: The first two require the reconstruction of a set of points into curves, in the first case there is only one curve, whereas in the second case there are multiple. The third part of the problem requires reconstructing to a road network.
 
-This means that in the second case it is also required to distinguish multiple different curves from each other.
+The first two curve reconstruction algorithms are subject to some constraints: Curve segments should not intersect each other and all points in the input must be used in the curve.
 
-It is important to note that the points are not given in order, since the goal is for the algorithm to determine the order, after which we can connect these points to reconstruct the curve.
-The multiple curve problem has the additional problem of finding out which points belong to which curve.
+The goal of the road network algorithm is to create a reasonable representation of the road network, such that a person would agree with the representation that the algorithm gives. This algorithm could be used to create a road map after data has been collected using the GPS locations of cars.
 
-Both algorithms have some constraints; Curve segments should not intersect each other and all points in the input must be used in the curve.
+As with the other algorithms, there are some constraints: All points need to have at least one possible path to every other point and lines cannot intersect one another. However, unlike the other problems, points can be added to alleviate intersecting lines.
 
-The third part of the problem requires reconstruction of a road network. This algorithm could be used to create a road map after data has been collected using the GPS locations of cars.
+All nodes are points in a 2D plane, represented by floating point numbers ranging from 0 to 1. These nodes are not calculated by the algorithm, but determined in advance. In practice, these datasets can be created by laser scanners, or in the case of the network, by following roads and giving the location at some interval.
 
-The goal of the algorithm is to create a reasonable representation of the road network, such that a person would agree with the representation that the algorithm gives. As with the other algorithms, there are some constraints.
+There are multiple known solutions to these problems. One of these is 'The Crust Algorithm' \cite{crust}, which first creates a Voronoi diagram, then uses Delaunay triangulation between the Voronoi diagram and the Voronoi vertices. The Crust Algorithm solves the first problem that is described above, but needs additional work to determine the multiple curve problem.
 
-All points need to have at least one possible path to every other point and lines cannot intersect one another, however, unlike with the other problems, points can be added to alleviate intersecting lines.
+Delaunay triangulation could also be used to create a relatively small set of edges for the third problem, after which a rectilinear spanning graph or straight lines can be determined between points. The Crust algorithm is however fairly complicated, and we do not think it is viable to recreate this within the given time.
 
-All nodes are points in a 2D plane, given by floating points ranging from 0 to 1. 
-The nodes are not determined randomly, but are determined beforehand. In practice, these datasets can be created by laser scanners, or in the case of the network, by following roads and giving the location at some interval.
-
-There are multiple known solutions to these problems. One of these is 'The Crust Algorithm' \cite{crust}, which first creates a Voronoi diagram, then uses Delaunay triangulation between the Voronoi diagram and the Voronoi vertices.
-
-The Crust Algorithm solves the first problem that is described above, but needs additional work to determine the multiple curve problem.
-
-Delaunay triangulation could also be used to create a relatively small set of edges for the third problem, after which a recilinear spanning graph or straight lines can be determined between points.
-
-The Crust algorithm is however fairly complicated, and we do not think it is viable to recreate this within the given time.
-
-Another algorithm we looked at, that is useful for the single curve reconstruction, is creating a convex hull. A convex hull will create segments between all the outermost points, such that no unconnected point is outside of the enclosed area. Like putting a rubber band around all the points. This can be very useful for the outermost edges, but does not provide a lot of meaningful information.
+For the single curve reconstruction problem, we have also looked at the convex hull. A convex hull will create segments between all the outermost points, such that no unconnected point is outside of the enclosed area. Like putting a rubber band around all the points. This can be very useful for connecting the outermost edges, but it is not as useful for inner edges.
 
 A very useful subgraph that we looked at is the rectilinear spanning tree. This is a minimum spanning tree based on rectilinear distance, which is very much like manhattan distance, and is useful because it already has all the properties that the network reconstruction requires; It connects the points in such a way that there is a path from every node to every other node and there are no intersecting lines.
 
 To solve the single curve reconstruction problem, we have chosen for a spider-type algorithm, which will go from point to point and then determines the next best point to go to.
 
-The multiple curve reconstruction problem is solved using a weighted spanning tree, and the network reconstruction problem is also solved using a spanning tree, in this case the rectilinear spanning tree.
-
-After reconstructing this tree we try to find straight lines and connect those, since a spanning tree will not create cycles.
-
-The single curve reconstruction solution has produced good results so far, and has no problems with most inputs.
-
-The result of the network reconstruction are not yet complete, we are often missing edges when adding those would add cycles.
+The multiple curve and road network reconstruction problems are solved using a minimum spanning tree. In multiple curve construction problem, the graph is completed using an adjacency matrix and another supporting data structure. The road network problem uses a particular kind of spanning trees, namely rectilinear minimum spanning tree to get an initial solution the problem. After reconstructing this tree, we try to find straight lines and connect those, since a spanning tree will not create cycles.
 
 \newpage
 \section{The algorithms}
