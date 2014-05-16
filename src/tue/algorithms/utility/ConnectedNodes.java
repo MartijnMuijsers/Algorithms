@@ -44,6 +44,9 @@ public class ConnectedNodes {
 	 * almost flat (horizontally / vertically), because it runs a binary search on
 	 * the full set of segments to identify boundaries of the search interval,
 	 * then it searches for intersections in a linear way.
+	 * NOTE: Due to a bad implementation, this method fails to identify the left
+	 * boundary, so it is a bit inefficient for lines at the bottom-right corner of
+	 * the graph.
 	 *
 	 * @return Whether the segment intersects the graph.
 	 */
@@ -62,7 +65,9 @@ public class ConnectedNodes {
 		}
 
 		// Use tailSet to skip all elements "before" segment.
-		for (Segment other : segments.tailSet(segment, false)) {
+		// TODO: Use binary search to identify the starting point instead
+		// of starting at the front of the list
+		for (Segment other : segments) {
 			if (maximum < (isNearVertical ? other.getMinX() : other.getMinY())) {
 				// Every element "after" segment will never intersect segment.
 				return false;
