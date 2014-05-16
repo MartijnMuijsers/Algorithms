@@ -11,7 +11,7 @@ import tue.algorithms.implementation.general.SingleImplementation;
 import tue.algorithms.utility.Node;
 import tue.algorithms.utility.Segment;
 
-public class SingleSpiderNewBackup1 extends SingleImplementation {
+public class SingleSpiderNewBackup1 implements SingleImplementation {
 	
 	/* -- START Parameters as formulas -- */
 	

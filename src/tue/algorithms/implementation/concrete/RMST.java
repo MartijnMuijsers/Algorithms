@@ -18,7 +18,7 @@ import tue.algorithms.utility.Segment;
  * 
  * @author Chris
  */
-public class RMST extends NetworkImplementation {
+public class RMST implements NetworkImplementation {
 
     @Override
     public Pair<Segment[], Node[]> getOutput(Node[] input) {

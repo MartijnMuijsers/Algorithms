@@ -5,11 +5,11 @@ import tue.algorithms.utility.Segment;
 
 /**
  * <p>
- * An abstract class for an implementation of a solution for the multiple-curve problem.
+ * An interface for an implementation of a solution for the multiple-curve problem.
  * </p>
  * @author Martijn
  */
-public abstract class MultipleImplementation {
+public interface MultipleImplementation {
 	
 	/**
 	 * Get the solution to a problem: given nodes as input, find the segments to be best connected,
@@ -17,6 +17,6 @@ public abstract class MultipleImplementation {
 	 * @param input The nodes as input
 	 * @return The segments as output
 	 */
-	public abstract Segment[] getOutput(Node[] input);
+	public Segment[] getOutput(Node[] input);
 	
 }

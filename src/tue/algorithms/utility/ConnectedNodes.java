@@ -44,6 +44,9 @@ public class ConnectedNodes {
 	 * almost flat (horizontally / vertically), because it runs a binary search on
 	 * the full set of segments to identify boundaries of the search interval,
 	 * then it searches for intersections in a linear way.
+	 * NOTE: Due to a bad implementation, this method fails to identify the left
+	 * boundary, so it is a bit inefficient for lines at the bottom-right corner of
+	 * the graph.
 	 *
 	 * @return Whether the segment intersects the graph.
 	 */
@@ -62,8 +65,10 @@ public class ConnectedNodes {
 		}
 
 		// Use tailSet to skip all elements "before" segment.
-		for (Segment other : segments.tailSet(segment, false)) {
-			if (maximum < (isNearVertical ? other.getMaxX() : other.getMaxY())) {
+		// TODO: Use binary search to identify the starting point instead
+		// of starting at the front of the list
+		for (Segment other : segments) {
+			if (maximum < (isNearVertical ? other.getMinX() : other.getMinY())) {
 				// Every element "after" segment will never intersect segment.
 				return false;
 			}
@@ -135,6 +140,41 @@ public class ConnectedNodes {
 		}
 		Segment[] segmentsArray = new Segment[segmentsSet.size()];
 		return segmentsSet.toArray(segmentsArray);
+	}
+
+	/**
+	 * Returns the all segments that have been added to this data structure.
+	 * Note that the order of segments is not specified, do not make any
+	 * assumptions about it!
+	 * Time complexity: O(1)
+	 *
+	 * @return All segments that have been added to this data structure.
+	 */
+	public Segment[] getAllSegments() {
+		return segmentsQH.toArray(new Segment[0]);
+	}
+
+	/**
+	 * Check whether two nodes are connected.
+	 * Time complexity: O(k)
+	 * Where k is the number of segments connected to {@code node1}.
+	 * This number is usually very low, so the running time is usually O(1).
+	 *
+	 * @param node1
+	 * @param node2
+	 * @return Whether there exist a segment that connects the two nodes.
+	 */
+	public boolean isConnected(Node node1, Node node2) {
+		HashSet<Segment> segmentsSet = nodeToSegments.get(node1.getId());
+		if (segmentsSet == null) {
+			return false;
+		}
+		for (Segment segment : segmentsSet) {
+			if (segment.isEndPoint(node2)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

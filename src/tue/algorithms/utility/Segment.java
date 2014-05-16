@@ -90,6 +90,15 @@ public class Segment extends Line {
 	public Node getNode2() {
 		return Node.getById(node2id);
 	}
+
+	/**
+	 * @param node
+	 * @return Whether the segment has {@code node} as one of its end points.
+	 */
+	public boolean isEndPoint(Node node) {
+		int nodeId = node.getId();
+		return node1id == nodeId || node2id == nodeId;
+	}
 	
 	/* -- END Getters for node representations of private fields -- */
 	

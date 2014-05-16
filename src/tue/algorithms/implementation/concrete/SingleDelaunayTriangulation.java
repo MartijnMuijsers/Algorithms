@@ -8,7 +8,7 @@ import tue.algorithms.utility.Segment;
  * A solution to the single-curve problem using Delaunay triangulation.
  * @author Martijn
  */
-public class SingleDelaunayTriangulation extends SingleImplementation {
+public class SingleDelaunayTriangulation implements SingleImplementation {
 
 	@Override
 	public Segment[] getOutput(Node[] input) {

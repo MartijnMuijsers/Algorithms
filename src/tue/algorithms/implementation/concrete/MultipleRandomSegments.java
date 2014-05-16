@@ -13,7 +13,7 @@ import tue.algorithms.utility.Segment;
  * This is supposed to be to test a simulation environment.
  * @author Martijn
  */
-public class MultipleRandomSegments extends MultipleImplementation {
+public class MultipleRandomSegments implements MultipleImplementation {
 
 	@Override
 	public Segment[] getOutput(Node[] input) {
