@@ -24,7 +24,7 @@ public class SingleImploding implements SingleImplementation {
 	
 	/** Where x = distance **/
 	public static float distanceImpactOnLikelihoodFormula(float x) {
-		return 100*pow(x, 2);
+		return 100000*pow(x, 2);
 	}
 	
 	/** Where x = angular difference to expected **/
@@ -43,7 +43,7 @@ public class SingleImploding implements SingleImplementation {
 	}
 	
 	public static boolean likelihoodCondition(float newLikelihood, float oldLikelihood) {
-		return newLikelihood < oldLikelihood*0.03;
+		return newLikelihood < oldLikelihood*0.3;
 	}
 	
 	public static final boolean mozesEnabled = false;
@@ -140,6 +140,16 @@ public class SingleImploding implements SingleImplementation {
 						float newLikelihood = newEgyptLikelihood+newIsraelLikelihood;
 						if (likelihoodCondition(newLikelihood, oldLikelihood)) { // wel heel extreem drastisch dit: 'fixt' praktisch ALLES! TODO
 							Debug.log("Alright! Likelihoods: " + newLikelihood + " < " + oldLikelihood);
+							Debug.log("Old Egypt likelihood 1:");
+							getLikelihood(oldEgyptSegment1, oldEgyptSegment2, oldEgyptSegment3);
+							Debug.release("likelihood");
+							Debug.log("Old Egypt likelihood 2:");
+							getLikelihood(oldEgyptSegment2, oldEgyptSegment3, oldEgyptSegment4);
+							Debug.release("likelihood");
+							Debug.log("Old Israel likelihood:");
+							getLikelihood(oldIsraelSegment1, oldIsraelSegment2, oldIsraelSegment3);
+							Debug.release("likelihood");
+							//Debug
 							// TODO verander dit want om dit opnieuw te constructen is echt idioot
 							foundSegments.remove(oldEgyptSegment2);
 							foundSegments.remove(oldEgyptSegment3);
@@ -284,12 +294,10 @@ public class SingleImploding implements SingleImplementation {
 		if (distanceDifference < 0) {
 			distanceDifference *= -1;
 		}
-		float expectedDistance;
-		if (distanceBetweenComingFromAndStandingAt < distanceBetweenLookingBackAndComingFrom) {
-			expectedDistance = distanceBetweenComingFromAndStandingAt-distanceDifference;
-		} else {
-			expectedDistance = distanceBetweenComingFromAndStandingAt+distanceDifference;
-		}
+		float expectedDistance = distanceBetweenComingFromAndStandingAt*distanceBetweenComingFromAndStandingAt/distanceBetweenLookingBackAndComingFrom;
+		Debug.startHold("likelihood");
+		Debug.log("getLikelihood: " + distanceBetweenLookingBackAndComingFrom + " -> " + distanceBetweenComingFromAndStandingAt + " = " + expectedDistance + " / " + goingTo.getDistanceTo(standingAt) + " , " + angleBetweenLookingBackAndComingFrom + " -> " + angleBetweenComingFromAndStandingAt + " = " + expectedAngle + " / " + standingAt.getAngleTo(goingTo));
+		Debug.stopHold();
 		return likelihoodFormula(distanceImpactOnLikelihoodFormula(invertIfSmallerThanOne(goingTo.getDistanceTo(standingAt)/expectedDistance)), angularDifferenceToExpectedImpactOnLikelihoodFormula(((float) (getAngularDifference(expectedAngle, standingAt.getAngleTo(goingTo))/Math.PI))), angularDifferenceToEachOtherImpactOnLikelihoodFormula(((float) (angularDifferenceSum/Math.PI))));
 	}
 	

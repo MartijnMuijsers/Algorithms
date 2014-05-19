@@ -2,6 +2,7 @@ package tue.algorithms.implementation.concrete;
 
 import java.util.HashSet;
 
+import tue.algorithms.other.Debug;
 import tue.algorithms.utility.Line;
 import tue.algorithms.utility.Node;
 import tue.algorithms.utility.Point;
@@ -19,9 +20,13 @@ public abstract class ConvexHull {
 			for (Node b : input) {
 				if (a.getId() < b.getId()) {
 					allSegments.add(new Segment(a, b));
+					if (a.getY() == b.getY() && a.getY() == 0) {
+						Debug.log(new Segment(a, b));
+					}
 				}
 			}
 		}
+		Debug.log("allSegments.size()="+allSegments.size());
 		HashSet<Segment> boundarySegments = new HashSet<Segment>();
 		for (Segment segment : allSegments) {
 			boolean success = true;
@@ -30,6 +35,14 @@ public abstract class ConvexHull {
 				if (!n.equals(segment.getNode1())) {
 					if (!n.equals(segment.getNode2())) {
 						Side side = getSide(n, segment);
+						if (segment.getY1() == 0 && segment.getY2() == 0) {
+							Debug.log(">>> " + side);
+						}
+						if (side == Side.ON) {
+							Debug.log("ON");
+						} else if (side == Side.ON_EXTENDED) {
+							Debug.log("ON_EXTENDED");
+						}
 						if (side == Side.ON) {
 							success = false;
 							break;
@@ -56,7 +69,11 @@ public abstract class ConvexHull {
 	}
 	
 	public static Side getSide(Point point, Line line) {
+		if (line.getY1() == 0 && line.getY2() == 0) {
+			Debug.log(point.getY());
+		}
 		if (line.getX1() == line.getX2()) {
+			Debug.log("x1 = x2");
 			if (point.getX() < line.getX1()) {
 				return Side.TOP_LEFT;
 			} else if (point.getX() > line.getX1()) {
@@ -70,12 +87,14 @@ public abstract class ConvexHull {
 			return Side.ON_EXTENDED;
 		}
 		float supposedY = line.getSlope()*(point.getX()-line.getX1())+line.getY1();
+		Debug.log(supposedY);
 		if (point.getY() < supposedY) {
 			return Side.TOP_LEFT;
 		}
 		if (point.getY() > supposedY) {
 			return Side.BOTTOM_RIGHT;
 		}
+		Debug.log("Oh oh");
 		float minLineY = Math.min(line.getY1(), line.getY2());
 		float maxLineY = Math.max(line.getY1(), line.getY2());
 		float minLineX = Math.min(line.getX1(), line.getX2());
