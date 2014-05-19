@@ -229,15 +229,6 @@ public class Line {
         	}
         	return 0;
         }
-		if (dy == 0) {
-        	if (dx > 0) {
-        		return Integer.MAX_VALUE;
-        	}
-        	if (dx < 0) {
-        		return Integer.MIN_VALUE;
-        	}
-        	return 0;
-		}
 		return dy / dx;
 	}
 	

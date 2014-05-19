@@ -44,6 +44,8 @@ import tue.algorithms.utility.Segment;
 
 public class Simulation {
 
+    final private static float ERASER_RADIUS = 0.025f;
+
 	/**
      * Get an instance of the class that is chosen to provide input.
      *
@@ -95,14 +97,15 @@ public class Simulation {
 
     // Nodes
     private ArrayList<Node> nodes;
-    private ArrayList<Node> tempNodes;
     private ArrayList<Segment> segments;
 
     // Keypress memory
-    private boolean editModeMouseButtonDown;
+    private boolean addButtonDown;
     private boolean clearKeyDown;
-    private boolean recalculateKeyDown;
-    private boolean typeKeyDown;
+    private boolean runKeyDown;
+    private boolean oneKeyDown;
+    private boolean twoKeyDown;
+    private boolean threeKeyDown;
     private boolean saveKeyDown;
     private boolean openKeyDown;
     
@@ -112,14 +115,16 @@ public class Simulation {
     
     // Constructor
     public Simulation() {
-        editModeMouseButtonDown = false;
-        recalculateKeyDown = false;
+        addButtonDown = false;
+        runKeyDown = false;
         clearKeyDown = false;
         showSegments = true;
         saveKeyDown = false;
         openKeyDown = false;
+        oneKeyDown = false;
+        twoKeyDown = false;
+        threeKeyDown = false;
         brushMode = false;
-        typeKeyDown = false;
     }
 
     public void initialize() {
@@ -182,62 +187,109 @@ public class Simulation {
             } else if (ratio < 1f) {
                 glScalef(1f, 1f/ratio, 1);
             }
-            drawCircle( Camera.OFFSETFACTOR, 16);
+            drawCircle( ERASER_RADIUS, 16);
             glPopMatrix();
         }
     }
     
     public boolean getInput() throws IOException {
-        // Add
-        if (Mouse.isButtonDown(0) && !editModeMouseButtonDown) {
-                addNode();
-        }
-        editModeMouseButtonDown = Mouse.isButtonDown(0);
-        
-        // Erase
-        if (!brushMode && Mouse.isButtonDown(1)) {
-                brushMode = true;
-        }
-        if (brushMode && !Mouse.isButtonDown(1)){
-            brushMode = false;
-        }
-        if (brushMode){
-            deleteNodes();
-        }
+        while (Mouse.next()) {
+            if (Mouse.getEventButton() > -1) {
+                // Add
+                if (Mouse.getEventButton() == 0) {
+                    addButtonDown = Mouse.getEventButtonState() && !addButtonDown;
+                }
 
-        // Recalculate
-        if (Keyboard.isKeyDown(Keyboard.KEY_R) && !recalculateKeyDown) {
-            calculateSegments();
-            showSegments = true;
+                // Erase
+                if (Mouse.getEventButton() == 1) {
+                    brushMode = Mouse.getEventButtonState();
+                }
+            }
         }
-        recalculateKeyDown = Keyboard.isKeyDown(Keyboard.KEY_R);
-
-        // Clear
-        if (Keyboard.isKeyDown(Keyboard.KEY_C) && !clearKeyDown) {
-            showSegments = false;
-        }
-        clearKeyDown = Keyboard.isKeyDown(Keyboard.KEY_C);        
         
-        // Save
-        if (Keyboard.isKeyDown(Keyboard.KEY_S) && !saveKeyDown) {
-            save();
+        while (Keyboard.next()) {
+            // Run
+            if (Keyboard.getEventKey() == Keyboard.KEY_R) {
+                runKeyDown = !runKeyDown && Keyboard.getEventKeyState();
+            }              
+            
+            // Clear
+            if (Keyboard.getEventKey() == Keyboard.KEY_C) {
+                clearKeyDown = !clearKeyDown && Keyboard.getEventKeyState();
+            }             
+            
+            // Save
+            if (Keyboard.getEventKey() == Keyboard.KEY_S) {
+                saveKeyDown = !saveKeyDown && Keyboard.getEventKeyState();
+            } 
+            
+            // Open
+            if (Keyboard.getEventKey() == Keyboard.KEY_O) {
+                openKeyDown = !openKeyDown && Keyboard.getEventKeyState();
+            }            
+            
+            // Type
+            if (Keyboard.getEventKey() == Keyboard.KEY_1) {
+                oneKeyDown = Keyboard.getEventKeyState();
+            }
+            if (Keyboard.getEventKey() == Keyboard.KEY_2) {
+                twoKeyDown = Keyboard.getEventKeyState();
+            }
+            if (Keyboard.getEventKey() == Keyboard.KEY_3) {
+                threeKeyDown = Keyboard.getEventKeyState();
+            }            
         }
-        saveKeyDown = Keyboard.isKeyDown(Keyboard.KEY_S);  
-        
-        // Open
-        if (Keyboard.isKeyDown(Keyboard.KEY_O) && !openKeyDown) {
-            open();
-        }
-        openKeyDown = Keyboard.isKeyDown(Keyboard.KEY_O);  
- 
-        // Type
-        if (Keyboard.isKeyDown(Keyboard.KEY_T) && !typeKeyDown) {
-            toggleType();
-        }
-        typeKeyDown = Keyboard.isKeyDown(Keyboard.KEY_T);          
         
         //if ESC is pressed, close program
         return Keyboard.isKeyDown(Keyboard.KEY_ESCAPE);
+    }
+    
+    public void processInput() throws FileNotFoundException{
+        if (addButtonDown){
+            addNode();
+            addButtonDown = false;
+        }
+        
+        if (brushMode) {
+            deleteNodes();
+        }
+        
+        if (runKeyDown) {
+            calculateSegments();
+            showSegments = true;
+            runKeyDown = false;
+        }
+        
+        if (clearKeyDown){
+            showSegments = false;
+            clearKeyDown = false;
+        }
+        
+        if (saveKeyDown){
+            save();
+            saveKeyDown = false;
+        }
+        
+        if (openKeyDown){
+            open();
+            openKeyDown = false;
+        }        
+        
+        if(oneKeyDown){
+            problemType = ProblemType.SINGLE;
+            oneKeyDown = false;
+        }
+        
+        if(twoKeyDown){
+            problemType = ProblemType.MULTIPLE;
+            twoKeyDown = false;
+        }        
+        
+        if(threeKeyDown){
+            problemType = ProblemType.NETWORK;
+            threeKeyDown = false;
+        }      
+    
     }
     
     private void calculateSegments() {
@@ -279,41 +331,25 @@ public class Simulation {
             this.segments.add(segment);
         }
     }
-
-    private void toggleType(){
-        if (problemType == ProblemType.SINGLE){
-            problemType = ProblemType.MULTIPLE;
-        } else if (problemType == ProblemType.MULTIPLE){
-            problemType = ProblemType.NETWORK;
-        } else if (problemType == ProblemType.NETWORK){
-            problemType = ProblemType.SINGLE;
-        } 
-    }
     
     private void deleteNodes() {
         float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
         float clickY = 1 - ((float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR);
         Node mouseNode = new Node(0, clickX, clickY);
 
-        boolean modified = false;
-        ArrayList<Node> nodesToDelete = new ArrayList<>();
         for (Node node : nodes) {
-            if (node.subtract(mouseNode).length() < 0.025) {
-                nodesToDelete.add(node);
-                modified = true;
+            if (node.subtract(mouseNode).length() < ERASER_RADIUS) {
+                // Found a node under the eraser, reconstruct the whole set of nodes.
+                ArrayList<Node> tempNodes = new ArrayList<Node>(nodes.size());
+                int i = 0;
+                for (Node n : nodes) {
+                    if (n.subtract(mouseNode).length() >= ERASER_RADIUS) {
+                        tempNodes.add(new Node(i++, n.getX(), n.getY()));
+                    }
+                }
+                nodes = tempNodes;
+                break;
             }
-        }
-        if (modified) {
-            tempNodes = new ArrayList<>(nodes);
-            for (Node n : nodesToDelete) {
-                tempNodes.remove(n);
-            }            
-            int i = 0;
-            for (Node n : tempNodes) {
-                n = new Node(i + 1, n.getX(), n.getY());
-                ++i;
-            }
-            nodes = tempNodes;
         }
     }
 
@@ -321,7 +357,7 @@ public class Simulation {
         float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
         float clickY = 1 - ((float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR);
         if (clickX >= 0 && clickX <= 1 && clickY >= 0 && clickY <= 1) {
-            tempNodes = new ArrayList<>();
+            ArrayList<Node> tempNodes = new ArrayList<Node>();
             int i = 1;
             for (Node node : nodes) {
                 tempNodes.add(new Node(i, node.getX(), node.getY()));
