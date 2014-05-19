@@ -99,9 +99,9 @@ public class Simulation {
     private ArrayList<Segment> segments;
 
     // Keypress memory
-    private boolean editModeMouseButtonDown;
+    private boolean addButtonDown;
     private boolean clearKeyDown;
-    private boolean recalculateKeyDown;
+    private boolean runKeyDown;
     private boolean typeKeyDown;
     private boolean saveKeyDown;
     private boolean openKeyDown;
@@ -112,14 +112,14 @@ public class Simulation {
     
     // Constructor
     public Simulation() {
-        editModeMouseButtonDown = false;
-        recalculateKeyDown = false;
+        addButtonDown = false;
+        runKeyDown = false;
         clearKeyDown = false;
         showSegments = true;
         saveKeyDown = false;
         openKeyDown = false;
-        brushMode = false;
         typeKeyDown = false;
+        brushMode = false;
     }
 
     public void initialize() {
@@ -188,56 +188,86 @@ public class Simulation {
     }
     
     public boolean getInput() throws IOException {
-        // Add
-        if (Mouse.isButtonDown(0) && !editModeMouseButtonDown) {
-                addNode();
-        }
-        editModeMouseButtonDown = Mouse.isButtonDown(0);
-        
-        // Erase
-        if (!brushMode && Mouse.isButtonDown(1)) {
-                brushMode = true;
-        }
-        if (brushMode && !Mouse.isButtonDown(1)){
-            brushMode = false;
-        }
-        if (brushMode){
-            deleteNodes();
-        }
+        while (Mouse.next()) {
+            if (Mouse.getEventButton() > -1) {
+                // Add
+                if (Mouse.getEventButton() == 0) {
+                    addButtonDown = Mouse.getEventButtonState() && !addButtonDown;
+                }
 
-        // Recalculate
-        if (Keyboard.isKeyDown(Keyboard.KEY_R) && !recalculateKeyDown) {
-            calculateSegments();
-            showSegments = true;
+                // Erase
+                if (Mouse.getEventButton() == 1) {
+                    brushMode = Mouse.getEventButtonState();
+                }
+            }
         }
-        recalculateKeyDown = Keyboard.isKeyDown(Keyboard.KEY_R);
-
-        // Clear
-        if (Keyboard.isKeyDown(Keyboard.KEY_C) && !clearKeyDown) {
-            showSegments = false;
-        }
-        clearKeyDown = Keyboard.isKeyDown(Keyboard.KEY_C);        
         
-        // Save
-        if (Keyboard.isKeyDown(Keyboard.KEY_S) && !saveKeyDown) {
-            save();
+        while (Keyboard.next()) {
+            // Run
+            if (Keyboard.getEventKey() == Keyboard.KEY_R) {
+                runKeyDown = !runKeyDown && Keyboard.getEventKeyState();
+            }              
+            
+            // Clear
+            if (Keyboard.getEventKey() == Keyboard.KEY_C) {
+                clearKeyDown = !clearKeyDown && Keyboard.getEventKeyState();
+            }             
+            
+            // Save
+            if (Keyboard.getEventKey() == Keyboard.KEY_S) {
+                saveKeyDown = !saveKeyDown && Keyboard.getEventKeyState();
+            } 
+            
+            // Open
+            if (Keyboard.getEventKey() == Keyboard.KEY_O) {
+                openKeyDown = !openKeyDown && Keyboard.getEventKeyState();
+            }            
+            
+            // Type
+            if (Keyboard.getEventKey() == Keyboard.KEY_T) {
+                typeKeyDown = !typeKeyDown && Keyboard.getEventKeyState();
+            }
         }
-        saveKeyDown = Keyboard.isKeyDown(Keyboard.KEY_S);  
-        
-        // Open
-        if (Keyboard.isKeyDown(Keyboard.KEY_O) && !openKeyDown) {
-            open();
-        }
-        openKeyDown = Keyboard.isKeyDown(Keyboard.KEY_O);  
- 
-        // Type
-        if (Keyboard.isKeyDown(Keyboard.KEY_T) && !typeKeyDown) {
-            toggleType();
-        }
-        typeKeyDown = Keyboard.isKeyDown(Keyboard.KEY_T);          
         
         //if ESC is pressed, close program
         return Keyboard.isKeyDown(Keyboard.KEY_ESCAPE);
+    }
+    
+    public void processInput() throws FileNotFoundException{
+        if (addButtonDown){
+            addNode();
+            addButtonDown = false;
+        }
+        
+        if (brushMode) {
+            deleteNodes();
+        }
+        
+        if (runKeyDown) {
+            calculateSegments();
+            showSegments = true;
+            runKeyDown = false;
+        }
+        
+        if (clearKeyDown){
+            showSegments = false;
+            clearKeyDown = false;
+        }
+        
+        if (saveKeyDown){
+            save();
+            saveKeyDown = false;
+        }
+        
+        if (openKeyDown){
+            open();
+            openKeyDown = false;
+        }        
+        
+        if(typeKeyDown){
+            toggleType();
+            typeKeyDown = false;
+        }
     }
     
     private void calculateSegments() {

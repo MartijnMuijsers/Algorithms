@@ -1,5 +1,6 @@
 package tue.algorithms.viewer;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,9 +74,10 @@ public class Engine {
             if (getInput()) {
                 break; // ESC is pressed
             }
+            processInput();
             String title = "";
             title += " problemType: " + simulation.problemType.name();
-            title += "  [R = recalculate | C = clear | S = save | O = open | T = type] ";
+            title += "  [R = run | C = clear | S = save | O = open | T = type] ";
             Display.setTitle(title);
             render();
         }
@@ -83,6 +85,10 @@ public class Engine {
 
     private boolean getInput() throws IOException {
         return simulation.getInput();
+    }
+    
+    private void processInput() throws FileNotFoundException{
+        simulation.processInput();
     }
 
     private void render() {
