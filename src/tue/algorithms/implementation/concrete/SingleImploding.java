@@ -24,17 +24,17 @@ public class SingleImploding implements SingleImplementation {
 	
 	/** Where x = distance **/
 	public static float distanceImpactOnLikelihoodFormula(float x) {
-		return 10*pow(x, 2);
+		return 100*pow(x, 2);
 	}
 	
 	/** Where x = angular difference to expected **/
 	public static float angularDifferenceToExpectedImpactOnLikelihoodFormula(float x) {
-		return pow(x, 2);
+		return 10*pow(x, 2);
 	}
 	
 	/** Where x = actual angular differences **/
 	public static float angularDifferenceToEachOtherImpactOnLikelihoodFormula(float x) {
-		return 5*pow(x, 2);
+		return pow(x, 2);
 	}
 	
 	/** Where x = distance impact, and y = angle impact (expected), and z = angle impact (to each other) **/
@@ -43,7 +43,7 @@ public class SingleImploding implements SingleImplementation {
 	}
 	
 	public static boolean likelihoodCondition(float newLikelihood, float oldLikelihood) {
-		return newLikelihood < oldLikelihood*pow(0.74f, 2);
+		return newLikelihood < oldLikelihood*0.03;
 	}
 	
 	public static final boolean mozesEnabled = false;

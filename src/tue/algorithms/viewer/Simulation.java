@@ -367,29 +367,36 @@ public class Simulation {
         }
     }
 
-    private void open() throws FileNotFoundException{
-        JFileChooser openFile = new JFileChooser();
-        if (openFile.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-            File file = openFile.getSelectedFile();
-            ProblemType pType;
-            try (Scanner scanner = new Scanner(file)) {
-                String line = scanner.nextLine();
-                pType = ProblemType.valueOf(line.substring(12).toUpperCase());
-                line = scanner.nextLine();
-                int numberOfNodes = Integer.parseInt(line.substring(0, line.indexOf(' ')));
-                nodes.clear();
-                for (int i = 0; i < numberOfNodes; i++) {
-                	String a = scanner.next();
-                	String b = scanner.next();
-                	String c = scanner.next();
-                    nodes.add(new Node(Integer.parseInt(a),
-                    		Float.parseFloat(b),
-                    		Float.parseFloat(c)));
-                }
-            }
-            problemType = pType;
-            showSegments = false;
-        }
+    private void open() throws FileNotFoundException {
+    	boolean done = false;
+    	while (!done) {
+    		done = true;
+	        JFileChooser openFile = new JFileChooser();
+	        if (openFile.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+	            File file = openFile.getSelectedFile();
+	            ProblemType pType;
+	            try {
+	            	Scanner scanner = new Scanner(file);
+	                String line = scanner.nextLine();
+	                pType = ProblemType.valueOf(line.substring(12).toUpperCase());
+	                line = scanner.nextLine();
+	                int numberOfNodes = Integer.parseInt(line.substring(0, line.indexOf(' ')));
+	                nodes.clear();
+	                for (int i = 0; i < numberOfNodes; i++) {
+	                	String a = scanner.next();
+	                	String b = scanner.next();
+	                	String c = scanner.next();
+	                    nodes.add(new Node(Integer.parseInt(a),
+	                    		Float.parseFloat(b),
+	                    		Float.parseFloat(c)));
+	                }
+	                problemType = pType;
+		            showSegments = false;
+	            } catch (Exception e) {
+	            	done = false;
+	            }
+	        }
+    	}
     }
     
     private void drawSegment(Segment segment) {
