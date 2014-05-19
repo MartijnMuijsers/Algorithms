@@ -41,7 +41,6 @@ public class NetworkRMST implements NetworkImplementation {
 
     private Segment[] Optimize(Segment[] segments, Node[] nodes) {
         ArrayList<Segment> mst = new ArrayList<>();
-        int test = 1;
         for (Node node : nodes) {
             int count = 0;
             for (Segment segment : segments) {
@@ -54,7 +53,7 @@ public class NetworkRMST implements NetworkImplementation {
                     if (true) {
                         for (Segment dir : segments) {
                             if ((node == dir.getNode1() && node2 == dir.getNode2()) || (node2 == dir.getNode1() && node == dir.getNode2())) {
-                                mst.add(new Segment(new Node(-1,node.getX()-0.1f,(1/((node2.getY()-node.getY())/(node2.getX()-node.getX())))*(-0.1f)+node.getY()),new Node(-2,node.getX()+0.1f,(1/((node2.getY()-node.getY())/(node2.getX()-node.getX())))*(0.1f)+node.getY())));
+                                mst.add(new Segment(new Node(-1,node.getX()-0.1f,(1/((node2.getY()-node.getY())/(node2.getX()-node.getX())))*(0.1f)+node.getY()),new Node(-2,node.getX()+0.1f,(1/((node2.getY()-node.getY())/(node2.getX()-node.getX())))*(-0.1f)+node.getY())));
                 
                             }
                         }
