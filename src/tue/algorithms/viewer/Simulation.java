@@ -44,6 +44,8 @@ import tue.algorithms.utility.Segment;
 
 public class Simulation {
 
+    final private static float ERASER_RADIUS = 0.025f;
+
 	/**
      * Get an instance of the class that is chosen to provide input.
      *
@@ -95,7 +97,6 @@ public class Simulation {
 
     // Nodes
     private ArrayList<Node> nodes;
-    private ArrayList<Node> tempNodes;
     private ArrayList<Segment> segments;
 
     // Keypress memory
@@ -182,7 +183,7 @@ public class Simulation {
             } else if (ratio < 1f) {
                 glScalef(1f, 1f/ratio, 1);
             }
-            drawCircle( Camera.OFFSETFACTOR, 16);
+            drawCircle( ERASER_RADIUS, 16);
             glPopMatrix();
         }
     }
@@ -325,25 +326,19 @@ public class Simulation {
         float clickY = 1 - ((float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR);
         Node mouseNode = new Node(0, clickX, clickY);
 
-        boolean modified = false;
-        ArrayList<Node> nodesToDelete = new ArrayList<>();
         for (Node node : nodes) {
-            if (node.subtract(mouseNode).length() < 0.025) {
-                nodesToDelete.add(node);
-                modified = true;
+            if (node.subtract(mouseNode).length() < ERASER_RADIUS) {
+                // Found a node under the eraser, reconstruct the whole set of nodes.
+                ArrayList<Node> tempNodes = new ArrayList<Node>(nodes.size());
+                int i = 0;
+                for (Node n : nodes) {
+                    if (n.subtract(mouseNode).length() >= ERASER_RADIUS) {
+                        tempNodes.add(new Node(i++, n.getX(), n.getY()));
+                    }
+                }
+                nodes = tempNodes;
+                break;
             }
-        }
-        if (modified) {
-            tempNodes = new ArrayList<>(nodes);
-            for (Node n : nodesToDelete) {
-                tempNodes.remove(n);
-            }            
-            int i = 0;
-            for (Node n : tempNodes) {
-                n = new Node(i + 1, n.getX(), n.getY());
-                ++i;
-            }
-            nodes = tempNodes;
         }
     }
 
@@ -351,7 +346,7 @@ public class Simulation {
         float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
         float clickY = 1 - ((float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR);
         if (clickX >= 0 && clickX <= 1 && clickY >= 0 && clickY <= 1) {
-            tempNodes = new ArrayList<>();
+            ArrayList<Node> tempNodes = new ArrayList<Node>();
             int i = 1;
             for (Node node : nodes) {
                 tempNodes.add(new Node(i, node.getX(), node.getY()));
