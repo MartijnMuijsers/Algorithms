@@ -357,15 +357,24 @@ public class Simulation {
         float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
         float clickY = 1 - ((float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR);
         if (clickX >= 0 && clickX <= 1 && clickY >= 0 && clickY <= 1) {
-            ArrayList<Node> tempNodes = new ArrayList<Node>();
-            int i = 1;
+            boolean exists = false;
             for (Node node : nodes) {
-                tempNodes.add(new Node(i, node.getX(), node.getY()));
-                ++i;
+                if (node.getX()==clickX && node.getY()==clickY){
+                    exists = true;
+                    break;
+                }
             }
-            tempNodes.add(new Node(tempNodes.size() + 1, clickX, clickY));
+            if (!exists) {
+                ArrayList<Node> tempNodes = new ArrayList<Node>();
+                int i = 1;
+                for (Node node : nodes) {
+                    tempNodes.add(new Node(i, node.getX(), node.getY()));
+                    ++i;
+                }
+                tempNodes.add(new Node(tempNodes.size() + 1, clickX, clickY));
 
-            nodes = tempNodes;
+                nodes = tempNodes;
+            }
         }
     }
 
