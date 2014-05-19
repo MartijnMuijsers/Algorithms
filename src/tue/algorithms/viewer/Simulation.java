@@ -103,7 +103,9 @@ public class Simulation {
     private boolean addButtonDown;
     private boolean clearKeyDown;
     private boolean runKeyDown;
-    private boolean typeKeyDown;
+    private boolean oneKeyDown;
+    private boolean twoKeyDown;
+    private boolean threeKeyDown;
     private boolean saveKeyDown;
     private boolean openKeyDown;
     
@@ -119,7 +121,9 @@ public class Simulation {
         showSegments = true;
         saveKeyDown = false;
         openKeyDown = false;
-        typeKeyDown = false;
+        oneKeyDown = false;
+        twoKeyDown = false;
+        threeKeyDown = false;
         brushMode = false;
     }
 
@@ -225,9 +229,15 @@ public class Simulation {
             }            
             
             // Type
-            if (Keyboard.getEventKey() == Keyboard.KEY_T) {
-                typeKeyDown = !typeKeyDown && Keyboard.getEventKeyState();
+            if (Keyboard.getEventKey() == Keyboard.KEY_1) {
+                oneKeyDown = Keyboard.getEventKeyState();
             }
+            if (Keyboard.getEventKey() == Keyboard.KEY_2) {
+                twoKeyDown = Keyboard.getEventKeyState();
+            }
+            if (Keyboard.getEventKey() == Keyboard.KEY_3) {
+                threeKeyDown = Keyboard.getEventKeyState();
+            }            
         }
         
         //if ESC is pressed, close program
@@ -265,10 +275,21 @@ public class Simulation {
             openKeyDown = false;
         }        
         
-        if(typeKeyDown){
-            toggleType();
-            typeKeyDown = false;
+        if(oneKeyDown){
+            problemType = ProblemType.SINGLE;
+            oneKeyDown = false;
         }
+        
+        if(twoKeyDown){
+            problemType = ProblemType.MULTIPLE;
+            twoKeyDown = false;
+        }        
+        
+        if(threeKeyDown){
+            problemType = ProblemType.NETWORK;
+            threeKeyDown = false;
+        }      
+    
     }
     
     private void calculateSegments() {
@@ -309,16 +330,6 @@ public class Simulation {
         for (Segment segment : calculatedSegments) {
             this.segments.add(segment);
         }
-    }
-
-    private void toggleType(){
-        if (problemType == ProblemType.SINGLE){
-            problemType = ProblemType.MULTIPLE;
-        } else if (problemType == ProblemType.MULTIPLE){
-            problemType = ProblemType.NETWORK;
-        } else if (problemType == ProblemType.NETWORK){
-            problemType = ProblemType.SINGLE;
-        } 
     }
     
     private void deleteNodes() {

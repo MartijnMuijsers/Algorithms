@@ -77,7 +77,7 @@ public class Engine {
             processInput();
             String title = "";
             title += " problemType: " + simulation.problemType.name();
-            title += "  [R = run | C = clear | S = save | O = open | T = type] ";
+            title += "  [R = run | C = clear | S = save | O = open | (1, 2, 3) = type] ";
             Display.setTitle(title);
             render();
         }
