@@ -41,10 +41,19 @@ public class MultipleCurves implements MultipleImplementation {
             cn.addSegment(segment);
         }
 
-        addSegmentsToNodesWithDegreeOne(input, cn, adjNodes);
+        removeSegmentIfAnyNodeHasDegreeOnePlus(input, cn);
+
+        // TODO: Find all nodes with degree <= 1 ?
+        // TODO: Find all nodes with degree == 1
+        // TODO: For all nodes with degree one, try to follow the path
+        //  - Prefer nodes that follow the path
+        //  - Prefer nodes with deg 1
+        //  - Deprioritize nodes if that node has an angle with degree <= 90
+
+        //addSegmentsToNodesWithDegreeOne(input, cn, adjNodes);
 
         // TODO: Identify cycles.
-        removeSegmentsFromNodesWithDegreeTwoPlus(cn);
+        //removeSegmentsFromNodesWithDegreeTwoPlus(cn);
         // TODO: Split cycles.
 
         Segment[] result = cn.getAllSegments();
@@ -70,6 +79,12 @@ public class MultipleCurves implements MultipleImplementation {
                         // Intersects some other line or node - skip it.
                         continue;
                     }
+                    if (cn.getSegments(ndp.node).length > 1) {
+                        // TODO: Whether this branch is taken depends on the order of the iteration
+                        // over the nodes. Check whether this dependency on the relative ordering of
+                        // the nodes is undesired, and if so, fix it.
+                        continue;
+                    }
                     cn.addSegment(newSegment);
                     break;
                 } // end if !cn.isConnected
@@ -77,11 +92,26 @@ public class MultipleCurves implements MultipleImplementation {
         } // end for node : nodes
     }
 
+    private static void removeSegmentIfAnyNodeHasDegreeOnePlus(Node[] nodes, ConnectedNodes cn) {
+        ArrayList<Node> nodesToDisconnect = new ArrayList<Node>();
+        for (Node node : nodes) {
+            if (cn.getSegments(node).length > 2) {
+                nodesToDisconnect.add(node);
+            }
+        }
+        for (Node node : nodesToDisconnect) {
+            for (Segment segment : cn.getSegments(node)) {
+                cn.removeSegment(segment);
+            }
+        }
+    }
+
     /**
      * Remove segments if both endpoints have degree two or more.
      */
     private static void removeSegmentsFromNodesWithDegreeTwoPlus(ConnectedNodes cn) {
         for (Segment segment : cn.getAllSegments()) {
+            // TODO: Sort segments by length / distance before iterating over it?
             Node node1 = segment.getNode1();
             Node node2 = segment.getNode2();
             Segment[] neighbors1 = cn.getSegments(node1);
