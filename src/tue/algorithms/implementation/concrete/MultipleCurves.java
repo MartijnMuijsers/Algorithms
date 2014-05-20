@@ -41,7 +41,21 @@ public class MultipleCurves implements MultipleImplementation {
             cn.addSegment(segment);
         }
 
-        for (Node node : input) {
+        addSegmentsToNodesWithDegreeOne(input, cn, adjNodes);
+
+        // TODO: Identify cycles.
+        removeSegmentsFromNodesWithDegreeTwoPlus(cn);
+        // TODO: Split cycles.
+
+        Segment[] result = cn.getAllSegments();
+        return result;
+    }
+
+    /**
+     * Add a segment to a node that has a degree of at most one.
+     */
+    private static void addSegmentsToNodesWithDegreeOne(Node[] nodes, ConnectedNodes cn, AdjacentNodes adjNodes) {
+        for (Node node : nodes) {
             Segment[] neighbors = cn.getSegments(node);
             if (neighbors.length > 1) {
                 continue;
@@ -60,10 +74,13 @@ public class MultipleCurves implements MultipleImplementation {
                     break;
                 } // end if !cn.isConnected
             } // end for ndp : ndps
-        } // end for node : input
+        } // end for node : nodes
+    }
 
-        // TODO: Identify cycles.
-
+    /**
+     * Remove segments if both endpoints have degree two or more.
+     */
+    private static void removeSegmentsFromNodesWithDegreeTwoPlus(ConnectedNodes cn) {
         for (Segment segment : cn.getAllSegments()) {
             Node node1 = segment.getNode1();
             Node node2 = segment.getNode2();
@@ -74,11 +91,6 @@ public class MultipleCurves implements MultipleImplementation {
                 cn.removeSegment(segment);
             }
         } // end for segment.getAllSegments()
-
-        // TODO: Split cycles.
-
-        Segment[] result = cn.getAllSegments();
-        return result;
     }
 
     /**
@@ -89,7 +101,7 @@ public class MultipleCurves implements MultipleImplementation {
      * Time complexity: O(k) where k is the number of nodes with a smaller distance
      * than {@code neighbor}.
      */
-    private boolean containsOtherNode(NodeDistancePair[] neighbors, NodeDistancePair neighbor, Segment segment) {
+    private static boolean containsOtherNode(NodeDistancePair[] neighbors, NodeDistancePair neighbor, Segment segment) {
         for (NodeDistancePair ndp : neighbors) {
             if (ndp.distance >= neighbor.distance) {
                 return false;
