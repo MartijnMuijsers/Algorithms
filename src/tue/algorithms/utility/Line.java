@@ -251,6 +251,21 @@ public class Line {
 	/* -- END Getters for useful information -- */
 	
 	/* -- START Manipulation method to invert line -- */
+
+	/**
+	 * Get a view of this line such that the line "starts" at {@code point}.
+	 *
+	 * @param point The point that is used as start point
+	 * @pre point must be one of the endpoints of this line, i.e.
+	 *	{@code point == Point(x1, y2) || point == Point(x2, y2)}
+	 */
+	public Line originAt(Point point) {
+		if (x1 == point.getX() && y1 == point.getY()) {
+			return this;
+		} else {
+			return invertDirection();
+		}
+	}
 	
 	/**
 	 * Get a line with the direction inverted: the created line will start where this line ends, and end where this line starts.
