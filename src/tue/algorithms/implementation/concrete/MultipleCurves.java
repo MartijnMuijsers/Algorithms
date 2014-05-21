@@ -85,6 +85,9 @@ public class MultipleCurves implements MultipleImplementation {
             NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(node);
             for (NodeDistancePair ndp : ndps) {
                 if (cn.getSegments(ndp.node).length >= 2) {
+                    // TODO: Check if one of the segments were added in a previous iteration.
+                    // If so, and the weight of the segment is terrible compared to what
+                    // follows, then remove the old segment and connect the new segment.
                     continue;
                 }
                 // Example:
