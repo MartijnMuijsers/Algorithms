@@ -10,6 +10,7 @@ import tue.algorithms.utility.AdjacentNodes.NodeDistancePair;
 import tue.algorithms.utility.ConnectedNodes;
 import tue.algorithms.utility.MinimumSpanningTree;
 import tue.algorithms.utility.Node;
+import tue.algorithms.utility.Point;
 import tue.algorithms.utility.Segment;
 
 /**
@@ -34,53 +35,40 @@ public class NetworkRMST implements NetworkImplementation {
                 return 0;
             }
         };
-
+        
+        Node[] nodes2 = new Node[1];
+        nodes2[0] = new Node(1,0.5f,0.5f);
         Segment[] result = MinimumSpanningTree.applyMST(segments, input, comparator);
         result = Optimize(result, input);
-        return new Pair(result, null);
-
+        return new Pair(result,nodes2 );
     }
-
+    
     private Segment[] Optimize(Segment[] segments, Node[] nodes) {
         AdjacentNodes adjNodes = new AdjacentNodes(nodes);
         ConnectedNodes cn = new ConnectedNodes();
-        for (Segment segment : segments ) {
+        for (Segment segment : segments) {
             cn.addSegment(segment);
         }
-        for (Node node : nodes){
+        for (Node node : nodes) {
             Segment[] neighbors = cn.getSegments(node);
             if (neighbors.length == 1) {
-                boolean nodeFound=false;
-                int i=0;
+                boolean nodeFound = false;
+                int i = 0;
                 NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(node);
-                while(!nodeFound){
-                    if (Math.abs(neighbors[0].originAt(node).getAngleOf(ndps[i].node)) > Math.PI/2) {
-                        nodeFound =true;
+                while (!nodeFound) {
+                    if (Math.abs(neighbors[0].originAt(node).getAngleOf(ndps[i].node)) > Math.PI / 2 && node.getDistanceTo(ndps[i].node)<0.09f) {
+                        nodeFound = true;
                         cn.addSegment(new Segment(node, ndps[i].node));
-                    }
-                    else{
-                        if (i<5) {
+                    } else {
+                        if (i < 5) {
                             i++;
+                        } else {
+                            nodeFound = true;
                         }
-                        else{
-                            nodeFound =true;
-                        }
-                        
                     }
                 }
             }
         }
-      
-        
-     return cn.getAllSegments();
+        return cn.getAllSegments();
     }
-    
-    private float getSlope(Node n1, Node n2) {
-        
-        if (n2.getX() - n1.getX() == 0) {
-         return   0f; 
-        }
-        return (n2.getY()-n1.getY())/(n2.getX()-n1.getX());
-    }
-
 }
