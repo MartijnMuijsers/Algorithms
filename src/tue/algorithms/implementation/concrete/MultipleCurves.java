@@ -42,13 +42,7 @@ public class MultipleCurves implements MultipleImplementation {
         }
 
         removeSegmentIfAnyNodeHasDegreeOnePlus(input, cn);
-
-        // TODO: Find all nodes with degree <= 1 ?
-        // TODO: Find all nodes with degree == 1
-        // TODO: For all nodes with degree one, try to follow the path
-        //  - Prefer nodes that follow the path
-        //  - Prefer nodes with deg 1
-        //  - Deprioritize nodes if that node has an angle with degree <= 90
+        connectEndpointsWithDegreeOne(input, cn, adjNodes);
 
         //addSegmentsToNodesWithDegreeOne(input, cn, adjNodes);
 
@@ -75,7 +69,7 @@ public class MultipleCurves implements MultipleImplementation {
                 // is a good choice.
                 if (!cn.isConnected(node, ndp.node)) {
                     Segment newSegment = new Segment(node, ndp.node);
-                    if (cn.intersectsGraph(newSegment) || containsOtherNode(ndps, ndp, newSegment)) {
+                    if (intersectsGraph(cn, ndps, ndp, newSegment)) {
                         // Intersects some other line or node - skip it.
                         continue;
                     }
@@ -106,6 +100,77 @@ public class MultipleCurves implements MultipleImplementation {
         }
     }
 
+    private static void connectEndpointsWithDegreeOne(Node[] nodes, ConnectedNodes cn, AdjacentNodes adjNodes) {
+        Node[] nodesTodo = getNodesWithDegreeInRange(nodes, cn, 0, 1);
+
+        // TODO: For all nodes with degree one, try to follow the path
+        //  - Prefer nodes that follow the path
+        //  - Prefer nodes with deg 1
+        //  - Deprioritize nodes if that node has an angle with degree <= 90
+        for (Node node : nodesTodo) {
+            Segment[] neighborSegments = cn.getSegments(node);
+            if (neighborSegments.length != 1) {
+                continue;
+            }
+            // We have found a segment that ends in a node (endpoint). Try to find
+            // another node so that we connect the endpoint to this other node.
+            Segment existingSegment = neighborSegments[0].originAt(node);
+            double previousAngle = getAngleRelativeToPreviousSegment(cn, existingSegment);
+
+            // Lower weight = better.
+            float bestWeight = Integer.MAX_VALUE;
+            Segment bestSegment = null;
+            NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(node);
+            for (NodeDistancePair ndp : ndps) {
+                if (cn.getSegments(ndp.node).length >= 2) {
+                    continue;
+                }
+                // Example:
+                //        existingSegment (=positive X-axis with origin at node)
+                //                     |   @#####
+                //                     |   #####%
+                //                     V   #####@
+                //             _*---------* <-- node (=origin of existingSegment)
+                //          _-- _,     ( /
+                //       _--    ^  angle/  <-- segment does not yet exist.
+                //      *       | 2/3PI/
+                //   previousAngle    * <-- ndp.node
+                //       4/3PI
+                //
+                // Rules:
+                // - Strongly prefer straight lines over folded lines.
+                // - Slightly bent lines (within a margin) get no penalty.
+                // - The margin can be relaxed depending on the previous line.
+                //
+                // |angle| close to PI means that the line is almost straight.
+                // |angle| close to 0 means that the line is almost folded.
+                double angle = existingSegment.getAngleOf(ndp.node);
+                double absAngle = Math.abs(angle);
+
+                float weight = ndp.distance;
+                // TODO: Consider a different (smaller?) margin.
+                double margin = Math.PI / 2;
+                if (absAngle < margin) {
+                    // TODO: Get rid of this magic number (0.5 = half of the field width/height)
+                    // TODO: Tweak the weight depending on the angle, such that angles
+                    //  of PI/2 are preferred over 0)
+                    weight += 0.5;
+                }
+
+                if (weight < bestWeight) {
+                    Segment newSegment = new Segment(node, ndp.node);
+                    if (!intersectsGraph(cn, ndps, ndp, newSegment)) {
+                        bestWeight = weight;
+                        bestSegment = newSegment;
+                    }
+                }
+            }
+            if (bestSegment != null) {
+                cn.addSegment(bestSegment);
+            }
+        }
+    }
+
     /**
      * Remove segments if both endpoints have degree two or more.
      */
@@ -124,14 +189,58 @@ public class MultipleCurves implements MultipleImplementation {
     }
 
     /**
-     * Checks whether the segment intersects an existing node.
+     * Get the angle between the current segment and the previous segment.
+     * @pre segment.getNode1() is part of at most two segments.
+     */
+    private static double getAngleRelativeToPreviousSegment(ConnectedNodes cn, Segment segment) {
+        Node commonEndpoint = segment.getNode1();
+        Segment[] connectedSegments = cn.getSegments(commonEndpoint);
+        assert connectedSegments.length <= 2;
+        for (Segment previousSegment : connectedSegments) {
+            if (!previousSegment.equals(segment)) {
+                //              *
+                // negative  _ / <-- segment (node2)
+                // angle-> (  /
+                // *---------* <-- commonEndpoint (node1)
+                //   ^
+                //   Segment. For the angle calculation, it's considered to be the positive X-axis
+                //   originating from [commonEndpoint], so this coordinate system can be viewed as
+                //   a standard carthesian coordinate system, flipped over [commonEndpoint].
+                return previousSegment.originAt(commonEndpoint).getAngleOf(segment.getNode2());
+            }
+        }
+        // There's no other segment. Use angle 0, i.e. the path containing the segment did not bend.
+        return 0;
+    }
+
+    /**
+     * Construct a new set from the array of nodes containing all nodes whose
+     * degree is within the range [lower, upper]
+     */
+    private static Node[] getNodesWithDegreeInRange(Node[] nodes, ConnectedNodes cn, int lower, int upper) {
+        ArrayList<Node> result = new ArrayList<Node>(nodes.length);
+        for (Node node : nodes) {
+            int degree = cn.getSegments(node).length;
+            if (upper >= degree && degree >= lower) {
+                result.add(node);
+            }
+        }
+        return result.toArray(new Node[0]);
+    }
+
+    /**
+     * Checks whether the segment intersects any existing node or segment.
+     *
      * This method relies on the fact that the neighbors for a given node are known,
      * and that if there is a node that is intersected by the segment, then it must
      * be one of these neighbors (all other nodes are too far away).
      * Time complexity: O(k) where k is the number of nodes with a smaller distance
      * than {@code neighbor}.
      */
-    private static boolean containsOtherNode(NodeDistancePair[] neighbors, NodeDistancePair neighbor, Segment segment) {
+    private static boolean intersectsGraph(ConnectedNodes cn, NodeDistancePair[] neighbors, NodeDistancePair neighbor, Segment segment) {
+        if (cn.intersectsGraph(segment)) {
+            return true;
+        }
         for (NodeDistancePair ndp : neighbors) {
             if (ndp.distance >= neighbor.distance) {
                 return false;
