@@ -46,10 +46,6 @@ public class MultipleCurves implements MultipleImplementation {
 
         //addSegmentsToNodesWithDegreeOne(input, cn, adjNodes);
 
-        // TODO: Identify cycles.
-        //removeSegmentsFromNodesWithDegreeTwoPlus(cn);
-        // TODO: Split cycles.
-
         Segment[] result = cn.getAllSegments();
         return result;
     }
@@ -169,23 +165,6 @@ public class MultipleCurves implements MultipleImplementation {
                 cn.addSegment(bestSegment);
             }
         }
-    }
-
-    /**
-     * Remove segments if both endpoints have degree two or more.
-     */
-    private static void removeSegmentsFromNodesWithDegreeTwoPlus(ConnectedNodes cn) {
-        for (Segment segment : cn.getAllSegments()) {
-            // TODO: Sort segments by length / distance before iterating over it?
-            Node node1 = segment.getNode1();
-            Node node2 = segment.getNode2();
-            Segment[] neighbors1 = cn.getSegments(node1);
-            Segment[] neighbors2 = cn.getSegments(node2);
-            if (neighbors1.length > 2 && neighbors2.length > 2) {
-                // TODO: Check whether it breaks a cycle.
-                cn.removeSegment(segment);
-            }
-        } // end for segment.getAllSegments()
     }
 
     /**
