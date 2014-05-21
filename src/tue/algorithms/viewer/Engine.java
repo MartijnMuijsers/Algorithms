@@ -24,8 +24,8 @@ public class Engine {
 
         // Initialize
         engine.resolution = new Dimension(640, 640);
-        engine.initDisplay(engine.resolution);
-        engine.initProjection(engine.resolution);
+        engine.initDisplay();
+        engine.initProjection();
         engine.initInput();
         engine.initSimulation();
 
@@ -37,14 +37,14 @@ public class Engine {
     }
     /*-------------- methods ---------------*/
 
-    private void initProjection(Dimension r) {
-        camera = new Camera(r.getWidth(), r.getHeight());
+    private void initProjection() {
+        camera = new Camera(resolution.getWidth(), resolution.getHeight());
         camera.initialize();
     }
 
-    private void initDisplay(Dimension r) {
+    private void initDisplay() {
         try {
-            Display.setDisplayMode(new DisplayMode(r.getWidth(), r.getHeight()));
+            Display.setDisplayMode(new DisplayMode(resolution.getWidth(), resolution.getHeight()));
             Display.setTitle("DBL Algorithms");
             Display.setResizable(true);
             Display.create(new PixelFormat(0, 16, 1));

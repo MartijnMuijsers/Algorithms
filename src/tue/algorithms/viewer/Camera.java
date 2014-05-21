@@ -52,7 +52,6 @@ public class Camera {
         glEnable(GL_POLYGON_SMOOTH);
         glEnable(GL_MULTISAMPLE);
         glClearColor(0, 0, 0, 0);
-
     }
 
 }
