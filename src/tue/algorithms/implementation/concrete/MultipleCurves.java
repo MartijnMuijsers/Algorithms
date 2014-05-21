@@ -116,10 +116,9 @@ public class MultipleCurves implements MultipleImplementation {
                 // TODO: Consider a different (smaller?) margin.
                 double margin = Math.PI / 2;
                 if (absAngle < margin) {
-                    // TODO: Get rid of this magic number (0.5 = half of the field width/height)
-                    // TODO: Tweak the weight depending on the angle, such that angles
-                    //  of PI/2 are preferred over 0)
-                    weight += 0.5;
+                    // absAngle is in range (0, PI), with 0 being the worst choice.
+                    // This is reflected in the following weight modifier.
+                    weight *= 2 - absAngle / Math.PI;
                 }
 
                 if (weight < bestWeight) {
