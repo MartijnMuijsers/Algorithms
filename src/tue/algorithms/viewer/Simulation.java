@@ -40,6 +40,7 @@ import tue.algorithms.other.Debug;
 import tue.algorithms.other.Pair;
 import tue.algorithms.test.FakeInputReader;
 import tue.algorithms.utility.Node;
+import tue.algorithms.utility.Point;
 import tue.algorithms.utility.Segment;
 
 public class Simulation {
@@ -179,7 +180,7 @@ public class Simulation {
         glColor3f(1f, 0f, 0f);
         if (brushMode){
             glPushMatrix();
-            glTranslatef((float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR, (float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR, 0);
+            glTranslatef(getMousePosition().getX(), getMousePosition().getY(), 0);
                         float pointSize = Math.min(Camera.width, Camera.heigth);
             glScalef(640/pointSize, 640/pointSize, 1);
             if (ratio > 1f) {
@@ -190,6 +191,12 @@ public class Simulation {
             drawCircle( ERASER_RADIUS, 16);
             glPopMatrix();
         }
+    }
+    
+    private Point getMousePosition(){
+        float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
+        float clickY = (float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
+        return new Point(clickX, clickY);
     }
     
     public boolean getInput() throws IOException {
@@ -333,8 +340,8 @@ public class Simulation {
     }
     
     private void deleteNodes() {
-        float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
-        float clickY = (float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
+        float clickX = getMousePosition().getX();
+        float clickY = getMousePosition().getY();
         Node mouseNode = new Node(0, clickX, clickY);
 
         for (Node node : nodes) {
@@ -354,8 +361,8 @@ public class Simulation {
     }
 
     private void addNode() {
-        float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
-        float clickY = (float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
+        float clickX = getMousePosition().getX();
+        float clickY = getMousePosition().getY();
         if (clickX >= 0 && clickX <= 1 && clickY >= 0 && clickY <= 1) {
             boolean exists = false;
             for (Node node : nodes) {
@@ -455,6 +462,7 @@ public class Simulation {
         drawCircle(0.0054f, 18);
     }
 
+    // source: http://slabode.exofire.net/circle_draw.shtml
     private void drawCircle(float r, int num_segments) {
         final float theta = 2f * 3.1415926f / (float) num_segments;
         final float c = (float) cos(theta);
