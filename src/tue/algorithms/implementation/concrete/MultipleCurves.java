@@ -44,42 +44,8 @@ public class MultipleCurves implements MultipleImplementation {
         removeSegmentIfAnyNodeHasDegreeOnePlus(input, cn);
         connectEndpointsWithDegreeOne(input, cn, adjNodes);
 
-        //addSegmentsToNodesWithDegreeOne(input, cn, adjNodes);
-
         Segment[] result = cn.getAllSegments();
         return result;
-    }
-
-    /**
-     * Add a segment to a node that has a degree of at most one.
-     */
-    private static void addSegmentsToNodesWithDegreeOne(Node[] nodes, ConnectedNodes cn, AdjacentNodes adjNodes) {
-        for (Node node : nodes) {
-            Segment[] neighbors = cn.getSegments(node);
-            if (neighbors.length > 1) {
-                continue;
-            }
-            NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(node);
-            for (NodeDistancePair ndp : ndps) {
-                // In this loop body, we check whether connecting node to ndp.node
-                // is a good choice.
-                if (!cn.isConnected(node, ndp.node)) {
-                    Segment newSegment = new Segment(node, ndp.node);
-                    if (intersectsGraph(cn, ndps, ndp, newSegment)) {
-                        // Intersects some other line or node - skip it.
-                        continue;
-                    }
-                    if (cn.getSegments(ndp.node).length > 1) {
-                        // TODO: Whether this branch is taken depends on the order of the iteration
-                        // over the nodes. Check whether this dependency on the relative ordering of
-                        // the nodes is undesired, and if so, fix it.
-                        continue;
-                    }
-                    cn.addSegment(newSegment);
-                    break;
-                } // end if !cn.isConnected
-            } // end for ndp : ndps
-        } // end for node : nodes
     }
 
     private static void removeSegmentIfAnyNodeHasDegreeOnePlus(Node[] nodes, ConnectedNodes cn) {
