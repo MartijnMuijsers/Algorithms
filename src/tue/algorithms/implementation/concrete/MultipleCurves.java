@@ -65,6 +65,10 @@ public class MultipleCurves implements MultipleImplementation {
     private static void connectEndpointsWithDegreeOne(Node[] nodes, ConnectedNodes cn, AdjacentNodes adjNodes) {
         Node[] nodesTodo = getNodesWithDegreeInRange(nodes, cn, 0, 1);
 
+        // When a new segment is added, one of the segments might suddenly get degree one.
+        // Then we have to re-run this step on this new node. These nodes are tracked in the next list.
+        ArrayList<Node> newNodesWithDegreeOne = new ArrayList<Node>(nodes.length);
+
         // TODO: For all nodes with degree one, try to follow the path
         //  - Prefer nodes that follow the path
         //  - Prefer nodes with deg 1
@@ -85,6 +89,8 @@ public class MultipleCurves implements MultipleImplementation {
             NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(node);
             for (NodeDistancePair ndp : ndps) {
                 if (cn.getSegments(ndp.node).length >= 2) {
+                    // TODO: Change ">= 2" to "== 2" and document precondition that a node can
+                    // have at most two segments.
                     // TODO: Check if one of the segments were added in a previous iteration.
                     // If so, and the weight of the segment is terrible compared to what
                     // follows, then remove the old segment and connect the new segment.
@@ -130,8 +136,16 @@ public class MultipleCurves implements MultipleImplementation {
                 }
             }
             if (bestSegment != null) {
+                if (cn.getSegments(bestSegment.getNode2()).length == 0) {
+                    // The new node will have degree one.
+                    newNodesWithDegreeOne.add(bestSegment.getNode2());
+                }
                 cn.addSegment(bestSegment);
             }
+        }
+        if (newNodesWithDegreeOne.size() > 0) {
+            nodesTodo = newNodesWithDegreeOne.toArray(new Node[0]);
+            connectEndpointsWithDegreeOne(nodesTodo, cn, adjNodes);
         }
     }
 
