@@ -9,6 +9,8 @@ final public class MinimumSpanningTree {
 	private MinimumSpanningTree() { /* just a namespace to hold the function */ }
 
 	/**
+	 * Time complexity: O(n^2) where n is nodes.length
+	 *
 	 * @param nodes
 	 * @return Array of all possible segments for the given set of nodes.
 	 */
@@ -26,6 +28,10 @@ final public class MinimumSpanningTree {
 	}
 
 	/**
+	 * Calculate the MST using Kruskal's algorithm.
+	 * Time complexity: O(E log E) where E is the number of segments,
+	 *					assuming that nodes.length = O(sqrt(E)).
+	 *
 	 * @param segments
 	 * @param nodes
 	 * @param comparator The comparator to use to sort {@code segments}.
