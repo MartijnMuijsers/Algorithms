@@ -59,7 +59,6 @@ final public class MinimumSpanningTree {
 				U.clear();
 			}
 		}
-		System.out.println("yoo" + mst.size());
 
 		Segment[] resultSegments = new Segment[mst.size()];
 		mst.toArray(resultSegments);
