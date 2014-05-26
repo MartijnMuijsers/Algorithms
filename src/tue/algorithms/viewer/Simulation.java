@@ -423,10 +423,12 @@ public class Simulation {
         for (Node node : nodes) {
             drawNode(NODE_RADIUS, node);
         }
- 
-        glColor3f(1f, 0f, 0f);
-        for (Node node : newNetworkNodes) {
-            drawNode(NODE_RADIUS, node);
+        
+        if (problemType.equals(ProblemType.NETWORK)) {
+            glColor3f(1f, 0f, 0f);
+            for (Node node : newNetworkNodes) {
+                drawNode(NODE_RADIUS, node);
+            }
         }
         
         glColor3f(1f, 0f, 0f);
