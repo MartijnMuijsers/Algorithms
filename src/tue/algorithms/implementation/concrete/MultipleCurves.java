@@ -1,6 +1,7 @@
 package tue.algorithms.implementation.concrete;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 
 import tue.algorithms.implementation.general.MultipleImplementation;
@@ -53,8 +54,21 @@ public class MultipleCurves implements MultipleImplementation {
      * Remove segments if both endpoints have degree two or more.
      */
     private static void removeSegmentIfBothNodesHaveDegreeTwoPlus(ConnectedNodes cn) {
-        for (Segment segment : cn.getAllSegments()) {
-            // TODO: Sort segments by length / distance before iterating over it?
+        Segment[] segments = cn.getAllSegments();
+        // Sort by segment length, longest first.
+        Arrays.sort(segments, new Comparator<Segment>() {
+            @Override
+            public int compare(Segment s1, Segment s2) {
+                float diff = s1.length() - s2.length();
+                if (diff < 0) {
+                    return 1;
+                } else if (diff > 0) {
+                    return -1;
+                }
+                return 0;
+            }
+        });
+        for (Segment segment : segments) {
             Node node1 = segment.getNode1();
             Node node2 = segment.getNode2();
             Segment[] neighbors1 = cn.getSegments(node1);
