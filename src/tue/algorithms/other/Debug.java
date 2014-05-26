@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 public abstract class Debug {
 	
-	public static final boolean enabled = true;
+	public static final boolean enabled = false;
 	
 	public static final boolean displayMethods = false;
 	
@@ -29,7 +29,7 @@ public abstract class Debug {
 		if (enabled) {
 			if (heldMessages.containsKey(name)) {
 				for (String message : heldMessages.get(name)) {
-					log(message);
+					System.out.println(message);
 				}
 				if (name.equals(holdingName)) {
 					heldMessages.put(name, new ArrayList<String>());
@@ -74,34 +74,42 @@ public abstract class Debug {
 	
 	public static void log(String message) {
 		if (enabled) {
+			String messageToOutput = process(message);
 			if (holdingName != null) {
-				heldMessages.get(holdingName).add(message);
+				heldMessages.get(holdingName).add(messageToOutput);
 				return;
 			}
-			StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[2];
-			String className = stackTraceElement.getClassName();
-			for (int index = className.indexOf("."); index != (-1); index = className.indexOf(".")) {
-				className = className.substring(index+1);
-			}
-			String methodName = stackTraceElement.getMethodName();
-			String fileName = stackTraceElement.getFileName();
-			if (fileName.endsWith(".java")) {
-				fileName = fileName.substring(0, fileName.length()-5);
-			}
-			if (displayMethods) {
-				if (className.contains("$" + fileName + "$") || className.startsWith(fileName + "$") || className.endsWith("$" + fileName) || className.equals(fileName)) {
-					System.out.println("[" + className + "." + methodName + "] " + message);
-				} else {
-					System.out.println("[" + fileName + "/" + className + "." + methodName + "] " + message);
-				}
+			System.out.println(messageToOutput);
+			
+		}
+	}
+	
+	private static String process(String message) {
+		StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[3];
+		String className = stackTraceElement.getClassName();
+		for (int index = className.indexOf("."); index != (-1); index = className.indexOf(".")) {
+			className = className.substring(index+1);
+		}
+		String methodName = stackTraceElement.getMethodName();
+		String fileName = stackTraceElement.getFileName();
+		if (fileName.endsWith(".java")) {
+			fileName = fileName.substring(0, fileName.length()-5);
+		}
+		String result;
+		if (displayMethods) {
+			if (className.contains("$" + fileName + "$") || className.startsWith(fileName + "$") || className.endsWith("$" + fileName) || className.equals(fileName)) {
+				result = "[" + className + "." + methodName + "] " + message;
 			} else {
-				if (className.contains("$" + fileName + "$") || className.startsWith(fileName + "$") || className.endsWith("$" + fileName) || className.equals(fileName)) {
-					System.out.println("[" + className + "] " + message);
-				} else {
-					System.out.println("[" + fileName + "/" + className + "] " + message);
-				}
+				result = "[" + fileName + "/" + className + "." + methodName + "] " + message;
+			}
+		} else {
+			if (className.contains("$" + fileName + "$") || className.startsWith(fileName + "$") || className.endsWith("$" + fileName) || className.equals(fileName)) {
+				result = "[" + className + "] " + message;
+			} else {
+				result = "[" + fileName + "/" + className + "] " + message;
 			}
 		}
+		return result;
 	}
 	
 }

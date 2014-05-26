@@ -20,7 +20,7 @@ import tue.algorithms.utility.Segment;
  * Under development. Testing ground here.
  * @author Martijn
  */
-public class SingleImploding implements SingleImplementation {
+public class SingleImplodingMemory implements SingleImplementation {
 	
 	/* -- START Parameters as formulas -- */
 	
@@ -87,7 +87,7 @@ public class SingleImploding implements SingleImplementation {
 	
 	public final int mozesTrialsMax = 100;
 	
-	/**while testing Mozes options
+	/** while testing Mozes options
 	public boolean tryOpenEnabled = true;
 	
 	public boolean mozesEnabled = true;
@@ -122,15 +122,15 @@ public class SingleImploding implements SingleImplementation {
 		OPEN
 	}
 	
-	private static SingleImploding instance;
-	public static SingleImploding getInstance() {
+	private static SingleImplodingMemory instance;
+	public static SingleImplodingMemory getInstance() {
 		if (instance == null) {
-			new SingleImploding();
+			new SingleImplodingMemory();
 		}
 		return instance;
 	}
 	
-	public SingleImploding() {
+	public SingleImplodingMemory() {
 		instance = this;
 	}
 	
@@ -140,48 +140,119 @@ public class SingleImploding implements SingleImplementation {
 	}
 	
 	public Segment[] getOutput(Node[] input, HashSet<Segment> convexHull) {
+		class Memory {
+			public Segment originalSegment;
+			public HashSet<Node> predecessorNodes;
+			public float likeliness;
+			public Segment newSegment1;
+			public Segment newSegment2;
+			public Memory(Segment originalSegment, HashSet<Node> predecessorNodes, float likeliness, Segment newSegment1, Segment newSegment2) {
+				this.originalSegment = originalSegment;
+				this.predecessorNodes = predecessorNodes;
+				this.likeliness = likeliness;
+				this.newSegment1 = newSegment1;
+				this.newSegment2 = newSegment2;
+			}
+		}
 		mozesTrials = 0;
 		foundSegments = Conversion.toHashSet(convexHull);
-		HashSet<Node> nodesToDo = new HashSet<Node>();
+		HashSet<Node> nodes = new HashSet<Node>();
 		for (Node n : input) {
-			nodesToDo.add(n);
+			nodes.add(n);
 		}
+		HashMap<Node, Memory> foundNodes = new HashMap<Node, Memory>();
 		for (Segment segment : foundSegments) {
-			nodesToDo.remove(segment.getNode1());
-			nodesToDo.remove(segment.getNode2());
+			Node node1 = segment.getNode1();
+			Node node2 = segment.getNode2();
+			if (!foundNodes.containsKey(node1)) {
+				foundNodes.put(node1, new Memory(null, new HashSet<Node>(), 0, null, null));
+			}
+			if (!foundNodes.containsKey(node2)) {
+				foundNodes.put(node2, new Memory(null, new HashSet<Node>(), 0, null, null));
+			}
 		}
 		HashMap<Segment, ArrayList<Pair<Node, Float>>> likelinesses = new HashMap<Segment, ArrayList<Pair<Node, Float>>>();
 		for (Segment segment : foundSegments) {
-			ArrayList<Pair<Node, Float>> nodeLikelinesses = buildNodeLikelinesses(segment, nodesToDo);
+			ArrayList<Pair<Node, Float>> nodeLikelinesses = buildNodeLikelinesses(segment, nodes);
 			likelinesses.put(segment, nodeLikelinesses);
 		}
-		while (nodesToDo.size() != 0) {
-			//Debug.log("Start run with: " + foundSegments.size() + " " + nodesToDo.size() + " " + likelinesses.size());
+		while (foundNodes.size() != input.length) { // TODO so now when enough segments have been found, we can't correct errors anymore though
 			Segment segmentWithSmallestLikeliness = null;
+			Node nodeWithSmallestLikeliness = null;
 			float smallestLikeliness = 1000000000;
 			for (Entry<Segment, ArrayList<Pair<Node, Float>>> entry : likelinesses.entrySet()) {
 				ArrayList<Pair<Node, Float>> nodeLikelinesses = entry.getValue();
-				Pair<Node, Float> pair = nodeLikelinesses.get(0);
-				while (!nodesToDo.contains(pair.first())) {
-					nodeLikelinesses.remove(0);
-					pair = nodeLikelinesses.get(0);
-				}
-				float likeliness = pair.second();
-				if (likeliness < smallestLikeliness) {
-					smallestLikeliness = likeliness;
-					segmentWithSmallestLikeliness = entry.getKey();
+				int i = 0;
+				while (i < nodeLikelinesses.size()) {
+					Pair<Node, Float> pair = nodeLikelinesses.get(i);
+					Node node = pair.first();
+					float likeliness = pair.second();
+					if (likeliness < smallestLikeliness) {
+						boolean valid = true;
+						if (foundNodes.containsKey(node)) {
+							Memory memory = foundNodes.get(node);
+							if (memory.originalSegment == null) {
+								valid = false;
+							} else {
+								valid = (likeliness < memory.likeliness);
+							}
+						}
+						if (valid) {
+							smallestLikeliness = likeliness;
+							segmentWithSmallestLikeliness = entry.getKey();
+							nodeWithSmallestLikeliness = node;
+							break;
+						}
+					}
+					i++;
 				}
 			}
-			Node node = likelinesses.get(segmentWithSmallestLikeliness).get(0).first();
-			Segment newSegment1 = new Segment(node, segmentWithSmallestLikeliness.getNode1());
-			Segment newSegment2 = new Segment(node, segmentWithSmallestLikeliness.getNode2());
-			foundSegments.add(newSegment1);
-			foundSegments.add(newSegment2);
-			foundSegments.remove(segmentWithSmallestLikeliness);
-			nodesToDo.remove(node);
-			likelinesses.remove(segmentWithSmallestLikeliness);
-			likelinesses.put(newSegment1, buildNodeLikelinesses(newSegment1, nodesToDo));
-			likelinesses.put(newSegment2, buildNodeLikelinesses(newSegment2, nodesToDo));
+			HashSet<Segment> newSegments = new HashSet<Segment>();
+			HashSet<Segment> oldSegments = new HashSet<Segment>();
+			if (foundNodes.containsKey(nodeWithSmallestLikeliness)) {
+				System.out.println("Yes");
+				HashSet<Node> toRemoveFromFoundNodes = new HashSet<Node>();
+				for (Entry<Node, Memory> entry : foundNodes.entrySet()) {
+					Memory memory = entry.getValue();
+					Node node = entry.getKey();
+					if (memory.predecessorNodes.contains(nodeWithSmallestLikeliness)) {
+						oldSegments.add(memory.newSegment1);
+						oldSegments.add(memory.newSegment2);
+						toRemoveFromFoundNodes.add(node);
+					} else if (node.equals(nodeWithSmallestLikeliness)) {
+						oldSegments.add(memory.newSegment1);
+						oldSegments.add(memory.newSegment2);
+					}
+				}
+				for (Node node : toRemoveFromFoundNodes) {
+					foundNodes.remove(node);
+				}
+				Segment newSegment1 = new Segment(nodeWithSmallestLikeliness, segmentWithSmallestLikeliness.getNode1());
+				Segment newSegment2 = new Segment(nodeWithSmallestLikeliness, segmentWithSmallestLikeliness.getNode2());
+				newSegments.add(newSegment1);
+				newSegments.add(newSegment2);
+				newSegments.add(foundNodes.get(nodeWithSmallestLikeliness).originalSegment);
+				oldSegments.add(segmentWithSmallestLikeliness);
+				foundNodes.put(nodeWithSmallestLikeliness, new Memory(segmentWithSmallestLikeliness, Conversion.union(foundNodes.get(segmentWithSmallestLikeliness.getNode1()).predecessorNodes, foundNodes.get(segmentWithSmallestLikeliness.getNode2()).predecessorNodes), smallestLikeliness, newSegment1, newSegment2));
+			} else {
+				System.out.println("No");
+				Segment newSegment1 = new Segment(nodeWithSmallestLikeliness, segmentWithSmallestLikeliness.getNode1());
+				Segment newSegment2 = new Segment(nodeWithSmallestLikeliness, segmentWithSmallestLikeliness.getNode2());
+				newSegments.add(newSegment1);
+				newSegments.add(newSegment2);
+				oldSegments.add(segmentWithSmallestLikeliness);
+				foundNodes.put(nodeWithSmallestLikeliness, new Memory(segmentWithSmallestLikeliness, Conversion.union(foundNodes.get(segmentWithSmallestLikeliness.getNode1()).predecessorNodes, foundNodes.get(segmentWithSmallestLikeliness.getNode2()).predecessorNodes), smallestLikeliness, newSegment1, newSegment2));
+			}
+			for (Segment segment : oldSegments) {
+				System.out.println("OLD " + segment.getNode1Id() + " " + segment.getNode2Id());
+				likelinesses.remove(segment);
+				foundSegments.remove(segment);
+			}
+			for (Segment segment : newSegments) {
+				System.out.println("NEW " + segment.getNode1Id() + " " + segment.getNode2Id());
+				likelinesses.put(segment, buildNodeLikelinesses(segment, nodes));
+				foundSegments.add(segment);
+			}
 		}
 		
 		//System.out.println("Run Mozes 1...");
@@ -429,6 +500,11 @@ public class SingleImploding implements SingleImplementation {
 			float likeliness = likelinessFormula(segmentLength, distance1, distance2);
 			nodeLikelinesses.add(new Pair<Node, Float>(n, likeliness));
 		}
+		sortNodeLikelinesses(nodeLikelinesses);
+		return nodeLikelinesses;
+	}
+	
+	private void sortNodeLikelinesses(ArrayList<Pair<Node, Float>> nodeLikelinesses) {
 		Collections.sort(nodeLikelinesses, new Comparator<Pair<Node, Float>>() {
 			
 			@Override
@@ -445,7 +521,6 @@ public class SingleImploding implements SingleImplementation {
 			}
 			
 		});
-		return nodeLikelinesses;
 	}
 	
 	/** Makes sure an integer is in the range (by applying (inefficient) mathematical modulo) [0, range) **/

@@ -60,4 +60,15 @@ public abstract class Conversion {
 		return hashSet;
 	}
 	
+	public static <T> HashSet<T> union(Collection<T> collection1, Collection<T> collection2) {
+		HashSet<T> hashSet = new HashSet<T>();
+		for (T object : collection1) {
+			hashSet.add(object);
+		}
+		for (T object : collection2) {
+			hashSet.add(object);
+		}
+		return hashSet;
+	}
+	
 }
