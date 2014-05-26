@@ -41,11 +41,28 @@ public class MultipleCurves implements MultipleImplementation {
             cn.addSegment(segment);
         }
 
+        removeSegmentIfBothNodesHaveDegreeTwoPlus(cn);
         removeSegmentIfAnyNodeHasDegreeOnePlus(input, cn);
         connectEndpointsWithDegreeOne(input, cn, adjNodes);
 
         Segment[] result = cn.getAllSegments();
         return result;
+    }
+
+    /**
+     * Remove segments if both endpoints have degree two or more.
+     */
+    private static void removeSegmentIfBothNodesHaveDegreeTwoPlus(ConnectedNodes cn) {
+        for (Segment segment : cn.getAllSegments()) {
+            // TODO: Sort segments by length / distance before iterating over it?
+            Node node1 = segment.getNode1();
+            Node node2 = segment.getNode2();
+            Segment[] neighbors1 = cn.getSegments(node1);
+            Segment[] neighbors2 = cn.getSegments(node2);
+            if (neighbors1.length > 2 && neighbors2.length > 2) {
+                cn.removeSegment(segment);
+            }
+        }
     }
 
     private static void removeSegmentIfAnyNodeHasDegreeOnePlus(Node[] nodes, ConnectedNodes cn) {
