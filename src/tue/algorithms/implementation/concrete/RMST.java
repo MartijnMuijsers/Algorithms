@@ -40,7 +40,7 @@ public class RMST implements NetworkImplementation {
             i++;
         }
 
-        return new Pair<Segment[], Node[]>(MSTsegments(resultSegments, input), null);
+        return new Pair<Segment[], Node[]>(MSTsegments(resultSegments, input), new Node[0]);
 
     }
 
