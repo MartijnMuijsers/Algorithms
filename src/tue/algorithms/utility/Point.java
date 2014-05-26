@@ -73,8 +73,12 @@ public class Point {
 	
 	/**
 	 * Get the angle between this point, when treated as a vector, and the x-axis.
-	 * An angle of 0 means this point points to the right, and an angle of Math.PI/2 means this point points upwards.
-	 * @return The angle as a double.
+	 * An angle of 0 means this point points to the right.
+	 * An angle of Math.PI/2 means this point points upwards.
+	 * If the point points to the left, then the angle is Math.PI.
+	 * The angle can also be -Math.PI, when the point is slightly (epsilon) below
+	 *  the negative X-axis.
+	 * @return The angle as a double in the range [-Math.PI, Math.PI].
 	 */
 	public double getAngle() {
 		return Math.atan2(getY(), getX());

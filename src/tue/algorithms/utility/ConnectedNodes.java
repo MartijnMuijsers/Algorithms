@@ -18,10 +18,7 @@ import java.util.TreeSet;
  */
 public class ConnectedNodes {
 
-	// The set of segments, optimized for querying near-horizontal respectively
-	// near-vertical segments. segmentsQH must be kept in sync with segmentsQV.
-	final private TreeSet<Segment> segmentsQH;
-	final private TreeSet<Segment> segmentsQV;
+	final private HashSet<Segment> segments;
 
 	final private HashMap<Integer, HashSet<Segment>> nodeToSegments;
 
@@ -30,48 +27,19 @@ public class ConnectedNodes {
 	 * Time complexity: O(1)
 	 */
 	public ConnectedNodes() {
-		this.segmentsQH = new TreeSet<Segment>(new HorizontalSegmentQueryComparator());
-		this.segmentsQV = new TreeSet<Segment>(new VerticalSegmentQueryComparator());
+		this.segments = new HashSet<Segment>();
 		this.nodeToSegments = new HashMap<Integer, HashSet<Segment>>();
 	}
 
 	/**
 	 * Check whether the segments intersects any of the other segments in the graph.
-	 * Time complexity: O(log n + k)
-	 * where n = total number of segments and k = number of elements in query interval.
-	 * In the worst case, k = n because all segments are within the query interval.
-	 * This algorithm performs very well for short segments and segments that are
-	 * almost flat (horizontally / vertically), because it runs a binary search on
-	 * the full set of segments to identify boundaries of the search interval,
-	 * then it searches for intersections in a linear way.
-	 * NOTE: Due to a bad implementation, this method fails to identify the left
-	 * boundary, so it is a bit inefficient for lines at the bottom-right corner of
-	 * the graph.
+	 * Time complexity: O(n) in terms of segments in the existing graph.
 	 *
 	 * @return Whether the segment intersects the graph.
 	 */
 	public boolean intersectsGraph(Segment segment) {
-		float slope = segment.getSlope();
-		boolean isNearVertical = slope > 1 || slope < -1;
-
-		float maximum;
-		TreeSet<Segment> segments;
-		if (isNearVertical) {
-			maximum = segment.getMaxX();
-			segments = segmentsQV;
-		} else {
-			maximum = segment.getMaxY();
-			segments = segmentsQH;
-		}
-
-		// Use tailSet to skip all elements "before" segment.
-		// TODO: Use binary search to identify the starting point instead
-		// of starting at the front of the list
+		// TODO: Improve time complexity of this part
 		for (Segment other : segments) {
-			if (maximum < (isNearVertical ? other.getMinX() : other.getMinY())) {
-				// Every element "after" segment will never intersect segment.
-				return false;
-			}
 			if (segment.intersectsWith(other)) {
 				return true;
 			}
@@ -81,12 +49,10 @@ public class ConnectedNodes {
 
 	/**
 	 * Add a segment to the graph.
-	 * Time complexity: O(log n)
-	 * (in terms of number of segments in existing graph.)
+	 * Time complexity: O(1)
 	 */
 	public void addSegment(Segment segment) {
-		segmentsQH.add(segment);
-		segmentsQV.add(segment);
+		segments.add(segment);
 
 		int node1id = segment.getNode1Id();
 		int node2id = segment.getNode2Id();
@@ -106,12 +72,10 @@ public class ConnectedNodes {
 
 	/**
 	 * Remove a segment from the graph.
-	 * Time complexity: O(log n)
-	 * (in terms of number of segments in existing graph.)
+	 * Time complexity: O(1)
 	 */
 	public void removeSegment(Segment segment) {
-		segmentsQH.remove(segment);
-		segmentsQV.remove(segment);
+		segments.remove(segment);
 
 		HashSet<Segment> set1 = nodeToSegments.get(segment.getNode1Id());
 		HashSet<Segment> set2 = nodeToSegments.get(segment.getNode2Id());
@@ -151,7 +115,7 @@ public class ConnectedNodes {
 	 * @return All segments that have been added to this data structure.
 	 */
 	public Segment[] getAllSegments() {
-		return segmentsQH.toArray(new Segment[0]);
+		return segments.toArray(new Segment[0]);
 	}
 
 	/**
@@ -175,45 +139,5 @@ public class ConnectedNodes {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * A comparator optimized for quering vertical segments.
-	 * Ordered by ascending min-X-coordinate.
-	 */
-	private class VerticalSegmentQueryComparator implements Comparator<Segment> {
-		@Override
-		public int compare(Segment s1, Segment s2) {
-			float diff = s1.getMinX() - s2.getMinX();
-			if (diff < 0) {
-				// s1 is at the left of s2
-				return -1;
-			}
-			if (diff > 0) {
-				// s1 is at the right of s2
-				return 1;
-			}
-			return s1.equals(s2) ? 0 : -1;
-		}
-	}
-
-	/**
-	 * A comparator optimized for quering horizontal segments.
-	 * Ordered by ascending min-Y-coordinate.
-	 */
-	private class HorizontalSegmentQueryComparator implements Comparator<Segment> {
-		@Override
-		public int compare(Segment s1, Segment s2) {
-			float diff = s1.getMinY() - s2.getMinY();
-			if (diff < 0) {
-				// s1 is visually below s2
-				return -1;
-			}
-			if (diff > 0) {
-				// s1 is visually above s2
-				return 1;
-			}
-			return s1.equals(s2) ? 0 : -1;
-		}
 	}
 }

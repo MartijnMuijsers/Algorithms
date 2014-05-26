@@ -53,3 +53,6 @@ local.properties
 report/report.pdf
 
 !lib/
+
+# Auto-generated files for Peach
+submit_to_peach/

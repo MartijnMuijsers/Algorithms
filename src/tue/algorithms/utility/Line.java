@@ -202,6 +202,22 @@ public class Line {
 	public double getAngle() {
 		return getVector().getAngle();
 	}
+
+	/**
+	 * Get the angle of {@code other} relative to this line, as if 
+	 * this line were the positive X-axis of some coordinate system,
+	 * with (x1, y1) as origin.
+	 *
+	 * @return The angle in radians in the range [-Math.PI, Math.PI]
+	 */
+	public double getAngleOf(Point other) {
+		double otherAbsoluteAngle = other.subtract(getPoint1()).getAngle();
+		double thisAbsoluteAngle = getAngle();
+		double relativeAngle = otherAbsoluteAngle - thisAbsoluteAngle;
+		if (relativeAngle <= -Math.PI) relativeAngle += 2 * Math.PI;
+		else if (relativeAngle >= Math.PI) relativeAngle -= 2 * Math.PI;
+		return relativeAngle;
+	}
 	
 	/**
 	 * Get the slope of the line.

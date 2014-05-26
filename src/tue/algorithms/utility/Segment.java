@@ -99,10 +99,43 @@ public class Segment extends Line {
 		int nodeId = node.getId();
 		return node1id == nodeId || node2id == nodeId;
 	}
+
+	/**
+	 * @param node
+	 * @return The other endpoint.
+	 * @pre {@code node} is one of the endpoints.
+	 */
+	public Node getOtherEndpoint(Node node) {
+		return node.getId() != node1id ? getNode1() : getNode2();
+	}
 	
 	/* -- END Getters for node representations of private fields -- */
 	
 	/* -- START Manipulation method to invert line -- */
+
+	/**
+	 * Get a view of this line such that the line "ends" at {@code node}
+	 * @param node
+	 * @return The segment
+	 */
+	public Segment endAt(Node node) {
+		return originAt(getOtherEndpoint(node));
+	}
+
+	/** 
+	 * Get a view of this line such that the line "starts" at {@code node}.
+	 *
+	 * @param node The point that is used as start point
+	 * @pre node must be one of the endpoints of this line, i.e.
+	 *  {@code isEndPoint(node) == true}
+	 */
+	public Segment originAt(Node node) {
+		if (x1 == node.getX() && y1 == node.getY()) {
+			return this;
+		} else {
+			return invertDirection();
+		}   
+	}
 	
 	/**
 	 * Get a segment with the direction inverted: the created segment will start where this segment ends, and end where this segment starts.

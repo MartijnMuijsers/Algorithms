@@ -40,11 +40,13 @@ import tue.algorithms.other.Debug;
 import tue.algorithms.other.Pair;
 import tue.algorithms.test.FakeInputReader;
 import tue.algorithms.utility.Node;
+import tue.algorithms.utility.Point;
 import tue.algorithms.utility.Segment;
 
 public class Simulation {
 
     final private static float ERASER_RADIUS = 0.025f;
+    final private static float NODE_RADIUS = 0.0054f;
 
 	/**
      * Get an instance of the class that is chosen to provide input.
@@ -148,48 +150,11 @@ public class Simulation {
         calculatedSegments = new Segment[0];
         this.segments = new ArrayList<>(calculatedSegments.length);
     }
- 
-    public void render() {
-        glClear(GL_COLOR_BUFFER_BIT);
-        
-        glColor3f(1f, 1f, 1f);
-        glLineWidth(2f);
-        if (showSegments) {
-            for (Segment segment : segments) {
-                drawSegment(segment);
-            }
-        }
-    
-        glColor3f(1f, 1f, 0f);
-        float ratio = ((float)Camera.width) / Camera.heigth;
-        for (Node node : nodes) {
-            glPushMatrix();
-            glTranslatef(node.getX(), node.getY(), 0);
-            float pointSize = Math.min(Camera.width, Camera.heigth);
-            glScalef(640/pointSize, 640/pointSize, 1);
-            if (ratio > 1f) {
-                glScalef(1f/ratio, 1f, 1);
-            } else if (ratio < 1f) {
-                glScalef(1f, 1f/ratio, 1);
-            }
-            drawNode();
-            glPopMatrix();
-        }
-
-        glColor3f(1f, 0f, 0f);
-        if (brushMode){
-            glPushMatrix();
-            glTranslatef((float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR, 1 - ((float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR), 0);
-                        float pointSize = Math.min(Camera.width, Camera.heigth);
-            glScalef(640/pointSize, 640/pointSize, 1);
-            if (ratio > 1f) {
-                glScalef(1f/ratio, 1f, 1);
-            } else if (ratio < 1f) {
-                glScalef(1f, 1f/ratio, 1);
-            }
-            drawCircle( ERASER_RADIUS, 16);
-            glPopMatrix();
-        }
+   
+    private Point getMousePosition(){
+        float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
+        float clickY = (float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
+        return new Point(clickX, clickY);
     }
     
     public boolean getInput() throws IOException {
@@ -333,8 +298,8 @@ public class Simulation {
     }
     
     private void deleteNodes() {
-        float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
-        float clickY = 1 - ((float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR);
+        float clickX = getMousePosition().getX();
+        float clickY = getMousePosition().getY();
         Node mouseNode = new Node(0, clickX, clickY);
 
         for (Node node : nodes) {
@@ -354,18 +319,27 @@ public class Simulation {
     }
 
     private void addNode() {
-        float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
-        float clickY = 1 - ((float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR);
+        float clickX = getMousePosition().getX();
+        float clickY = getMousePosition().getY();
         if (clickX >= 0 && clickX <= 1 && clickY >= 0 && clickY <= 1) {
-            ArrayList<Node> tempNodes = new ArrayList<Node>();
-            int i = 1;
+            boolean exists = false;
             for (Node node : nodes) {
-                tempNodes.add(new Node(i, node.getX(), node.getY()));
-                ++i;
+                if (node.getX()==clickX && node.getY()==clickY){
+                    exists = true;
+                    break;
+                }
             }
-            tempNodes.add(new Node(tempNodes.size() + 1, clickX, clickY));
+            if (!exists) {
+                ArrayList<Node> tempNodes = new ArrayList<Node>();
+                int i = 1;
+                for (Node node : nodes) {
+                    tempNodes.add(new Node(i, node.getX(), node.getY()));
+                    ++i;
+                }
+                tempNodes.add(new Node(tempNodes.size() + 1, clickX, clickY));
 
-            nodes = tempNodes;
+                nodes = tempNodes;
+            }
         }
     }
 
@@ -404,35 +378,61 @@ public class Simulation {
     }
 
     private void open() throws FileNotFoundException {
-    	boolean done = false;
-    	while (!done) {
-    		done = true;
-	        JFileChooser openFile = new JFileChooser();
-	        if (openFile.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-	            File file = openFile.getSelectedFile();
-	            ProblemType pType;
-	            try {
-	            	Scanner scanner = new Scanner(file);
-	                String line = scanner.nextLine();
-	                pType = ProblemType.valueOf(line.substring(12).toUpperCase());
-	                line = scanner.nextLine();
-	                int numberOfNodes = Integer.parseInt(line.substring(0, line.indexOf(' ')));
-	                nodes.clear();
-	                for (int i = 0; i < numberOfNodes; i++) {
-	                	String a = scanner.next();
-	                	String b = scanner.next();
-	                	String c = scanner.next();
-	                    nodes.add(new Node(Integer.parseInt(a),
-	                    		Float.parseFloat(b),
-	                    		Float.parseFloat(c)));
-	                }
-	                problemType = pType;
-		            showSegments = false;
-	            } catch (Exception e) {
-	            	done = false;
-	            }
-	        }
-    	}
+        boolean done = false;
+        while (!done) {
+            done = true;
+            JFileChooser openFile = new JFileChooser();
+            if (openFile.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                File file = openFile.getSelectedFile();
+                try {
+                    Scanner scanner = new Scanner(file);
+                    String line = scanner.nextLine();
+                    ProblemType pType = ProblemType.valueOf(line.substring(12).toUpperCase());
+                    line = scanner.nextLine();
+                    int numberOfNodes = Integer.parseInt(line.substring(0, line.indexOf(' ')));
+                    nodes.clear();
+                    for (int i = 0; i < numberOfNodes; i++) {
+                        String a = scanner.next();
+                        String b = scanner.next();
+                        String c = scanner.next();
+                        nodes.add(new Node(Integer.parseInt(a),
+                                Float.parseFloat(b),
+                                Float.parseFloat(c)));
+                    }
+                    problemType = pType;
+                    showSegments = false;
+                } catch (Exception e) {
+                    done = false;
+                }
+            }
+        }
+    }
+  
+    public void render() {
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        glColor3f(1f, 1f, 1f);
+        glLineWidth(2f);
+        if (showSegments) {
+            for (Segment segment : segments) {
+                drawSegment(segment);
+            }
+        }
+    
+        glColor3f(1f, 1f, 0f);
+        for (Node node : nodes) {
+            drawNode(NODE_RADIUS, node);
+        }
+ 
+        glColor3f(1f, 0f, 0f);
+        for (Node node : newNetworkNodes) {
+            drawNode(NODE_RADIUS, node);
+        }
+        
+        glColor3f(1f, 0f, 0f);
+        if (brushMode){
+            drawNode(ERASER_RADIUS, new Node(0,getMousePosition().getX(), getMousePosition().getY()));
+        }
     }
     
     private void drawSegment(Segment segment) {
@@ -442,10 +442,22 @@ public class Simulation {
         glEnd();
     }
 
-    private void drawNode() {
-        drawCircle(0.0054f, 18);
+    private void drawNode(float radius, Node n) {
+        float ratio = ((float) Camera.width) / Camera.heigth;
+        glPushMatrix();
+        glTranslatef(n.getX(), n.getY(), 0);
+        float pointSize = Math.min(Camera.width, Camera.heigth);
+        glScalef(640 / pointSize, 640 / pointSize, 1);
+        if (ratio > 1f) {
+            glScalef(1f / ratio, 1f, 1);
+        } else if (ratio < 1f) {
+            glScalef(1f, 1f / ratio, 1);
+        }
+        drawCircle(radius, 18);
+        glPopMatrix();
     }
 
+    // source: http://slabode.exofire.net/circle_draw.shtml
     private void drawCircle(float r, int num_segments) {
         final float theta = 2f * 3.1415926f / (float) num_segments;
         final float c = (float) cos(theta);

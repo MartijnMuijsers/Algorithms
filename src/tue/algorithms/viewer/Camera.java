@@ -26,7 +26,8 @@ public class Camera {
         glLoadIdentity();
         glOrtho(0, width, heigth, 0, 1, -1);
         glTranslatef(width * OFFSETFACTOR, heigth * OFFSETFACTOR, 0);
-        glScalef(width * SCALINGFACTOR, heigth * SCALINGFACTOR, 1f);
+        glScalef(width * SCALINGFACTOR, heigth * SCALINGFACTOR * -1, 1f);
+        glTranslatef(0, -1, 0);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
     }
@@ -51,7 +52,6 @@ public class Camera {
         glEnable(GL_POLYGON_SMOOTH);
         glEnable(GL_MULTISAMPLE);
         glClearColor(0, 0, 0, 0);
-
     }
 
 }
