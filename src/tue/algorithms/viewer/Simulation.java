@@ -300,13 +300,13 @@ public class Simulation {
     private void deleteNodes() {
         float clickX = getMousePosition().getX();
         float clickY = getMousePosition().getY();
-        Node mouseNode = new Node(0, clickX, clickY);
+        Point mouseNode = new Point(clickX, clickY);
 
         for (Node node : nodes) {
             if (node.subtract(mouseNode).length() < ERASER_RADIUS) {
                 // Found a node under the eraser, reconstruct the whole set of nodes.
                 ArrayList<Node> tempNodes = new ArrayList<Node>(nodes.size());
-                int i = 0;
+                int i = Node.MINIMAL_NODE_ID;
                 for (Node n : nodes) {
                     if (n.subtract(mouseNode).length() >= ERASER_RADIUS) {
                         tempNodes.add(new Node(i++, n.getX(), n.getY()));
@@ -331,12 +331,11 @@ public class Simulation {
             }
             if (!exists) {
                 ArrayList<Node> tempNodes = new ArrayList<Node>();
-                int i = 1;
+                int i = Node.MINIMAL_NODE_ID;
                 for (Node node : nodes) {
-                    tempNodes.add(new Node(i, node.getX(), node.getY()));
-                    ++i;
+                    tempNodes.add(new Node(i++, node.getX(), node.getY()));
                 }
-                tempNodes.add(new Node(tempNodes.size() + 1, clickX, clickY));
+                tempNodes.add(new Node(i++, clickX, clickY));
 
                 nodes = tempNodes;
             }
@@ -421,19 +420,19 @@ public class Simulation {
     
         glColor3f(1f, 1f, 0f);
         for (Node node : nodes) {
-            drawNode(NODE_RADIUS, node);
+            drawPoint(NODE_RADIUS, node);
         }
         
         if (problemType.equals(ProblemType.NETWORK)) {
             glColor3f(1f, 0f, 0f);
             for (Node node : newNetworkNodes) {
-                drawNode(NODE_RADIUS, node);
+                drawPoint(NODE_RADIUS, node);
             }
         }
         
         glColor3f(1f, 0f, 0f);
         if (brushMode){
-            drawNode(ERASER_RADIUS, new Node(0,getMousePosition().getX(), getMousePosition().getY()));
+            drawPoint(ERASER_RADIUS, new Point(getMousePosition().getX(), getMousePosition().getY()));
         }
     }
     
@@ -444,7 +443,7 @@ public class Simulation {
         glEnd();
     }
 
-    private void drawNode(float radius, Node n) {
+    private void drawPoint(float radius, Point n) {
         float ratio = ((float) Camera.width) / Camera.heigth;
         glPushMatrix();
         glTranslatef(n.getX(), n.getY(), 0);

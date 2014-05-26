@@ -24,6 +24,9 @@ import java.util.HashMap;
  * @author Martijn
  */
 public class Node extends Point {
+
+	/** ID of first node */
+	final static public int MINIMAL_NODE_ID = 1;
 	
 	/* -- START Private final fields -- */
 	
@@ -44,6 +47,7 @@ public class Node extends Point {
 	 */
 	public Node(int id, float x, float y) {
 		super(x, y);
+		assert id >= MINIMAL_NODE_ID;
 		this.id = id;
 		addToNodeCache(this);
 	}
