@@ -439,7 +439,18 @@ Finally we calculate $RN_{com}$, see algorithm \ref{alg:RNcomalg}. First we find
 
 \section{Experimental evaluation}
 \subsection{Generating input}
+To properly test the presented algorithms, many test cases have been created. The majority of these test cases were created by hand, made to be as difficult as possible for the algorithms. Some have sharp corners, or have points with large gaps between them as shown in Figure %TODO: Add figure number (automatic using labels?)
 
+\begin{figure}[ht!]
+\centering
+\includegraphics[scale=0.3]{anglesamplerate.png}
+\caption{Test case with low sampling and a sharp angle (left) and the resulting output from the single curve algorithm (right)}
+\label{singleB}
+\end{figure}
+
+Other test cases have been created to test the running time of the algorithm, with the amount of nodes ranging from $10$ to $10000$.
+
+%TODO: Table with input amount and running time for each algorithm
 
 \subsection{Resulting output}
 \subsubsection{Single curve}
