@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 public abstract class Debug {
 	
-	public static final boolean enabled = false;
+	public static final boolean enabled = true;
 	
 	public static final boolean displayMethods = false;
 	
