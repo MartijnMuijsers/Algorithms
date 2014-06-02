@@ -63,9 +63,7 @@ The first two curve reconstruction algorithms are subject to some constraints: C
 
 The goal of the road network algorithm is to create a reasonable representation of the road network, such that a person would agree with the representation that the algorithm gives. This algorithm could be used to create a road map after data has been collected using the GPS locations of cars.
 
-As with the other algorithms, there are some constraints: All points need to have at least one possible path to every other point and lines cannot intersect one another. However, unlike the other problems, points can be added to alleviate intersecting lines.
-
-All nodes are points in a 2D plane, represented by floating point numbers ranging from 0 to 1. These nodes are not calculated by the algorithm, but determined in advance. In practice, these datasets can be created by laser scanners, or in the case of the network, by following roads and giving the location at some interval.
+As with the other algorithms, there are some constraints: All points need to have at least one possible path to every other point and lines cannot intersect one another. However, unlike the other problems, points can be added to alleviate intersecting lines. All nodes are points in a 2D plane. These nodes are generated in advance. In practice, this can be done by laser scanners, or in the case of the network, by following roads and giving the location at certain intervals. 
 
 There are multiple known solutions to these problems. One of these is `The Crust Algorithm' \cite{crust}, which first creates a Voronoi diagram, then uses Delaunay triangulation between the Voronoi diagram and the Voronoi vertices. The Crust Algorithm works well in three dimensions, but has difficulty with detecting sharp corners which are common in two dimensional reconstruction.
 A different algorithm, specifically made for two dimensional reconstruction is `Gathan' \cite{gathan}. This provides a good solution for general cases, but does not allow for selecting multiple or single curves and relies on difficult mathematical graphs.
@@ -81,7 +79,6 @@ A very useful subgraph that we looked at is the rectilinear spanning tree. This 
 To solve the single curve reconstruction problem, we have chosen for a spider-type algorithm, which will go from point to point and then determines the next best point to go to.
 The multiple curve and road network reconstruction problems are solved using a minimum spanning tree. In multiple curve construction problem, the graph is completed using an adjacency matrix and another supporting data structure. The road network problem uses a particular kind of spanning trees, namely rectilinear minimum spanning tree to get an initial solution the problem. After reconstructing this tree, we try to find straight lines and connect those, since a spanning tree will not create cycles.
 
-\newpage
 \section{The algorithms}
 \label{se:algorithms}
 
@@ -440,6 +437,21 @@ Finally we calculate $RN_{com}$, see algorithm \ref{alg:RNcomalg}. First we find
 \label{alg:RNcomalg}
 \end{algorithm}
 
+\section{Experimental evaluation}
+\subsection{Generating input}
+
+
+\subsection{Resulting output}
+\subsubsection{Single curve}
+\subsubsection{Multiple curves}
+\subsubsection{Network reconstruction}
+
+\subsection{Conclusion}
+
+\section{Concluding remarks}
+
+
+\subsection{Future Work}
 \bibliographystyle{plain}
 
 \begin{thebibliography}{50}
@@ -449,15 +461,26 @@ Nina Amenta, Marshall Bern, Manolis Kamvysselis.
 A new Voronoi-Based Surface Reconstruction Algorithm
 (1998).
 
-\bibitem{k-osssgtsp-56}
+\bibitem{kruskal}
 J.B. Kruskal.
 On the shortest spanning subtree of a graph and the traveling salesman problem.
 In \emph{Proceedings of the American Mathematical Society},7: 48-50, 1956.
 
-\bibitem{cghs-rnrop-20}
+\bibitem{chen}
 D. Chen, L.J. Guibas, J. Hershberger, J. Sun.
 Road Network Reconstruction for Organizing Paths.
 In \emph{Proceedings  of  21st  ACM-SIAM  Symposium  on  Discrete  Algorithms}, 10: 1309-1320, 2010.
+
+\bibitem{discur}
+
+\bibitem{gathan}
+Tamal K. Dey, Rephael Wenger.
+Reconstructing Curves with Sharp Corners.
+2000
+
+\bibitem{delaunay}
+
+\bibitem{convex}
 
 \bibitem{a-raoa-02}
 S. Albers.
