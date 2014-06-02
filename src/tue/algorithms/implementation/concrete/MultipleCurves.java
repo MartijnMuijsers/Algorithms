@@ -45,6 +45,10 @@ public class MultipleCurves implements MultipleImplementation {
         removeSegmentIfAnyEndpointHasDegreeTwoPlus(cn);
         connectEndpointsWithDegreeOne(input, cn, adjNodes);
         // TODO: Fix nodes with degree 0
+        // TODO: Find all corners in the curve and reconnect the corners to
+        // get a bigger curve (test case = multiCloseCurves).
+        // TODO: Walk over the final curves and remove segments if they deviate
+        // too much from the shape.
 
         Segment[] result = cn.getAllSegments();
         return result;
