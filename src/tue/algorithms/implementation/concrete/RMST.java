@@ -95,9 +95,9 @@ public class RMST implements NetworkImplementation {
 
         @Override
         public int compare(Segment t, Segment t1) {
-            if (t.manhattanDistance() < t1.manhattanDistance()) {
+            if (t.length() < t1.length()) {
                 return -1;
-            } else if (t.manhattanDistance() > t1.manhattanDistance()) {
+            } else if (t.length() > t1.length()) {
                 return 1;
             }
             return 0;
