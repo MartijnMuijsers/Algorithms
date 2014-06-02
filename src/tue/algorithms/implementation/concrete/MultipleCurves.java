@@ -42,8 +42,7 @@ public class MultipleCurves implements MultipleImplementation {
             cn.addSegment(segment);
         }
 
-        removeSegmentIfBothNodesHaveDegreeTwoPlus(cn);
-        removeSegmentIfAnyNodeHasDegreeOnePlus(input, cn);
+        removeSegmentIfAnyEndpointHasDegreeTwoPlus(cn);
         connectEndpointsWithDegreeOne(input, cn, adjNodes);
 
         Segment[] result = cn.getAllSegments();
@@ -51,9 +50,9 @@ public class MultipleCurves implements MultipleImplementation {
     }
 
     /**
-     * Remove segments if both endpoints have degree two or more.
+     * Remove segments if any of the endpoints have degree two or more.
      */
-    private static void removeSegmentIfBothNodesHaveDegreeTwoPlus(ConnectedNodes cn) {
+    private static void removeSegmentIfAnyEndpointHasDegreeTwoPlus(ConnectedNodes cn) {
         Segment[] segments = cn.getAllSegments();
         // Sort by segment length, longest first.
         Arrays.sort(segments, new Comparator<Segment>() {
@@ -73,21 +72,7 @@ public class MultipleCurves implements MultipleImplementation {
             Node node2 = segment.getNode2();
             Segment[] neighbors1 = cn.getSegments(node1);
             Segment[] neighbors2 = cn.getSegments(node2);
-            if (neighbors1.length > 2 && neighbors2.length > 2) {
-                cn.removeSegment(segment);
-            }
-        }
-    }
-
-    private static void removeSegmentIfAnyNodeHasDegreeOnePlus(Node[] nodes, ConnectedNodes cn) {
-        ArrayList<Node> nodesToDisconnect = new ArrayList<Node>();
-        for (Node node : nodes) {
-            if (cn.getSegments(node).length > 2) {
-                nodesToDisconnect.add(node);
-            }
-        }
-        for (Node node : nodesToDisconnect) {
-            for (Segment segment : cn.getSegments(node)) {
+            if (neighbors1.length > 2 || neighbors2.length > 2) {
                 cn.removeSegment(segment);
             }
         }
