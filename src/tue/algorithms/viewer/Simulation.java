@@ -454,19 +454,19 @@ public class Simulation {
     
         glColor3f(1f, 1f, 0f);
         for (Node node : nodes) {
-            drawPoint(NODE_RADIUS, node);
+            drawPoint(NODE_RADIUS, node, true);
         }
         
         if (problemType.equals(ProblemType.NETWORK)) {
             glColor3f(1f, 0f, 0f);
             for (Node node : networkNodes) {
-                drawPoint(NODE_RADIUS, node);
+                drawPoint(NODE_RADIUS, node, true);
             }
         }
         
         glColor3f(1f, 0f, 0f);
         if (brushMode){
-            drawPoint(ERASER_RADIUS, new Point(getMousePosition().getX(), getMousePosition().getY()));
+            drawPoint(ERASER_RADIUS, new Point(getMousePosition().getX(), getMousePosition().getY()), false);
         }
     }
     
@@ -477,20 +477,23 @@ public class Simulation {
         glEnd();
     }
 
-    private void drawPoint(float radius, Point n) {
+    private void drawPoint(float radius, Point n, boolean scale) {
         float ratio = ((float) Camera.width) / Camera.heigth;
         glPushMatrix();
         glTranslatef(n.getX(), n.getY(), 0);
         float pointSize = Math.min(Camera.width, Camera.heigth);
         glScalef(640 / pointSize, 640 / pointSize, 1);
+        if(scale){
         if (ratio > 1f) {
             glScalef(1f / ratio, 1f, 1);
         } else if (ratio < 1f) {
             glScalef(1f, 1f / ratio, 1);
         }
+        }
         drawCircle(radius, 18);
         glPopMatrix();
     }
+    
 
     // source: http://slabode.exofire.net/circle_draw.shtml
     private void drawCircle(float r, int num_segments) {
