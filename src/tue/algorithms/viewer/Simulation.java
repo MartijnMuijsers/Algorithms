@@ -113,6 +113,7 @@ public class Simulation {
     private boolean openKeyDown;
     private boolean escKeyDown;
     private boolean flipKeyDown;
+    private boolean helpKeyDown;
     
     // Clear
     private boolean showSegments;
@@ -132,6 +133,7 @@ public class Simulation {
         brushMode = false;
         escKeyDown = false;
         flipKeyDown = false;
+        helpKeyDown = false;
     }
 
     public void initialize() {
@@ -155,7 +157,7 @@ public class Simulation {
         }
     }
    
-    private Point getMousePosition(){
+    public Point getMousePosition(){
         float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
         float clickY = (float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
         return new Point(clickX, clickY);
@@ -190,6 +192,11 @@ public class Simulation {
             // Flip
             if (Keyboard.getEventKey() == Keyboard.KEY_F) {
                 flipKeyDown = !flipKeyDown && Keyboard.getEventKeyState();
+            }    
+            
+            // Help
+            if (Keyboard.getEventKey() == Keyboard.KEY_F1) {
+                helpKeyDown = !helpKeyDown && Keyboard.getEventKeyState();
             }              
             
             // Save
@@ -274,6 +281,11 @@ public class Simulation {
         if(flipKeyDown){
             flipKeyDown = false;
             return KeyboardValue.FLIPSCREEN;
+        }
+        
+        if(helpKeyDown){
+            helpKeyDown = false;
+            return KeyboardValue.HELP;
         }
         
         return KeyboardValue.CONTINUE;

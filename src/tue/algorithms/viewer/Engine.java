@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -94,14 +95,40 @@ public class Engine {
                 return true;
             case FLIPSCREEN:
                 camera.flip();
+            case HELP:
+                showHelpDialog();
         }
         return false;
     }
-    
+
+    private void showHelpDialog() {
+        JOptionPane.showMessageDialog(null,
+                "Available commandos: \n"
+                + "1: Set problem type to SINGLE \n"
+                + "2: Set problem type to MULTIPLE \n"
+                + "3: Set problem type to NETWORK \n\n"
+                + "R: Run simulation \n"
+                + "C: Clear the segments \n"
+                + "F: Flip the screen \n"
+                + "O: Open input file \n"
+                + "S: Save input file \n\n"
+                + "Left mouse button: Add node \n"
+                + "Right mouse button: Delete nodes \n\n"
+                + "ESC: Close Simulation \n"
+                + "RETURN: Close this dialog",
+                "Commandos",
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+
     private void setTitle() {
         String title = "";
-        title += " problemType: " + simulation.problemType.name();
-        title += "  [R = run | C = clear | F = flip | S = save | O = open | (1, 2, 3) = type] ";
+        title += " type: " + simulation.problemType.name(); 
+        title += " mouse: ("
+                +String.format("%.5g%n", simulation.getMousePosition().getX())
+                +","
+                +String.format("%.5g%n", simulation.getMousePosition().getY())
+                +")";
+        title += "  [press F1 for help] ";
         Display.setTitle(title);
     }
 
