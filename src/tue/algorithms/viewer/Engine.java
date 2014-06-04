@@ -121,14 +121,10 @@ public class Engine {
     }
 
     private void setTitle() {
-        String title = "";
-        title += " type: " + simulation.problemType.name(); 
-        title += " mouse: ("
-                +String.format("%.5g%n", simulation.getMousePosition().getX())
-                +","
-                +String.format("%.5g%n", simulation.getMousePosition().getY())
-                +")";
-        title += "  [press F1 for help] ";
+        String title = String.format("type: %s mouse: (%.5f, %.5f)  [press F1 for help]",
+                    simulation.problemType.name(),
+                    simulation.getMousePosition().getX(),
+                    simulation.getMousePosition().getY());
         Display.setTitle(title);
     }
 
