@@ -99,6 +99,7 @@ public class Simulation {
 
     // Nodes
     private ArrayList<Node> nodes;
+    private ArrayList<Node> networkNodes;
     private ArrayList<Segment> segments;
 
     // Keypress memory
@@ -138,17 +139,16 @@ public class Simulation {
         newNetworkNodes = new Node[0];
 
         // Convert to arraylists
-        this.nodes = new ArrayList<>(inputNodes.length + newNetworkNodes.length);
+        this.nodes = new ArrayList<>(inputNodes.length);
+        this.networkNodes = new ArrayList<>(newNetworkNodes.length);
+        this.segments = new ArrayList<>();
+        
         for (Node node : inputNodes) {
             this.nodes.add(node);
         }
         for (Node node : newNetworkNodes) {
-            this.nodes.add(node);
+            this.networkNodes.add(node);
         }
-
-        // Output
-        calculatedSegments = new Segment[0];
-        this.segments = new ArrayList<>(calculatedSegments.length);
     }
    
     private Point getMousePosition(){
@@ -425,7 +425,7 @@ public class Simulation {
         
         if (problemType.equals(ProblemType.NETWORK)) {
             glColor3f(1f, 0f, 0f);
-            for (Node node : newNetworkNodes) {
+            for (Node node : networkNodes) {
                 drawPoint(NODE_RADIUS, node);
             }
         }
