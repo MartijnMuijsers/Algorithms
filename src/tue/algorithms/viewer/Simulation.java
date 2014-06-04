@@ -1,7 +1,19 @@
 package tue.algorithms.viewer;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.Preferences;
+import javax.swing.JFileChooser;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_LINES;
 import static org.lwjgl.opengl.GL11.GL_POLYGON;
@@ -16,22 +28,6 @@ import static org.lwjgl.opengl.GL11.glScalef;
 import static org.lwjgl.opengl.GL11.glTranslatef;
 import static org.lwjgl.opengl.GL11.glVertex2f;
 import static org.lwjgl.opengl.GL11.glVertex3f;
-
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintStream;
-
-import javax.swing.JFileChooser;
-
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-
 import tue.algorithms.implementation.general.MultipleImplementation;
 import tue.algorithms.implementation.general.NetworkImplementation;
 import tue.algorithms.implementation.general.ProblemType;
@@ -96,6 +92,7 @@ public class Simulation {
     private Node[] newNetworkNodes;
     private FakeInputReader fakeInputReader;
     private Pair<ProblemType, Node[]> input;
+    
 
     // Nodes
     private ArrayList<Node> nodes;
@@ -114,6 +111,10 @@ public class Simulation {
     private boolean escKeyDown;
     private boolean flipKeyDown;
     private boolean helpKeyDown;
+    
+    
+    // File open
+    private Preferences prefs;
     
     // Clear
     private boolean showSegments;
@@ -134,6 +135,7 @@ public class Simulation {
         escKeyDown = false;
         flipKeyDown = false;
         helpKeyDown = false;
+        prefs = Preferences.userRoot().node(this.getClass().getName());
     }
 
     public void initialize() {
@@ -397,13 +399,14 @@ public class Simulation {
     }
     
     private void save() {
-        JFileChooser saveFile = new JFileChooser();
+        JFileChooser saveFile = new JFileChooser(prefs.get("loc", null));
         saveFile.showSaveDialog(null);
         if (saveFile.getSelectedFile() != null) {
             File file = saveFile.getSelectedFile();
             try {
                 file.createNewFile();
                 buildFile(file);
+                prefs.put("loc", file.getParent());
             } catch (IOException ex) {
                 Logger.getLogger(Simulation.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -411,13 +414,14 @@ public class Simulation {
     }
 
     private void open() throws FileNotFoundException {
+        JFileChooser openFile = new JFileChooser(prefs.get("loc", null));
         boolean done = false;
         while (!done) {
             done = true;
-            JFileChooser openFile = new JFileChooser();
             if (openFile.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
                 File file = openFile.getSelectedFile();
                 try {
+                    prefs.put("loc", file.getParent());
                     Scanner scanner = new Scanner(file);
                     String line = scanner.nextLine();
                     ProblemType pType = ProblemType.valueOf(line.substring(12).toUpperCase());
