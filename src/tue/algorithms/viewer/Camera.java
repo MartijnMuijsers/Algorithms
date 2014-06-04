@@ -54,4 +54,9 @@ public class Camera {
         glClearColor(0, 0, 0, 0);
     }
 
+    public void flip(){
+        glTranslatef(0.5f, 0.5f, 0);
+        glScalef(1, -1, 1);
+        glTranslatef(-0.5f, -0.5f, 0);
+    }
 }

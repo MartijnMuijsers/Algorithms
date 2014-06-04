@@ -107,6 +107,24 @@ public class ConnectedNodes {
 	}
 
 	/**
+	 * For a given segment, get the other segment that is connected to it.
+	 * This method only makes sense if the degree of the first endpoint is at most 2.
+	 * @return The other segment if existent, null otherwise.
+	 */
+	public Segment getOtherSegment(Segment segment) {
+		HashSet<Segment> segmentsSet = nodeToSegments.get(segment.getNode1().getId());
+		if (segmentsSet == null) {
+			return null;
+		}
+		for (Segment other: segmentsSet) {
+			if (!other.equals(segment)) {
+				return other;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Returns the all segments that have been added to this data structure.
 	 * Note that the order of segments is not specified, do not make any
 	 * assumptions about it!

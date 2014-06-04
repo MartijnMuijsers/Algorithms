@@ -99,6 +99,7 @@ public class Simulation {
 
     // Nodes
     private ArrayList<Node> nodes;
+    private ArrayList<Node> networkNodes;
     private ArrayList<Segment> segments;
 
     // Keypress memory
@@ -110,6 +111,9 @@ public class Simulation {
     private boolean threeKeyDown;
     private boolean saveKeyDown;
     private boolean openKeyDown;
+    private boolean escKeyDown;
+    private boolean flipKeyDown;
+    private boolean helpKeyDown;
     
     // Clear
     private boolean showSegments;
@@ -127,6 +131,9 @@ public class Simulation {
         twoKeyDown = false;
         threeKeyDown = false;
         brushMode = false;
+        escKeyDown = false;
+        flipKeyDown = false;
+        helpKeyDown = false;
     }
 
     public void initialize() {
@@ -138,26 +145,25 @@ public class Simulation {
         newNetworkNodes = new Node[0];
 
         // Convert to arraylists
-        this.nodes = new ArrayList<>(inputNodes.length + newNetworkNodes.length);
+        this.nodes = new ArrayList<>(inputNodes.length);
+        this.networkNodes = new ArrayList<>(newNetworkNodes.length);
+        this.segments = new ArrayList<>();
+        
         for (Node node : inputNodes) {
             this.nodes.add(node);
         }
         for (Node node : newNetworkNodes) {
-            this.nodes.add(node);
+            this.networkNodes.add(node);
         }
-
-        // Output
-        calculatedSegments = new Segment[0];
-        this.segments = new ArrayList<>(calculatedSegments.length);
     }
    
-    private Point getMousePosition(){
+    public Point getMousePosition(){
         float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
         float clickY = (float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
         return new Point(clickX, clickY);
     }
     
-    public boolean getInput() throws IOException {
+    public void getInput() throws IOException {
         while (Mouse.next()) {
             if (Mouse.getEventButton() > -1) {
                 // Add
@@ -183,6 +189,16 @@ public class Simulation {
                 clearKeyDown = !clearKeyDown && Keyboard.getEventKeyState();
             }             
             
+            // Flip
+            if (Keyboard.getEventKey() == Keyboard.KEY_F) {
+                flipKeyDown = !flipKeyDown && Keyboard.getEventKeyState();
+            }    
+            
+            // Help
+            if (Keyboard.getEventKey() == Keyboard.KEY_F1) {
+                helpKeyDown = !helpKeyDown && Keyboard.getEventKeyState();
+            }              
+            
             // Save
             if (Keyboard.getEventKey() == Keyboard.KEY_S) {
                 saveKeyDown = !saveKeyDown && Keyboard.getEventKeyState();
@@ -203,13 +219,15 @@ public class Simulation {
             if (Keyboard.getEventKey() == Keyboard.KEY_3) {
                 threeKeyDown = Keyboard.getEventKeyState();
             }            
-        }
-        
-        //if ESC is pressed, close program
-        return Keyboard.isKeyDown(Keyboard.KEY_ESCAPE);
+            
+            // Close
+            if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)){
+                escKeyDown = true;
+            }
+        } 
     }
     
-    public void processInput() throws FileNotFoundException{
+    public KeyboardValue processInput() throws FileNotFoundException{
         if (addButtonDown){
             addNode();
             addButtonDown = false;
@@ -254,7 +272,23 @@ public class Simulation {
             problemType = ProblemType.NETWORK;
             threeKeyDown = false;
         }      
-    
+        
+        // Returning values
+        if(escKeyDown){
+            return KeyboardValue.CLOSE;
+        } 
+        
+        if(flipKeyDown){
+            flipKeyDown = false;
+            return KeyboardValue.FLIPSCREEN;
+        }
+        
+        if(helpKeyDown){
+            helpKeyDown = false;
+            return KeyboardValue.HELP;
+        }
+        
+        return KeyboardValue.CONTINUE;
     }
     
     private void calculateSegments() {
@@ -420,19 +454,19 @@ public class Simulation {
     
         glColor3f(1f, 1f, 0f);
         for (Node node : nodes) {
-            drawPoint(NODE_RADIUS, node);
+            drawPoint(NODE_RADIUS, node, true);
         }
         
         if (problemType.equals(ProblemType.NETWORK)) {
             glColor3f(1f, 0f, 0f);
-            for (Node node : newNetworkNodes) {
-                drawPoint(NODE_RADIUS, node);
+            for (Node node : networkNodes) {
+                drawPoint(NODE_RADIUS, node, true);
             }
         }
         
         glColor3f(1f, 0f, 0f);
         if (brushMode){
-            drawPoint(ERASER_RADIUS, new Point(getMousePosition().getX(), getMousePosition().getY()));
+            drawPoint(ERASER_RADIUS, new Point(getMousePosition().getX(), getMousePosition().getY()), false);
         }
     }
     
@@ -443,20 +477,23 @@ public class Simulation {
         glEnd();
     }
 
-    private void drawPoint(float radius, Point n) {
+    private void drawPoint(float radius, Point n, boolean scale) {
         float ratio = ((float) Camera.width) / Camera.heigth;
         glPushMatrix();
         glTranslatef(n.getX(), n.getY(), 0);
         float pointSize = Math.min(Camera.width, Camera.heigth);
         glScalef(640 / pointSize, 640 / pointSize, 1);
+        if(scale){
         if (ratio > 1f) {
             glScalef(1f / ratio, 1f, 1);
         } else if (ratio < 1f) {
             glScalef(1f, 1f / ratio, 1);
         }
+        }
         drawCircle(radius, 18);
         glPopMatrix();
     }
+    
 
     // source: http://slabode.exofire.net/circle_draw.shtml
     private void drawCircle(float r, int num_segments) {
