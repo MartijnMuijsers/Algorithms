@@ -111,6 +111,8 @@ public class Simulation {
     private boolean threeKeyDown;
     private boolean saveKeyDown;
     private boolean openKeyDown;
+    private boolean escKeyDown;
+    private boolean flipKeyDown;
     
     // Clear
     private boolean showSegments;
@@ -128,6 +130,8 @@ public class Simulation {
         twoKeyDown = false;
         threeKeyDown = false;
         brushMode = false;
+        escKeyDown = false;
+        flipKeyDown = false;
     }
 
     public void initialize() {
@@ -157,7 +161,7 @@ public class Simulation {
         return new Point(clickX, clickY);
     }
     
-    public boolean getInput() throws IOException {
+    public void getInput() throws IOException {
         while (Mouse.next()) {
             if (Mouse.getEventButton() > -1) {
                 // Add
@@ -183,6 +187,11 @@ public class Simulation {
                 clearKeyDown = !clearKeyDown && Keyboard.getEventKeyState();
             }             
             
+            // Flip
+            if (Keyboard.getEventKey() == Keyboard.KEY_F) {
+                flipKeyDown = !flipKeyDown && Keyboard.getEventKeyState();
+            }              
+            
             // Save
             if (Keyboard.getEventKey() == Keyboard.KEY_S) {
                 saveKeyDown = !saveKeyDown && Keyboard.getEventKeyState();
@@ -203,13 +212,15 @@ public class Simulation {
             if (Keyboard.getEventKey() == Keyboard.KEY_3) {
                 threeKeyDown = Keyboard.getEventKeyState();
             }            
-        }
-        
-        //if ESC is pressed, close program
-        return Keyboard.isKeyDown(Keyboard.KEY_ESCAPE);
+            
+            // Close
+            if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)){
+                escKeyDown = true;
+            }
+        } 
     }
     
-    public void processInput() throws FileNotFoundException{
+    public KeyboardValue processInput() throws FileNotFoundException{
         if (addButtonDown){
             addNode();
             addButtonDown = false;
@@ -254,7 +265,18 @@ public class Simulation {
             problemType = ProblemType.NETWORK;
             threeKeyDown = false;
         }      
-    
+        
+        // Returning values
+        if(escKeyDown){
+            return KeyboardValue.CLOSE;
+        } 
+        
+        if(flipKeyDown){
+            flipKeyDown = false;
+            return KeyboardValue.FLIPSCREEN;
+        }
+        
+        return KeyboardValue.CONTINUE;
     }
     
     private void calculateSegments() {

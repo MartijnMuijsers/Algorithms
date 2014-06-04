@@ -68,27 +68,41 @@ public class Engine {
 
     private void doSimulation() throws IOException {
         while (!Display.isCloseRequested()) {
-            if (Display.wasResized()) {
-                camera.updateResolution();
+            getInput();
+            if (processInput()){
+                break; //if ESC pressed close simulation
             }
-            if (getInput()) {
-                break; // ESC is pressed
-            }
-            processInput();
-            String title = "";
-            title += " problemType: " + simulation.problemType.name();
-            title += "  [R = run | C = clear | S = save | O = open | (1, 2, 3) = type] ";
-            Display.setTitle(title);
+            setTitle();
+            resize();
             render();
         }
     }
 
-    private boolean getInput() throws IOException {
-        return simulation.getInput();
+    private void resize() {
+        if (Display.wasResized()) {
+            camera.updateResolution();
+        }
     }
     
-    private void processInput() throws FileNotFoundException{
-        simulation.processInput();
+    private void getInput() throws IOException {
+        simulation.getInput();
+    }
+    
+    private boolean processInput() throws FileNotFoundException {
+        switch (simulation.processInput()) {
+            case CLOSE:
+                return true;
+            case FLIPSCREEN:
+                camera.flip();
+        }
+        return false;
+    }
+    
+    private void setTitle() {
+        String title = "";
+        title += " problemType: " + simulation.problemType.name();
+        title += "  [R = run | C = clear | F = flip | S = save | O = open | (1, 2, 3) = type] ";
+        Display.setTitle(title);
     }
 
     private void render() {
