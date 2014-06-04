@@ -176,6 +176,7 @@ public class MultipleCurves implements MultipleImplementation {
             // TODO: Implement cycle detection.
             if (++temporaryCounter > 20) {
                 temporaryCounter = 0;
+                System.out.println("Terminated algorithm because of possible infinite recursion. FIXME!");
                 return;
             }
             nodesTodo = newNodesWithDegreeOne.toArray(new Node[0]);
