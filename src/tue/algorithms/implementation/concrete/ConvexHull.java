@@ -27,7 +27,7 @@ public abstract class ConvexHull {
 			}
 		}
 		final HashSet<Segment> boundarySegments = new HashSet<Segment>();
-		final Counter had = new Counter(0, allSegments.size());
+		final Counter had = new Counter(0);
 		List<Pair<Integer, Integer>> xs = new ArrayList<Pair<Integer, Integer>>();
 		if (allSegments.size() < 8) {
 			xs.add(new Pair<Integer, Integer>(0, allSegments.size()));
@@ -85,9 +85,7 @@ public abstract class ConvexHull {
 							boundarySegments.add(segment);
 						}
 						had.increase();
-						if (had.hasNewPromille()) {
-							System.out.println("Convex hull estimate promille: " + had.getPromille());
-						}
+						Debug.log("Estimate: " + had.get() + " / " + allSegments.size());
 					}
 				}
 				
@@ -151,28 +149,17 @@ public abstract class ConvexHull {
 	public static class Counter {
 		
 		private int value;
-		private int total;
-		private int promille;
-		private int oldPromille;
 		
-		public Counter(int value, int total) {
+		public Counter(int value) {
 			this.value = value;
-			this.promille = 0;
-			this.total = total;
 		}
 		
-		public boolean hasNewPromille() {
-			return (promille > oldPromille);
-		}
-		
-		public int getPromille() {
-			return promille;
+		public int get() {
+			return value;
 		}
 		
 		public void increase() {
-			oldPromille = promille;
 			value++;
-			promille = (int) (value/((float) total)*1000);
 		}
 		
 	}
