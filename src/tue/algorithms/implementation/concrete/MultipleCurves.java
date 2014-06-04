@@ -137,7 +137,7 @@ public class MultipleCurves implements MultipleImplementation {
                         removedSegment = seg2;
                     }
                     newSegmentWeight = getSegmentWeight(newSegment, existingSegment, removedSegment);
-                    if (removedSegmentWeight < newSegmentWeight) {
+                    if (removedSegmentWeight <= newSegmentWeight) {
                         continue;
                     }
                 } else {
@@ -173,10 +173,18 @@ public class MultipleCurves implements MultipleImplementation {
 
         // TODO: Change recursion to iteration.
         if (newNodesWithDegreeOne.size() > 0) {
+            // TODO: Implement cycle detection.
+            if (++temporaryCounter > 20) {
+                temporaryCounter = 0;
+                return;
+            }
             nodesTodo = newNodesWithDegreeOne.toArray(new Node[0]);
             connectEndpointsWithDegreeOne(nodesTodo, cn, adjNodes);
         }
+        temporaryCounter = 0;
     }
+    // TODO: Get rid of this temporary counter used for "cycle detection".
+    static int temporaryCounter = 0;
 
     /**
      * Get the weight of a segment.
