@@ -192,7 +192,6 @@ public class MultipleCurves implements MultipleImplementation {
         Node node2 = segment.getNode2();
         float weight1 = otherSegmentAtNode1 == null ? 1 : angleToWeight(segment.getAngleOf(otherSegmentAtNode1.getOtherEndpoint(node1)));
         float weight2 = otherSegmentAtNode2 == null ? 1 : angleToWeight(segment.getAngleOf(otherSegmentAtNode2.getOtherEndpoint(node2)));
-        // TODO: Ignore angle differences below a certain treshold? E.g. angle1 = Math.min(angle1, Math.PI / 2);
         float weight = segment.length();
         weight *= 1 + (weight1 + weight2) / 2;
         return weight;
@@ -210,8 +209,10 @@ public class MultipleCurves implements MultipleImplementation {
         angle = Math.abs(angle);
 
         // The following function maps [0, PI] to [1, 0]
+        // weight(angle) = (1 - angle/PI)^2
         float weight;
         weight = 1f - (float)(angle / Math.PI);
+        weight = weight * weight;
         return weight;
     }
 
