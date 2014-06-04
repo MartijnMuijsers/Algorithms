@@ -114,7 +114,7 @@ public class Simulation {
     
     
     // File open
-    private Preferences prefs;
+    public Preferences prefs;
     
     // Clear
     private boolean showSegments;
@@ -422,6 +422,7 @@ public class Simulation {
                 File file = openFile.getSelectedFile();
                 try {
                     prefs.put("loc", file.getParent());
+                    prefs.put("file", file.getName());
                     Scanner scanner = new Scanner(file);
                     String line = scanner.nextLine();
                     ProblemType pType = ProblemType.valueOf(line.substring(12).toUpperCase());

@@ -64,6 +64,7 @@ public class Engine {
 
     private void initSimulation() {
         simulation = new Simulation();
+        simulation.prefs.put("file", "none");
         simulation.initialize();
     }
 
@@ -123,7 +124,8 @@ public class Engine {
     }
 
     private void setTitle() {
-        String title = String.format("type: %s mouse: (%.5f, %.5f)  [press F1 for help]",
+        String title = String.format("file: %s type: %s mouse: (%.5f, %.5f)  [press F1 for help]",
+                    simulation.prefs.get("file", ""),
                     simulation.problemType.name(),
                     simulation.getMousePosition().getX(),
                     simulation.getMousePosition().getY());
