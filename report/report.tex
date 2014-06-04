@@ -74,8 +74,6 @@ Delaunay triangulation \cite{delaunay} could possibly be used to create a relati
 
 For the single curve reconstruction problem, we have also looked at the convex hull \cite{convex}. A convex hull will create segments between all the outermost points, such that no unconnected point is outside of the enclosed area. Like putting a rubber band around all the points. This can be very useful for connecting the outermost edges, but it is not as useful for inner edges.
 
-A very useful subgraph that we looked at is the rectilinear spanning tree. This is a minimum spanning tree based on rectilinear distance, which is very much like manhattan distance, and is useful because it already has all the properties that the network reconstruction requires; It connects the points in such a way that there is a path from every node to every other node and there are no intersecting lines.
-
 To solve the single curve reconstruction problem, we have chosen for a spider-type algorithm, which will go from point to point and then determines the next best point to go to.
 The multiple curve and road network reconstruction problems are solved using a minimum spanning tree. In multiple curve construction problem, the graph is completed using an adjacency matrix and another supporting data structure. The road network problem uses a particular kind of spanning trees, namely rectilinear minimum spanning tree to get an initial solution the problem. After reconstructing this tree, we try to find straight lines and connect those, since a spanning tree will not create cycles.
 
@@ -435,7 +433,7 @@ Finally we calculate $RN_{com}$, see algorithm \ref{alg:RNcomalg}. First we find
 \RETURN $A$
 \end{algorithmic}
 \label{alg:RNcomalg}
-\end{algorithm}
+\end{algorithm}$ $\\
 
 \section{Experimental evaluation}
 \subsection{Generating input}
@@ -461,7 +459,14 @@ The multiple curve algorithm has additional test cases that are not run by the s
 \label{multi}
 \end{figure}
 
-The network algorithm has different input than the other two given curve reconstruction algorithms, so it therefore also requires specific test cases. For this, test cases have been modeled after real life road maps. Some test have also been created to test specific parts of the algorithm, for instance a inputs that has close parallel lines, mergin roads and roundabouts.
+The network algorithm has different input than the other two given curve reconstruction algorithms, so it therefore also requires specific test cases. For this, test cases have been modeled after real life road maps. Some test have also been created to test specific parts of the algorithm, for instance a inputs that has close parallel lines, merging roads and roundabouts.
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[scale=0.3]{networkInput.png}
+\caption{A large intersection to test for parrallel and merging lines (Left) Simple neighbourhood (Right)}
+\label{network}
+\end{figure}$ $\\
 
 \subsection{Resulting output}
 Dingen die je erin kan zetten:\\
