@@ -17,7 +17,7 @@ public class SingleMultipleConvexHull implements SingleImplementation, MultipleI
 	
 	@Override
 	public Segment[] getOutput(Node[] input) {
-		HashSet<Segment> convexHull = ConvexHull.getConvexHull(input);
+		HashSet<Segment> convexHull = GrahamConvexHull.getConvexHull(input);
 		Debug.log("Convex hull size is " + convexHull.size());
 		return Conversion.toArray(convexHull, new Segment[convexHull.size()]);
 	}

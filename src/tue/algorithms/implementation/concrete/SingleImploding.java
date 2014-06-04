@@ -136,7 +136,7 @@ public class SingleImploding implements SingleImplementation {
 	
 	@Override
 	public Segment[] getOutput(Node[] input) {
-		return getOutput(input, ConvexHull.getConvexHull(input));
+		return getOutput(input, GrahamConvexHull.getConvexHull(input));
 	}
 	
 	public Segment[] getOutput(Node[] input, HashSet<Segment> convexHull) {
@@ -156,6 +156,7 @@ public class SingleImploding implements SingleImplementation {
 			likelinesses.put(segment, nodeLikelinesses);
 		}
 		while (nodesToDo.size() != 0) {
+			System.out.println("nodesToDo.size = " + nodesToDo.size());
 			//Debug.log("Start run with: " + foundSegments.size() + " " + nodesToDo.size() + " " + likelinesses.size());
 			Segment segmentWithSmallestLikeliness = null;
 			float smallestLikeliness = 1000000000;
