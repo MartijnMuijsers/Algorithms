@@ -159,12 +159,15 @@ public class Simulation {
         }
     }
    
-    public Point getMousePosition(){
+    public Point getMousePosition() {
         float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
         float clickY = (float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
+        if (Camera.flipped) {
+            clickY = 1f - clickY;
+        }
         return new Point(clickX, clickY);
     }
-    
+
     public void getInput() throws IOException {
         while (Mouse.next()) {
             if (Mouse.getEventButton() > -1) {

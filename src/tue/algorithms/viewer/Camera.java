@@ -8,12 +8,14 @@ public class Camera {
 
     public static int width;
     public static int heigth;
+    public static boolean flipped;
     public final static float SCALINGFACTOR = 0.95f;
     public final static float OFFSETFACTOR = 0.025f;
 
     public Camera(int w, int h) {
         width = w;
         heigth = h;
+        flipped = false;
     }
 
     public void setDimension(int w, int h) {
@@ -58,5 +60,6 @@ public class Camera {
         glTranslatef(0.5f, 0.5f, 0);
         glScalef(1, -1, 1);
         glTranslatef(-0.5f, -0.5f, 0);
+        flipped = !flipped;
     }
 }
