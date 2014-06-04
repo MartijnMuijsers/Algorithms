@@ -95,8 +95,10 @@ public class Engine {
                 return true;
             case FLIPSCREEN:
                 camera.flip();
+                break;
             case HELP:
                 showHelpDialog();
+                break;
         }
         return false;
     }
