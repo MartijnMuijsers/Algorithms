@@ -136,7 +136,9 @@ public class MultipleCurves implements MultipleImplementation {
                         removedSegmentWeight = weight2;
                         removedSegment = seg2;
                     }
-                    newSegmentWeight = getSegmentWeight(newSegment, existingSegment, removedSegment);
+                    // Third parameter: Pick the segment that is not removed because this segment must be used to
+                    // calculate the angle at an endpoint of the new segment.
+                    newSegmentWeight = getSegmentWeight(newSegment, existingSegment, removedSegment == seg1 ? seg2 : seg1);
                     if (removedSegmentWeight <= newSegmentWeight) {
                         continue;
                     }
