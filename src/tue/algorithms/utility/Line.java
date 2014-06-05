@@ -14,6 +14,11 @@ import java.awt.geom.Line2D;
  * @author Martijn
  */
 public class Line {
+	/**
+	 * The width of the line. This is used to determine whether the line intersects another line or point.
+	 * TODO: Evaluate whether this arbitrarily chosen value makes sense.
+	 */
+	final static float LINE_WIDTH = 0.0001f;
 	
 	/* -- START Private final fields -- */
 	
@@ -324,6 +329,27 @@ public class Line {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * @return Whether a point lies somewhere on the line.
+	 */
+	public boolean intersectsWith(Point point) {
+		float x = point.getX();
+		float y = point.getY();
+		float dx = xRight - xLeft;
+		float dy = yRight - yLeft;
+
+		if (Math.abs(dx) < LINE_WIDTH) {
+			// Current line is vertical
+			return y > getMinY() && y < getMaxY() && LINE_WIDTH > Math.abs(x - xLeft);
+		} else if (Math.abs(dy) < LINE_WIDTH) {
+			// Current line is horizontal
+			return x > getMinX() && x < getMaxX() && LINE_WIDTH > Math.abs(y - yLeft);
+		} else {
+			// Neither horizontal nor vertical.
+			return x > getMinX() && x < getMaxX() && LINE_WIDTH > (dy / dx) * (x - xLeft) - (y - yLeft);
+		}
 	}
 	
 	/* -- END Method to check for intersection -- */

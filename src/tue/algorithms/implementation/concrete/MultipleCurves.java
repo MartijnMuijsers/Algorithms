@@ -257,7 +257,9 @@ public class MultipleCurves implements MultipleImplementation {
             if (ndp.distance >= neighbor.distance) {
                 return false;
             }
-            // TODO: Check if the neighbor is on the segment and if so return true
+            if (segment.intersectsWith(ndp.node)) {
+                return true;
+            }
         }
         return false;
     }
