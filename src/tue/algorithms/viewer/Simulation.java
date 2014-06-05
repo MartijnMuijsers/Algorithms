@@ -136,6 +136,7 @@ public class Simulation {
         flipKeyDown = false;
         helpKeyDown = false;
         prefs = Preferences.userRoot().node(this.getClass().getName());
+        prefs.put("file", "none");
     }
 
     public void initialize() {

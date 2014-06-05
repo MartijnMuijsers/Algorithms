@@ -64,14 +64,13 @@ public class Engine {
 
     private void initSimulation() {
         simulation = new Simulation();
-        simulation.prefs.put("file", "none");
         simulation.initialize();
     }
 
     private void doSimulation() throws IOException {
         while (!Display.isCloseRequested()) {
             getInput();
-            if (processInput()){
+            if (processInput()) {
                 break; //if ESC pressed close simulation
             }
             setTitle();
@@ -85,11 +84,11 @@ public class Engine {
             camera.updateResolution();
         }
     }
-    
+
     private void getInput() throws IOException {
         simulation.getInput();
     }
-    
+
     private boolean processInput() throws FileNotFoundException {
         switch (simulation.processInput()) {
             case CLOSE:
@@ -125,10 +124,10 @@ public class Engine {
 
     private void setTitle() {
         String title = String.format("file: %s type: %s mouse: (%.5f, %.5f)  [press F1 for help]",
-                    simulation.prefs.get("file", ""),
-                    simulation.problemType.name(),
-                    simulation.getMousePosition().getX(),
-                    simulation.getMousePosition().getY());
+                simulation.prefs.get("file", ""),
+                simulation.problemType.name(),
+                simulation.getMousePosition().getX(),
+                simulation.getMousePosition().getY());
         Display.setTitle(title);
     }
 
