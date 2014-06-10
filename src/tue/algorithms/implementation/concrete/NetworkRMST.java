@@ -1,17 +1,14 @@
 package tue.algorithms.implementation.concrete;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import tue.algorithms.implementation.general.NetworkImplementation;
 import tue.algorithms.other.Pair;
 import tue.algorithms.utility.AdjacentNodes;
 import tue.algorithms.utility.AdjacentNodes.NodeDistancePair;
 import tue.algorithms.utility.ConnectedNodes;
-import tue.algorithms.utility.Line;
 import tue.algorithms.utility.MinimumSpanningTree;
 import tue.algorithms.utility.Node;
-import tue.algorithms.utility.Point;
 import tue.algorithms.utility.Segment;
 
 /**
@@ -45,15 +42,15 @@ public class NetworkRMST implements NetworkImplementation {
             cn.addSegment(segment);
         }
         AdjacentNodes adjNodes = new AdjacentNodes(input);
-        Optimize(cn, adjNodes, input);
-        //Improve(cn, input);
-        //Correct(cn, adjNodes, input);
-        Better(cn, adjNodes, input);
+
+        connectEndPoints(cn, adjNodes, input);
+        removeObliqueSegments(cn, adjNodes, input);
+        addNewSegments(cn, adjNodes, input);
         Node[] addedNodes = addedNodesList.toArray(new Node[addedNodesList.size()]);
         return new Pair(cn.getAllSegments(), addedNodes);
     }
 
-    public void Optimize(ConnectedNodes cn, AdjacentNodes adjNodes, Node[] nodes) {
+    public void connectEndPoints(ConnectedNodes cn, AdjacentNodes adjNodes, Node[] nodes) {
 
         for (Node node : nodes) {
             Segment[] neighbors = cn.getSegments(node);
@@ -70,44 +67,30 @@ public class NetworkRMST implements NetworkImplementation {
         }
     }
 
-    public void Improve(ConnectedNodes cn, Node[] nodes) {
-
+    public void removeObliqueSegments(ConnectedNodes cn, AdjacentNodes adjNodes, Node[] nodes) {
         for (Node node : nodes) {
             Segment[] neighbors = cn.getSegments(node);
-            if (neighbors.length == 3) {
-                for (Segment neighbor : neighbors) {
-                    int angle = 0;
-                    for (Segment other : neighbors) {
-                        if (neighbor == other) {
-                            continue;
-                        }
-                        if (other.getNode1() == node) {
-                            angle += Math.abs(neighbor.originAt(node).getAngleOf(other.getNode2()) * (180 / Math.PI));
-                        } else {
-                            angle += Math.abs(neighbor.originAt(node).getAngleOf(other.getNode1()) * (180 / Math.PI));
-                        }
-                    }
-                    if (angle < 190 && angle > 170) {
-                        cn.removeSegment(neighbor);
-                    }
-                }
-            }
-            if (neighbors.length == 4) {
-                for (Segment neighbor : neighbors) {
-                    float angle;
-                    for (Segment other : neighbors) {
-                        if (neighbor == other) {
-                            continue;
-                        }
-                        if (other.getNode1() == node) {
-                            angle = (float) Math.abs(neighbor.originAt(node).getAngleOf(other.getNode2()) * (180 / Math.PI));
-                        } else {
-                            angle = (float) Math.abs(neighbor.originAt(node).getAngleOf(other.getNode1()) * (180 / Math.PI));
-                        }
-
-                        if (angle < 190 && angle > 170) {
-                            cn.removeSegment(neighbor);
-                            break;
+            if (neighbors.length == 2) {
+                double angle = Math.abs(neighbors[0].originAt(node).getAngleOf(neighbors[1].getOtherEndpoint(node)) * (180 / Math.PI));
+                System.out.println(angle);
+                if (angle > 170) {
+                    for (Segment neighbor : neighbors) {
+                        Segment[] secondNeighbors = cn.getSegments(neighbor.getOtherEndpoint(node));
+                        for (Segment secondNeighbor : secondNeighbors) {
+                            if (secondNeighbor != neighbor) {
+                                double secondAngle = Math.abs(neighbor.originAt(neighbor.getOtherEndpoint(node)).getAngleOf(secondNeighbor.getOtherEndpoint(neighbor.getOtherEndpoint(node))) * (180 / Math.PI));
+                                if (secondAngle < 165) {
+                                    NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(neighbor.getOtherEndpoint(node));
+                                    for (int i = 0; i < ndps.length && i < 5; i++) {
+                                        double thirdAngle = Math.abs(neighbor.originAt(neighbor.getOtherEndpoint(node)).getAngleOf(ndps[i].node)) * (180 / Math.PI);
+                                        float distance = neighbor.getOtherEndpoint(node).getDistanceTo(ndps[i].node);
+                                        if (thirdAngle > 170 && distance < 0.07f) {
+                                            cn.removeSegment(secondNeighbor);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -115,52 +98,25 @@ public class NetworkRMST implements NetworkImplementation {
         }
     }
 
-    public void Correct(ConnectedNodes cn, AdjacentNodes adjNodes, Node[] nodes) {
-        ArrayList<Segment> removedSegments = new ArrayList();
-        float z = 0.04f;
-        int i = 0;
+    public void addNewSegments(ConnectedNodes cn, AdjacentNodes adjNodes, Node[] nodes) {
         for (Node node : nodes) {
             Segment[] neighbors = cn.getSegments(node);
+            NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(node);
             if (neighbors.length == 1) {
-                i++;
-                System.out.println(i);
-
-                for (Segment segment : cn.getAllSegments()) {
-                    Node d = new Node(1, (float) Math.cos(neighbors[0].endAt(node).getAngle()) * z + node.getX(), (float) Math.sin(neighbors[0].endAt(node).getAngle()) * z + node.getY());
-                    if (new Segment(node, d).intersectsWith(segment)) {
-                        removedSegments.add(segment);
+                Node connectNode = null;
+                double angle = 0;
+                double newAngle;
+                for (int i = 0; i < ndps.length && i < 5; i++) {
+                    newAngle = Math.abs(neighbors[0].originAt(node).getAngleOf(ndps[i].node) * (180 / Math.PI));
+                    if (angle < newAngle) {
+                        angle = newAngle;
+                        connectNode = ndps[i].node;
                     }
+                }
+                if (angle > 165 && connectNode != null) {
+                    cn.addSegment(new Segment(node, connectNode));
                 }
             }
         }
-        for (Segment segment : removedSegments) {
-            cn.removeSegment(segment);
-        }
-    }
-
-    public void Better(ConnectedNodes cn, AdjacentNodes adjNodes, Node[] nodes){
-        
-          for (Node node : nodes) {
-            Segment[] neighbors = cn.getSegments(node);
-              if (neighbors.length ==2) {
-                  if (Math.abs(neighbors[0].originAt(node).getAngleOf(neighbors[1].originAt(node).getNode2())*(180/Math.PI)) < 160) {
-                      addedNodesList.add(node);
-                      Segment[] neighbors1 = cn.getSegments(neighbors[0].originAt(node).getNode2());
-                      Segment[] neighbors2 = cn.getSegments(neighbors[1].originAt(node).getNode2());
-                      if (neighbors1.length > 2) {
-                          cn.removeSegment(neighbors[0]);
-                      }
-                      if (neighbors2.length > 2) {
-                          cn.removeSegment(neighbors[1]);
-                      }
-                  }
-                  
-              }
-        }
-          
- 
-      
-        
-    
     }
 }
