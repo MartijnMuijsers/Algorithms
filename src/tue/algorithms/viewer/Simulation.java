@@ -42,6 +42,7 @@ import tue.algorithms.utility.Segment;
 public class Simulation {
 
     final private static float ERASER_RADIUS = 0.025f;
+    final private static float ERASER_RADIUS_NETWORK = 0.008f;
     final private static float NODE_RADIUS = 0.0054f;
 
 	/**
@@ -119,6 +120,7 @@ public class Simulation {
     // Clear
     private boolean showSegments;
     private boolean brushMode;
+    private float eraserRadius;
     
     // Constructor
     public Simulation() {
@@ -137,6 +139,7 @@ public class Simulation {
         helpKeyDown = false;
         prefs = Preferences.userRoot().node(this.getClass().getName());
         prefs.put("file", "none");
+        eraserRadius = ERASER_RADIUS;
     }
 
     public void initialize() {
@@ -158,6 +161,7 @@ public class Simulation {
         for (Node node : newNetworkNodes) {
             this.networkNodes.add(node);
         }
+        
     }
    
     public Point getMousePosition() {
@@ -338,17 +342,23 @@ public class Simulation {
     }
     
     private void deleteNodes() {
+        if (problemType.equals(ProblemType.NETWORK)) {
+            eraserRadius = ERASER_RADIUS_NETWORK;
+        } else{
+            eraserRadius = ERASER_RADIUS;
+        }
+        
         float clickX = getMousePosition().getX();
         float clickY = getMousePosition().getY();
         Point mouseNode = new Point(clickX, clickY);
 
         for (Node node : nodes) {
-            if (node.subtract(mouseNode).length() < ERASER_RADIUS) {
+            if (node.subtract(mouseNode).length() < eraserRadius) {
                 // Found a node under the eraser, reconstruct the whole set of nodes.
                 ArrayList<Node> tempNodes = new ArrayList<Node>(nodes.size());
                 int i = Node.MINIMAL_NODE_ID;
                 for (Node n : nodes) {
-                    if (n.subtract(mouseNode).length() >= ERASER_RADIUS) {
+                    if (n.subtract(mouseNode).length() >= eraserRadius) {
                         tempNodes.add(new Node(i++, n.getX(), n.getY()));
                     }
                 }
@@ -475,7 +485,7 @@ public class Simulation {
         
         glColor3f(1f, 0f, 0f);
         if (brushMode){
-            drawPoint(ERASER_RADIUS, new Point(getMousePosition().getX(), getMousePosition().getY()), false);
+            drawPoint(eraserRadius, new Point(getMousePosition().getX(), getMousePosition().getY()), false);
         }
     }
     
