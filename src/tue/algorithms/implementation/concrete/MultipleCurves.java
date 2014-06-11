@@ -3,6 +3,7 @@ package tue.algorithms.implementation.concrete;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 
 import tue.algorithms.implementation.general.MultipleImplementation;
 import tue.algorithms.utility.AdjacentNodes;
@@ -19,175 +20,180 @@ import tue.algorithms.utility.Segment;
  */
 public class MultipleCurves implements MultipleImplementation {
 
+    /**
+     * If an angle is smaller than this value, it will be considered too sharp.
+     */
+    final static double TOO_SHARP_ANGLE_TRESHOLD = 0.25 * Math.PI;
+    /**
+     * If an angle is greater than this value, then the segments don't have to be disconnected.
+     */
+    final static double SUFFICIENTLY_LARGE_ANGLE = 0.5 * Math.PI;
+
     @Override
     public Segment[] getOutput(Node[] input) {
-        Segment[] segments = MinimumSpanningTree.getSegmentsPermutation(input);
-        Comparator<Segment> comparator = new Comparator<Segment>() {
-            @Override
-            public int compare(Segment s1, Segment s2) {
-                float diff = s1.length() - s2.length();
-                if (diff < 0) {
-                    return -1;
-                } else if (diff > 0) {
-                    return 1;
-                }
-                return 0;
-            }
-        };
-
-        segments = MinimumSpanningTree.applyMST(segments, input, comparator);
         AdjacentNodes adjNodes = new AdjacentNodes(input);
         ConnectedNodes cn = new ConnectedNodes();
-        for (Segment segment : segments) {
-            cn.addSegment(segment);
-        }
+        Segment[] segments = MinimumSpanningTree.getSegmentsPermutation(input);
 
-        removeSegmentIfAnyEndpointHasDegreeTwoPlus(cn);
-        connectEndpointsWithDegreeOne(input, cn, adjNodes);
-        // TODO: Fix nodes with degree 0
-        // TODO: Find all corners in the curve and reconnect the corners to
-        // get a bigger curve (test case = multiCloseCurves).
-        // TODO: Walk over the final curves and remove segments if they deviate
-        // too much from the shape.
-
-        Segment[] result = cn.getAllSegments();
-        return result;
-    }
-
-    /**
-     * Remove segments if any of the endpoints have degree two or more.
-     */
-    private static void removeSegmentIfAnyEndpointHasDegreeTwoPlus(ConnectedNodes cn) {
-        Segment[] segments = cn.getAllSegments();
-        // Sort by segment length, longest first.
+        // Shortest node first.
         Arrays.sort(segments, new Comparator<Segment>() {
             @Override
             public int compare(Segment s1, Segment s2) {
                 float diff = s1.length() - s2.length();
                 if (diff < 0) {
-                    return 1;
-                } else if (diff > 0) {
                     return -1;
+                } else if (diff > 0) {
+                    return 1;
                 }
                 return 0;
             }
         });
+
         for (Segment segment : segments) {
-            Node node1 = segment.getNode1();
-            Node node2 = segment.getNode2();
-            Segment[] neighbors1 = cn.getSegments(node1);
-            Segment[] neighbors2 = cn.getSegments(node2);
-            if (neighbors1.length > 2 || neighbors2.length > 2) {
-                cn.removeSegment(segment);
+            if (cn.getSegments(segment.getNode1()).length < 2 &&
+                cn.getSegments(segment.getNode2()).length < 2 &&
+                // TODO: Use an intersection algo that accounts for unconnected nodes.
+                !cn.intersectsGraph(segment)) {
+                cn.addSegment(segment);
             }
         }
+
+        // If sharp corner (i.e. node with two segments in a folded setting), try
+        // 1. remove longest segment
+        // 2. take their endpoints and try to find a nearby segment that can be removed,
+        //    and their endpoints reconnected to the freed endpoints from the previous steps
+        // 3. If not possible, restore the longest segment (1) and retry step (2) with the
+        //    shortest segment
+        for (Node node : input) {
+            Segment[] connectedSegments = cn.getSegments(node);
+            if (connectedSegments.length == 2) {
+                Segment segment1 = connectedSegments[0];
+                Segment segment2 = connectedSegments[1];
+                double angle = getAbsoluteAngle(node, segment1, segment2);
+                if (angle > SUFFICIENTLY_LARGE_ANGLE) {
+                    // Ignore nodes if their angle is already large enough.
+                    continue;
+                }
+                Segment longestSegment, shortestSegment;
+                if (segment1.length() > segment2.length()) {
+                    longestSegment = segment1;
+                    shortestSegment = segment2;
+                } else {
+                    longestSegment = segment2;
+                    shortestSegment = segment1;
+                }
+                if (!tryReplaceSegment(cn, adjNodes, node, shortestSegment, longestSegment)) {
+                    tryReplaceSegment(cn, adjNodes, node, longestSegment, shortestSegment);
+                }
+            }
+        }
+
+
+        return cn.getAllSegments();
     }
 
     /**
-     * Find all nodes with degree one and connect them if possible.
+     * Get the smallest angle between the two segments of the node.
      *
-     * @pre Every node in nodes has a degree of at most 2.
-     * @post Pre-condition still holds.
+     * @pre node is an endpoint of segment1 and segment2.
+     * @return Smallest angle between the two segments, in range [0, PI] (in radians)
      */
-    private static void connectEndpointsWithDegreeOne(Node[] nodes, ConnectedNodes cn, AdjacentNodes adjNodes) {
-        Node[] nodesTodo = getNodesWithDegreeInRange(nodes, cn, 0, 1);
+    private double getAbsoluteAngle(Node node, Segment segment1, Segment segment2) {
+        return Math.abs(segment1.originAt(node).getAngleOf(segment2.getOtherEndpoint(node)));
+    }
 
-        // When a new segment is added, one of the segments might suddenly get degree one.
-        // Then we have to re-run this step on this new node. These nodes are tracked in the next list.
-        ArrayList<Node> newNodesWithDegreeOne = new ArrayList<Node>(nodes.length);
+    /**
+     * Reconnect the node of a segment to another segment if the other segment is a better fit.
+     * @param node An endpoint with exactly two connected segments.
+     * @param keptSegment The to-be-kept segment connected to {@code node}.
+     * @param oldSegment The to-be-removed segment connected to {@code node}.
+     * @return Whether the segment has been reconnected.
+     * @pre All nodes in the segment are connected to at most two other segments.
+     */
+    private boolean tryReplaceSegment(ConnectedNodes cn, AdjacentNodes adjNodes, Node node, Segment keptSegment, Segment oldSegment) {
+        cn.removeSegment(oldSegment);
+        // The segment that is going to be used for angle calculations.
+        Segment keptSegmentOrigin = keptSegment.originAt(node);
 
-        for (Node node : nodesTodo) {
-            Segment[] neighborSegments = cn.getSegments(node);
-            if (neighborSegments.length != 1) {
+        // After removing oldSegment, the circular structure is open, so we can now follow the path
+        // and remember all segments along it. This will be used to avoid splitting a shape.
+        HashSet<Segment> oldShape = new HashSet<Segment>();
+        {
+            Node endpoint = node;
+            Segment partOfPath = keptSegment;
+            assert cn.getSegments(node).length == 1;
+            assert cn.getSegments(node)[0] == keptSegment;
+            do {
+                oldShape.add(partOfPath);
+                endpoint = partOfPath.getOtherEndpoint(endpoint);
+                partOfPath = cn.getOtherSegment(endpoint, partOfPath);
+            } while (partOfPath != null);
+        }
+
+        // Try to find a segment that results in a bigger angle and a shorter total segment length.
+        Node node2 = oldSegment.getOtherEndpoint(node);
+        float oldSegmentLength = oldSegment.length();
+        // We Higher is better, we want to reduce the total length of all segments as much as possible.
+        // (many unconnected shapes will rightfully be joined because of this.)
+        // TODO: What if the length of the segment is very short, but there is still a triangle?
+        // TODO: If we choose a too high value, then two shapes that are far apart could be connected
+        //       (this could be solved by enforcing an upper bound for this value)
+        float bestLengthDelta = -0.2f;
+        Segment segmentToRemove = null;
+        Segment segmentToAdd1 = null;
+        Segment segmentToAdd2 = null;
+        for (NodeDistancePair ndp : adjNodes.getAdjacentNodes(node)) {
+            // TODO: Think about this magic number, and not at 4am.
+            if (ndp.distance > oldSegmentLength * 2) {
+                break;
+            }
+            if (Math.abs(keptSegmentOrigin.getAngleOf(ndp.node)) < TOO_SHARP_ANGLE_TRESHOLD) {
+                // The angle is too small.
                 continue;
             }
-            // We have found a segment that ends in a node (endpoint). Try to find
-            // another node so that we connect the endpoint to this other node.
-            Segment existingSegment = neighborSegments[0];
 
-            // Lower weight = better.
-            float bestWeight = Integer.MAX_VALUE;
-            Segment bestSegment = null;
-            Segment segmentToRemove = null;
-            NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(node);
-            for (NodeDistancePair ndp : ndps) {
-                Segment newSegment = new Segment(node, ndp.node);
-                float newSegmentWeight;
-                Segment removedSegment = null;
-
-                Segment[] ndpSegments = cn.getSegments(ndp.node);
-                if (ndpSegments.length == 0) {
-                    newSegmentWeight = getSegmentWeight(newSegment, existingSegment, null);
-                } else if (ndpSegments.length == 1) {
-                    newSegmentWeight = getSegmentWeight(newSegment, existingSegment, ndpSegments[0]);
-                } else if (ndpSegments.length == 2) {
-                    // When the other node has two connected segments, check whether it makes sense to
-                    // replace one of these segments with the new segment.
-                    Segment seg1 = ndpSegments[0];
-                    Segment seg2 = ndpSegments[1];
-                    float weight1 = getSegmentWeight(seg1, cn.getOtherSegment(seg1), cn.getOtherSegment(seg1.invertDirection()));
-                    float weight2 = getSegmentWeight(seg2, cn.getOtherSegment(seg2), cn.getOtherSegment(seg2.invertDirection()));
-
-                    float removedSegmentWeight;
-                    if (weight1 > weight2) {
-                        removedSegmentWeight = weight1;
-                        removedSegment = seg1;
-                    } else {
-                        removedSegmentWeight = weight2;
-                        removedSegment = seg2;
-                    }
-                    // Third parameter: Pick the segment that is not removed because this segment must be used to
-                    // calculate the angle at an endpoint of the new segment.
-                    newSegmentWeight = getSegmentWeight(newSegment, existingSegment, removedSegment == seg1 ? seg2 : seg1);
-                    if (removedSegmentWeight <= newSegmentWeight) {
-                        continue;
-                    }
-                } else {
-                    throw new RuntimeException("Precondition failed: All nodes must have a degree of at most two");
+            for (Segment otherSegment : cn.getSegments(ndp.node)) {
+                Node otherEndPoint = otherSegment.getOtherEndpoint(ndp.node);
+                float distanceToNode2 = otherEndPoint.getDistanceTo(node2);
+                float otherSegmentLength = otherSegment.length();
+                // TODO: Multiply the following variable with a magic number to allow shapes to be reconnected
+                // over greater distances. Pick e.g. 1.5f to allow shapes to be connected even if both of
+                // the new segment are 1.5x longer than the removed segment.
+                float reqMinSegmentLength = otherSegmentLength;
+                if (distanceToNode2 > reqMinSegmentLength && ndp.distance > reqMinSegmentLength) {
+                    // Never replace a segment if the new segments are going to be longer
+                    // than the removed segment.
+                    continue;
                 }
-
-                if (newSegmentWeight < bestWeight && !intersectsGraph(cn, ndps, ndp, newSegment)) {
-                    bestWeight = newSegmentWeight;
-                    bestSegment = newSegment;
-                    segmentToRemove = removedSegment;
-                }
-            } // end for NodeDistancePair ndp : ndps
-
-            if (bestSegment != null) {
-                if (segmentToRemove != null) {
-                    // The new segment is a better fit than an existing one, so replace the
-                    // existing one. After removing the existing segment, one of the free nodes
-                    // will immediately be used by the new segment (=stay at degree two), and
-                    // the other one will have degree one.
-                    cn.removeSegment(segmentToRemove);
-                    if (cn.getSegments(segmentToRemove.getNode1()).length == 1) {
-                        newNodesWithDegreeOne.add(segmentToRemove.getNode1());
-                    } else if (cn.getSegments(segmentToRemove.getNode2()).length == 1) {
-                        newNodesWithDegreeOne.add(segmentToRemove.getNode2());
+                float deltaDistance = otherSegmentLength - distanceToNode2 + oldSegmentLength - ndp.distance;
+                if (deltaDistance > bestLengthDelta && !oldShape.contains(otherSegment)) {
+                    Segment newSegment1 = new Segment(node, ndp.node);
+                    Segment newSegment2 = new Segment(node2, otherEndPoint);
+                    // The new segment will certainly not intersect otherSegment,
+                    // so we do not need to remove otherSegment before testing.
+                    // However, it is possible that there's a corner of another shape
+                    // that could be intersected by replacing the segment.
+                    if (!cn.intersectsGraph(newSegment1) && !cn.intersectsGraph(newSegment2)) {
+                        bestLengthDelta = deltaDistance;
+                        segmentToRemove = otherSegment;
+                        segmentToAdd1 = newSegment1;
+                        segmentToAdd2 = newSegment2;
                     }
-                } else if (cn.getSegments(bestSegment.getNode2()).length == 0) {
-                    // The to-ne-added node will have degree one.
-                    newNodesWithDegreeOne.add(bestSegment.getNode2());
                 }
-                cn.addSegment(bestSegment);
             }
         }
-
-        // TODO: Change recursion to iteration.
-        if (newNodesWithDegreeOne.size() > 0) {
-            // TODO: Implement cycle detection.
-            if (++temporaryCounter > 20) {
-                temporaryCounter = 0;
-                System.out.println("Terminated algorithm because of possible infinite recursion. FIXME!");
-                return;
-            }
-            nodesTodo = newNodesWithDegreeOne.toArray(new Node[0]);
-            connectEndpointsWithDegreeOne(nodesTodo, cn, adjNodes);
+        if (segmentToRemove == null) {
+            // Nothing to be replaced, restore old segment.
+            cn.addSegment(oldSegment);
+            return false;
+        } else {
+            // Two segments were replaced.
+            cn.addSegment(segmentToAdd1);
+            cn.addSegment(segmentToAdd2);
+            cn.removeSegment(segmentToRemove);
+            return true;
         }
-        temporaryCounter = 0;
     }
-    // TODO: Get rid of this temporary counter used for "cycle detection".
-    static int temporaryCounter = 0;
 
     /**
      * Get the weight of a segment.
@@ -208,6 +214,7 @@ public class MultipleCurves implements MultipleImplementation {
         return weight;
     }
 
+    // TODO: Remove if unused
     /**
      * Helper function for getSegmentWeight: Converts an angle to a weight.
      * @param angle Angle in radian, [-PI, PI]. |angle| close to 0 is worst, close to PI is best.
@@ -227,21 +234,7 @@ public class MultipleCurves implements MultipleImplementation {
         return weight;
     }
 
-    /**
-     * Construct a new set from the array of nodes containing all nodes whose
-     * degree is within the range [lower, upper]
-     */
-    private static Node[] getNodesWithDegreeInRange(Node[] nodes, ConnectedNodes cn, int lower, int upper) {
-        ArrayList<Node> result = new ArrayList<Node>(nodes.length);
-        for (Node node : nodes) {
-            int degree = cn.getSegments(node).length;
-            if (upper >= degree && degree >= lower) {
-                result.add(node);
-            }
-        }
-        return result.toArray(new Node[0]);
-    }
-
+    // TODO: Remove if unused
     /**
      * Checks whether the segment intersects any existing node or segment.
      *
