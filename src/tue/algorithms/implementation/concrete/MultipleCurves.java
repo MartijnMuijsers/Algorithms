@@ -128,6 +128,19 @@ public class MultipleCurves implements MultipleImplementation {
                 endpoint = partOfPath.getOtherEndpoint(endpoint);
                 partOfPath = cn.getOtherSegment(endpoint, partOfPath);
             } while (partOfPath != null);
+
+            // If the graph is not closed, then it is possible that we have only selected nodes at one
+            // tail only. In this case, we need to find the other nodes starting from the other endpoint.
+            endpoint = oldSegment.getOtherEndpoint(node);
+            if (cn.isNodeInGraph(endpoint)) {
+                partOfPath = cn.getSegments(endpoint)[0];
+                // If the figure was open, then .add() will return false on the first iteration because
+                // it returns false on inserting a duplicate item.
+                while (partOfPath != null && oldShape.add(partOfPath)) {
+                    endpoint = partOfPath.getOtherEndpoint(endpoint);
+                    partOfPath = cn.getOtherSegment(endpoint, partOfPath);
+                }
+            }
         }
 
         // Try to find a segment that results in a bigger angle and a shorter total segment length.

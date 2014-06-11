@@ -178,4 +178,9 @@ public class ConnectedNodes {
 		}
 		return false;
 	}
+
+	public boolean isNodeInGraph(Node node) {
+		HashSet<Segment> segmentsSet = nodeToSegments.get(node.getId());
+		return segmentsSet != null && segmentsSet.size() > 0;
+	}
 }
