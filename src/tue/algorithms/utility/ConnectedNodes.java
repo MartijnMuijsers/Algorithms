@@ -52,7 +52,12 @@ public class ConnectedNodes {
 	 * Time complexity: O(1)
 	 */
 	public void addSegment(Segment segment) {
-		segments.add(segment);
+		// TODO: Remove .invertDirection() once segments are considered equal regardless
+		// of direction. Distinguishing lines by direction was the worst idea ever...
+		if (segments.contains(segment.invertDirection()) || !segments.add(segment)) {
+			// Was inserted before
+			return;
+		}
 
 		int node1id = segment.getNode1Id();
 		int node2id = segment.getNode2Id();
@@ -75,7 +80,11 @@ public class ConnectedNodes {
 	 * Time complexity: O(1)
 	 */
 	public void removeSegment(Segment segment) {
-		segments.remove(segment);
+		// TODO: Remove .invertDirection() once segments are considered equal regardless
+		// of direction. Distinguishing lines by direction was the worst idea ever...
+		if (!segments.remove(segment) && !segments.remove(segment = segment.invertDirection())) {
+			return;
+		}
 
 		HashSet<Segment> set1 = nodeToSegments.get(segment.getNode1Id());
 		HashSet<Segment> set2 = nodeToSegments.get(segment.getNode2Id());
@@ -112,7 +121,18 @@ public class ConnectedNodes {
 	 * @return The other segment if existent, null otherwise.
 	 */
 	public Segment getOtherSegment(Segment segment) {
-		HashSet<Segment> segmentsSet = nodeToSegments.get(segment.getNode1().getId());
+		return getOtherSegment(segment.getNode1(), segment);
+	}
+
+	/**
+	 * For a given node and segment, get the other segment that is connected to the node.
+	 * Note that this method only makes sense if {@code node} is connected to two segments.
+	 * @return The other segment if existent, null otherwise.
+	 * @pre {@code node} is an endpoint of {@code node}.
+	 * @post The return value is non-null if the node is connected to two segments.
+	 */
+	public Segment getOtherSegment(Node node, Segment segment) {
+		HashSet<Segment> segmentsSet = nodeToSegments.get(node.getId());
 		if (segmentsSet == null) {
 			return null;
 		}
