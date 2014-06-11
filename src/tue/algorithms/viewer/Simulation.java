@@ -318,6 +318,7 @@ public class Simulation {
             Debug.log("Time taken (millis): " + (System.nanoTime()-startTime)/1000000);
             System.out.println("-----");
         } else if (problemType == ProblemType.NETWORK) {
+            networkNodes.clear();
         	NetworkImplementation networkImplementation = getNetworkImplementation();
         	Debug.log("Running network implementation...");
         	Debug.log("Name: '" + networkImplementation.getClass().getCanonicalName() + "'");
