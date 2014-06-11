@@ -140,6 +140,8 @@ public class Simulation {
         prefs = Preferences.userRoot().node(this.getClass().getName());
         prefs.put("file", "none");
         eraserRadius = ERASER_RADIUS;
+        networkNodes = new ArrayList<>();
+        segments = new ArrayList<>();
     }
 
     public void initialize() {
@@ -148,20 +150,13 @@ public class Simulation {
         input = fakeInputReader.readInput();
         problemType = /*input.first();*/ SimulationSettings.getInitialProblemType();
         inputNodes = input.second();
-        newNetworkNodes = new Node[0];
 
         // Convert to arraylists
-        this.nodes = new ArrayList<>(inputNodes.length);
-        this.networkNodes = new ArrayList<>(newNetworkNodes.length);
-        this.segments = new ArrayList<>();
-        
+        this.nodes = new ArrayList<>();
+
         for (Node node : inputNodes) {
             this.nodes.add(node);
-        }
-        for (Node node : newNetworkNodes) {
-            this.networkNodes.add(node);
-        }
-        
+        }        
     }
    
     public Point getMousePosition() {
@@ -333,6 +328,9 @@ public class Simulation {
             System.out.println("-----");
             calculatedSegments = output.first();
             newNetworkNodes = output.second();
+            for (Node node : newNetworkNodes) {
+                networkNodes.add(node);
+            }
         }
 
         this.segments = new ArrayList<>(calculatedSegments.length);
