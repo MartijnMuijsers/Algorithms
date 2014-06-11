@@ -1,6 +1,7 @@
 package tue.algorithms.viewer;
 
 import tue.algorithms.implementation.concrete.MultipleCurves;
+import tue.algorithms.implementation.concrete.NetworkRMST;
 import tue.algorithms.implementation.concrete.RMST;
 import tue.algorithms.implementation.concrete.SingleImploding;
 import tue.algorithms.implementation.general.MultipleImplementation;
@@ -9,6 +10,8 @@ import tue.algorithms.implementation.general.ProblemType;
 import tue.algorithms.implementation.general.SingleImplementation;
 import tue.algorithms.test.CaseEmpty;
 import tue.algorithms.test.FakeInputReader;
+import tue.algorithms.utility.Node;
+import tue.algorithms.utility.Segment;
 
 /**
  * Settings for the simulation.
@@ -43,7 +46,14 @@ public abstract class SimulationSettings {
      * @return An instance of a class that extends MultipleImplementation.
      */
     public static MultipleImplementation getMultipleImplementation() {
-        return new MultipleCurves();
+        return new MultipleImplementation() {
+
+            @Override
+            public Segment[] getOutput(Node[] input) {
+                NetworkImplementation rmst = new RMST();
+                return rmst.getOutput(input).first();
+            }
+        };
     }
 
     /**
@@ -53,7 +63,7 @@ public abstract class SimulationSettings {
      * @return An instance of a class that extends NetworkImplementation.
      */
     public static NetworkImplementation getNetworkImplementation() {
-        return new RMST();
+        return new NetworkRMST();
     }
 	
 	/**
