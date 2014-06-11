@@ -7,8 +7,10 @@ import tue.algorithms.other.Pair;
 import tue.algorithms.utility.AdjacentNodes;
 import tue.algorithms.utility.AdjacentNodes.NodeDistancePair;
 import tue.algorithms.utility.ConnectedNodes;
+import tue.algorithms.utility.Line;
 import tue.algorithms.utility.MinimumSpanningTree;
 import tue.algorithms.utility.Node;
+import tue.algorithms.utility.Point;
 import tue.algorithms.utility.Segment;
 
 /**
@@ -19,6 +21,9 @@ import tue.algorithms.utility.Segment;
 public class NetworkRMST implements NetworkImplementation {
 
     ArrayList<Node> addedNodesList = new ArrayList<>();
+    float MAXDISTANCE = 0.09f;
+    double MAXANGLE = 160;
+    double STRAIGHTANGLE = 165;
 
     @Override
     public Pair<Segment[], Node[]> getOutput(Node[] input) {
@@ -58,7 +63,7 @@ public class NetworkRMST implements NetworkImplementation {
 
                 NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(node);
                 for (int i = 0; i < ndps.length && i < 5; i++) {
-                    if (Math.abs(neighbors[0].originAt(node).getAngleOf(ndps[i].node)) > Math.PI / 2 && node.getDistanceTo(ndps[i].node) < 0.09f) {
+                    if (Math.abs(neighbors[0].originAt(node).getAngleOf(ndps[i].node)) > Math.PI / 2 && node.getDistanceTo(ndps[i].node) < MAXDISTANCE) {
                         cn.addSegment(new Segment(node, ndps[i].node));
                         break;
                     }
@@ -72,19 +77,18 @@ public class NetworkRMST implements NetworkImplementation {
             Segment[] neighbors = cn.getSegments(node);
             if (neighbors.length == 2) {
                 double angle = Math.abs(neighbors[0].originAt(node).getAngleOf(neighbors[1].getOtherEndpoint(node)) * (180 / Math.PI));
-                System.out.println(angle);
-                if (angle > 170) {
+                if (angle > STRAIGHTANGLE) {
                     for (Segment neighbor : neighbors) {
                         Segment[] secondNeighbors = cn.getSegments(neighbor.getOtherEndpoint(node));
                         for (Segment secondNeighbor : secondNeighbors) {
                             if (secondNeighbor != neighbor) {
                                 double secondAngle = Math.abs(neighbor.originAt(neighbor.getOtherEndpoint(node)).getAngleOf(secondNeighbor.getOtherEndpoint(neighbor.getOtherEndpoint(node))) * (180 / Math.PI));
-                                if (secondAngle < 165) {
+                                if (secondAngle < MAXANGLE) {
                                     NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(neighbor.getOtherEndpoint(node));
                                     for (int i = 0; i < ndps.length && i < 5; i++) {
                                         double thirdAngle = Math.abs(neighbor.originAt(neighbor.getOtherEndpoint(node)).getAngleOf(ndps[i].node)) * (180 / Math.PI);
                                         float distance = neighbor.getOtherEndpoint(node).getDistanceTo(ndps[i].node);
-                                        if (thirdAngle > 170 && distance < 0.07f) {
+                                        if (thirdAngle > STRAIGHTANGLE && distance < MAXDISTANCE) {
                                             cn.removeSegment(secondNeighbor);
                                             break;
                                         }
@@ -113,10 +117,38 @@ public class NetworkRMST implements NetworkImplementation {
                         connectNode = ndps[i].node;
                     }
                 }
-                if (angle > 165 && connectNode != null) {
+                float distance = neighbors[0].getOtherEndpoint(node).getDistanceTo(connectNode);
+
+                if (angle > STRAIGHTANGLE && connectNode != null && distance < MAXDISTANCE) {
                     cn.addSegment(new Segment(node, connectNode));
+                } else {
+                    checkIntersection(neighbors[0], node, adjNodes, cn, nodes);
                 }
             }
         }
     }
+
+    public void checkIntersection(Segment segment, Node node, AdjacentNodes adjNodes, ConnectedNodes cn, Node[] nodes) {
+        NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(node);
+        for (int i = 0; i < ndps.length && i < 10; i++) {
+            Segment[] neighbors = cn.getSegments(ndps[i].node);
+            for (Segment neighbor : neighbors) {
+                Point p = new Point(node.getX() + (float) (Math.cos(segment.endAt(node).getAngle()) * MAXDISTANCE), node.getY() + (float) (Math.sin(segment.endAt(node).getAngle()) * MAXDISTANCE));
+                Line line = new Line(node.getX(), node.getY(), p.getX(), p.getY());
+                if (line.intersectsWith(neighbor) && segment != neighbor) {
+                    float x = (line.getY1()-line.getSlope()*line.getX1()-neighbor.getY1()+neighbor.getSlope()*neighbor.getX1())/(neighbor.getSlope()-line.getSlope());
+                    float y = line.getSlope()*(x-line.getX1())+line.getY1();
+                    Node intersectionNode = new Node(nodes.length+1, x, y);
+                    addedNodesList.add(intersectionNode);
+                    cn.addSegment(new Segment(node,intersectionNode));
+                    cn.addSegment(new Segment(neighbor.getNode1(), intersectionNode));
+                    cn.addSegment(new Segment(neighbor.getNode2(), intersectionNode));
+                    cn.removeSegment(neighbor);
+                    return;
+                }
+            }
+        }
+    }
+    
+    
 }
