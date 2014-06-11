@@ -182,11 +182,9 @@ public class MultipleCurves implements MultipleImplementation {
                 if (deltaDistance > bestLengthDelta && !oldShape.contains(otherSegment)) {
                     Segment newSegment1 = new Segment(node, ndp.node);
                     Segment newSegment2 = new Segment(node2, otherEndPoint);
-                    // The new segment will certainly not intersect otherSegment,
-                    // so we do not need to remove otherSegment before testing.
-                    // However, it is possible that there's a corner of another shape
-                    // that could be intersected by replacing the segment.
-                    if (!cn.intersectsGraph(newSegment1) && !cn.intersectsGraph(newSegment2)) {
+                    if (!newSegment1.intersectsWith(newSegment2) &&
+                        !cn.intersectsGraph(newSegment1) &&
+                        !cn.intersectsGraph(newSegment2)) {
                         bestLengthDelta = deltaDistance;
                         segmentToRemove = otherSegment;
                         segmentToAdd1 = newSegment1;
