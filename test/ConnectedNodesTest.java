@@ -80,6 +80,22 @@ public class ConnectedNodesTest {
                 cn.getOtherSegment(bottomright, bottomright_bottomleft) == topleft_bottomright);
     }
 
+    @Test
+    public void testGetOtherSegmentInverted() {
+        assertAddSegment(bottomright_bottomleft);
+        assertAddSegment(topleft_bottomright);
+        assertTrue("getOtherSegment(node, segment) should return the other segment connected to node",
+                cn.getOtherSegment(bottomright, bottomright_bottomleft.invertDirection()) == topleft_bottomright);
+    }
+
+    @Test
+    public void testGetOtherSegmentNonExistent() {
+        assertAddSegment(bottomright_bottomleft);
+        assertAddSegment(topleft_bottomright);
+        assertTrue("getOtherSegment(sole endpoint, segment) should return null",
+                cn.getOtherSegment(bottomleft, bottomright_bottomleft) == null);
+    }
+
     private void assertAddSegment(Segment s) {
         assertFalse("Segment should not intersect graph", cn.intersectsGraph(s));
         cn.addSegment(s);
