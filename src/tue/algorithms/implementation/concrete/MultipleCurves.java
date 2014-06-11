@@ -146,17 +146,23 @@ public class MultipleCurves implements MultipleImplementation {
         // Try to find a segment that results in a bigger angle and a shorter total segment length.
         Node node2 = oldSegment.getOtherEndpoint(node);
         float oldSegmentLength = oldSegment.length();
-        // We Higher is better, we want to reduce the total length of all segments as much as possible.
-        // (many unconnected shapes will rightfully be joined because of this.)
-        // TODO: What if the length of the segment is very short, but there is still a triangle?
-        // TODO: If we choose a too high value, then two shapes that are far apart could be connected
-        //       (this could be solved by enforcing an upper bound for this value)
+        // The following variable is used to determine whether a new segment pair is better.
+        // It is <sum of old segment lengths> - <sum of new segment length>
+        // We try to get the highest possible value.
+        // The initial value sets the absolute treshold:
+        //  - stricter: A high (positive) value means that the new segments must be absolutely
+        //    shorter than the current one.
+        //  - laxer: A low (negative) value means that the sum of the new segments is allowed to
+        //    be bigger than the current segments.
         float bestLengthDelta = -0.2f;
         Segment segmentToRemove = null;
         Segment segmentToAdd1 = null;
         Segment segmentToAdd2 = null;
         for (NodeDistancePair ndp : adjNodes.getAdjacentNodes(node)) {
             // TODO: Think about this magic number, and not at 4am.
+            // TODO: Add an extra condition, to limit the max length of the segment?
+            //       Perhaps use statistics and the oldShape subroutine to determine
+            //       a sensible max length? Not sure what to do at 6 am.
             if (ndp.distance > oldSegmentLength * 2) {
                 break;
             }
