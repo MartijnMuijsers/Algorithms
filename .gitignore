@@ -48,6 +48,12 @@ local.properties
 *.toc
 *.synctex
 
+# R stuff
+.Rhistory
+*.bbl
+*.blg
+*.synctex.gz
+
 # Ignore report.pdf to avoid merge conflicts. This file can be auto-generated
 # from report/report.tex
 report/report.pdf
