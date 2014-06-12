@@ -462,7 +462,7 @@ public class Simulation {
     public void render() {
         glClear(GL_COLOR_BUFFER_BIT);
         
-        glColor3f(1f, 1f, 1f);
+        glColor3f(0f, 0f, 0f);
         glLineWidth(2f);
         if (showSegments) {
             for (Segment segment : segments) {
@@ -470,7 +470,7 @@ public class Simulation {
             }
         }
     
-        glColor3f(1f, 1f, 0f);
+        glColor3f(0f, 0f, 0f);
         for (Node node : nodes) {
             drawPoint(NODE_RADIUS, node, true);
         }

@@ -67,7 +67,7 @@ public class Camera {
         glEnable(GL_BLEND);
         glEnable(GL_POLYGON_SMOOTH);
         glEnable(GL_MULTISAMPLE);
-        glClearColor(0, 0, 0, 0);
+        glClearColor(1, 1, 1, 0);
     }
 
     public void flip(){
