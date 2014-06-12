@@ -21,9 +21,9 @@ import tue.algorithms.utility.Segment;
 public class NetworkRMST implements NetworkImplementation {
 
     ArrayList<Node> addedNodesList = new ArrayList<>();
-    float MAXDISTANCE = 0.1f;
-    double MINANGLE = 160;
-    double STRAIGHTANGLE = 165;
+    float MAXDISTANCE = 0.07f;
+    double MINANGLE = 165;
+    double STRAIGHTANGLE = 175;
     
     @Override
     public Pair<Segment[], Node[]> getOutput(Node[] input) {
@@ -52,6 +52,8 @@ public class NetworkRMST implements NetworkImplementation {
         removeObliqueSegments(cn, adjNodes, input);
         addNewSegments(cn, adjNodes, input);
         addNewSegments(cn, adjNodes, input);
+        connectEndPoints(cn, adjNodes, input);
+
 
         Node[] addedNodes = addedNodesList.toArray(new Node[0]);
         return new Pair(cn.getAllSegments(), addedNodes);
@@ -121,13 +123,13 @@ public class NetworkRMST implements NetworkImplementation {
                 }
                 float distance = neighbors[0].getOtherEndpoint(node).getDistanceTo(connectNode);
 
-                if (angle > MINANGLE && connectNode != null && distance < MAXDISTANCE) {
+                if (angle > MINANGLE && connectNode != null && distance < MAXDISTANCE+0.03f) {
                     Segment segment = new Segment(node, connectNode);
                     boolean intersects = false;
                     for (int i = 0; i < ndps.length && i < 5; i++) {
                         Segment[] intersections = cn.getSegments(ndps[i].node);
                         for (Segment intersection : intersections) {
-                            if (segment.intersectsWith(intersection)) {
+                            if (segment.intersectsWith(intersection) && segment !=intersection) {
                                 intersects= true;
                                 float x = (segment.getY1()-segment.getSlope()*segment.getX1()-intersection.getY1()+intersection.getSlope()*intersection.getX1())/(intersection.getSlope()-segment.getSlope());
                                 float y = segment.getSlope()*(x-segment.getX1())+segment.getY1();
