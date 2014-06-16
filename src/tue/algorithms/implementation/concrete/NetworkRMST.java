@@ -20,9 +20,9 @@ import tue.algorithms.utility.Segment;
  */
 public class NetworkRMST implements NetworkImplementation {
 
-    ArrayList<Node> addedNodesList = new ArrayList<>();
+    ArrayList<Node> addedNodesList = new ArrayList<Node>();
     float MAXDISTANCE = 0f;
-    double MINANGLE = 165;
+    double MINANGLE = 167;
     double STRAIGHTANGLE = 170;
     
     @Override
