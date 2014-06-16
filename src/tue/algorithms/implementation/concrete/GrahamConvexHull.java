@@ -101,7 +101,7 @@ public class GrahamConvexHull {
             }
             hull.push(top);
             hull.push(inputClone[i]);
-            System.out.println("Graham convex hull loop progress: " + i + " / " + (inputClone.length-1));//DEBUG
+            //System.out.println("Graham convex hull loop progress: " + i + " / " + (inputClone.length-1));//DEBUG
         }
         
         Node[] resultNodes = new Node[hull.size()];

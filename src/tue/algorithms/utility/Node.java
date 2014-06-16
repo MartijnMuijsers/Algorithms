@@ -148,4 +148,11 @@ public class Node extends Point {
 	
 	/* -- END Static node cache -- */
 	
+	/**
+	 * Use minimally!!!
+	 */
+	public OpNode toOpNode() {
+		return new OpNode(id, x, y);
+	}
+	
 }

@@ -178,4 +178,11 @@ public class Segment extends Line {
 	
 	/* -- END Override equals(), hashCode() and toString() -- */
 	
+	/**
+	 * Use minimally!!!
+	 */
+	public OpSegment toOpSegment() {
+		return new OpSegment(getNode1().toOpNode(), getNode2().toOpNode());
+	}
+	
 }
