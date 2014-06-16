@@ -7,10 +7,8 @@ import tue.algorithms.other.Pair;
 import tue.algorithms.utility.AdjacentNodes;
 import tue.algorithms.utility.AdjacentNodes.NodeDistancePair;
 import tue.algorithms.utility.ConnectedNodes;
-import tue.algorithms.utility.Line;
 import tue.algorithms.utility.MinimumSpanningTree;
 import tue.algorithms.utility.Node;
-import tue.algorithms.utility.Point;
 import tue.algorithms.utility.Segment;
 
 /**
@@ -166,8 +164,10 @@ public class NetworkRMST implements NetworkImplementation {
         for (int i = 0; i < ndps.length && i < 10; i++) {
             Segment[] neighbors = cn.getSegments(ndps[i].node);
             for (Segment neighbor : neighbors) {
-                Point p = new Point(node.x + (float) (Math.cos(segment.endAt(node).getAngle()) * MAXDISTANCE), node.y + (float) (Math.sin(segment.endAt(node).getAngle()) * MAXDISTANCE));
-                Line line = new Line(node.x, node.y, p.x, p.y);
+                Node p = new Node(Node.FAKE_NODE_ID,
+                        node.x + (float) (Math.cos(segment.endAt(node).getAngle()) * MAXDISTANCE),
+                        node.y + (float) (Math.sin(segment.endAt(node).getAngle()) * MAXDISTANCE));
+                Segment line = new Segment(node, p);
                 if (line.intersectsWith(neighbor) && segment != neighbor) {
                     float x = (line.getY1()-line.getSlope()*line.getX1()-neighbor.getY1()+neighbor.getSlope()*neighbor.getX1())/(neighbor.getSlope()-line.getSlope());
                     float y = line.getSlope()*(x-line.getX1())+line.getY1();
