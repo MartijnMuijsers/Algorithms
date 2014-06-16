@@ -1,8 +1,8 @@
 package tue.algorithms.viewer;
 
+import tue.algorithms.implementation.concrete.MultipleCurves;
 import tue.algorithms.implementation.concrete.NetworkRMST;
 import tue.algorithms.implementation.concrete.SingleImplodingTryingFaster;
-import tue.algorithms.implementation.concrete.SingleMultipleConvexHull;
 import tue.algorithms.implementation.general.MultipleImplementation;
 import tue.algorithms.implementation.general.NetworkImplementation;
 import tue.algorithms.implementation.general.ProblemType;
@@ -43,7 +43,7 @@ public abstract class SimulationSettings {
      * @return An instance of a class that extends MultipleImplementation.
      */
     public static MultipleImplementation getMultipleImplementation() {
-        return new SingleMultipleConvexHull();
+        return new MultipleCurves();
     }
 
     /**
