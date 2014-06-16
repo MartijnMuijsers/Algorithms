@@ -135,7 +135,7 @@ public class NetworkRMST implements NetworkImplementation {
                                 intersects= true;
                                 float x = (segment.getY1()-segment.getSlope()*segment.getX1()-intersection.getY1()+intersection.getSlope()*intersection.getX1())/(intersection.getSlope()-segment.getSlope());
                                 float y = segment.getSlope()*(x-segment.getX1())+segment.getY1();
-                                Node intersectionNode = new Node(nodes.length+addedNodesList.size()+1, x, y);
+                                Node intersectionNode = new Node(x, y);
                                 addedNodesList.add(intersectionNode);
                                 cn.addSegment(new Segment(node, intersectionNode));
                                 cn.addSegment(new Segment(segment.getOtherEndpoint(node), intersectionNode));
@@ -166,7 +166,7 @@ public class NetworkRMST implements NetworkImplementation {
                 if (line.intersectsWith(neighbor) && segment != neighbor) {
                     float x = (line.getY1()-line.getSlope()*line.getX1()-neighbor.getY1()+neighbor.getSlope()*neighbor.getX1())/(neighbor.getSlope()-line.getSlope());
                     float y = line.getSlope()*(x-line.getX1())+line.getY1();
-                    Node intersectionNode = new Node(nodes.length+addedNodesList.size()+1, x, y);
+                    Node intersectionNode = new Node(x, y);
                     
                     addedNodesList.add(intersectionNode);
                     cn.addSegment(new Segment(node, intersectionNode));

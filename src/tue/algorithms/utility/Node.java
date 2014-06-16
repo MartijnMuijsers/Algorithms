@@ -4,26 +4,21 @@ import java.util.HashMap;
 
 /**
  * A node that has an id and a point location.
- * <p>
- * You should not create two different node instances with equal id,
- * but different coordinates,
- * in the same implementation.
- * </p>
- * <p>
- * This class is a subclass of Point.
- * </p>
- * <p>
+ * The constructor is used in two scenarios:
+ * 1. Nodes are loaded from a file.
+ * 2. New Nodes are created (added, e.g. in the Network algorithm).
+ *
+ * For the first scenario, all IDs MUST be sequential, and added in sequence (lowest ID first).
+ * For the second use case, use the constructor without ID.
+ * The IDs MUST start at |MINIMAL_NODE_ID|.
+ *
  * This class is immutable.
- * </p>
- * <p>
- * The static part of this class provides a cache for constructed nodes,
- * so that nodes are retrievable by their id after their construction.
- * </p>
  */
 public class Node extends Point {
 
 	/** ID of first node */
-	final static public int MINIMAL_NODE_ID = 1;
+	final static private int MINIMAL_NODE_ID = 1;
+	private static int nextNodeId = MINIMAL_NODE_ID;
 	public final int id;
 	
 	/**
@@ -32,9 +27,18 @@ public class Node extends Point {
 	 * @param x The x-coordinate of the node.
 	 * @param y The y-coordinate of the node.
 	 */
+	public Node(float x, float y) {
+		this(nextNodeId, x, y);
+	}
+
+	/**
+	 * Only use this constructor to add a new node.
+	 * Nodes MUST be created in sequence, starting at the lowest Node ID.
+	 */
 	public Node(int id, float x, float y) {
 		super(x, y);
-		assert id >= MINIMAL_NODE_ID;
+		assert id == nextNodeId;
+		++nextNodeId;
 		this.id = id;
 		addToNodeCache(this);
 	}
@@ -87,6 +91,7 @@ public class Node extends Point {
 	 */
 	public static void clearNodeCache() {
 		nodeCache.clear();
+		nextNodeId = MINIMAL_NODE_ID;
 	}
 	
 	/**

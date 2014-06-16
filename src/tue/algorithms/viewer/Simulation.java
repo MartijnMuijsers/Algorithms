@@ -354,14 +354,13 @@ public class Simulation {
         for (Node node : nodes) {
             if (node.subtract(mouseNode).length() < eraserRadius) {
                 // Found a node under the eraser, reconstruct the whole set of nodes.
-                ArrayList<Node> tempNodes = new ArrayList<Node>(nodes.size());
-                int i = Node.MINIMAL_NODE_ID;
-                for (Node n : nodes) {
+                ArrayList<Node> oldNodes = nodes;
+                nodes = new ArrayList<Node>(nodes.size());
+                for (Node n : oldNodes) {
                     if (n.subtract(mouseNode).length() >= eraserRadius) {
-                        tempNodes.add(new Node(i++, n.getX(), n.getY()));
+                        nodes.add(new Node(n.x, n.y));
                     }
                 }
-                nodes = tempNodes;
                 break;
             }
         }
@@ -379,14 +378,12 @@ public class Simulation {
                 }
             }
             if (!exists) {
-                ArrayList<Node> tempNodes = new ArrayList<Node>();
-                int i = Node.MINIMAL_NODE_ID;
-                for (Node node : nodes) {
-                    tempNodes.add(new Node(i++, node.getX(), node.getY()));
+                ArrayList<Node> oldNodes = nodes;
+                nodes = new ArrayList<Node>();
+                for (Node node : oldNodes) {
+                    nodes.add(new Node(node.x, node.y));
                 }
-                tempNodes.add(new Node(i++, clickX, clickY));
-
-                nodes = tempNodes;
+                nodes.add(new Node(clickX, clickY));
             }
         }
     }

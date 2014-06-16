@@ -25,6 +25,7 @@ public class ConnectedNodesTest {
 
     @Before
     public void setUp() {
+        Node.clearNodeCache();
         cn = new ConnectedNodes();
     }
 
