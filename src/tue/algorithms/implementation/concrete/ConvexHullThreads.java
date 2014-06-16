@@ -6,9 +6,7 @@ import java.util.List;
 
 import tue.algorithms.other.Debug;
 import tue.algorithms.other.Pair;
-import tue.algorithms.utility.Line;
 import tue.algorithms.utility.Node;
-import tue.algorithms.utility.Point;
 import tue.algorithms.utility.Segment;
 
 /**
@@ -113,7 +111,7 @@ public abstract class ConvexHullThreads {
 		return boundarySegments;
 	}
 	
-	public static Side getSide(Point point, Line line) {
+	public static Side getSide(Node point, Segment line) {
 		if (line.getX1() == line.getX2()) {
 			if (point.getX() < line.getX1()) {
 				return Side.TOP_LEFT;

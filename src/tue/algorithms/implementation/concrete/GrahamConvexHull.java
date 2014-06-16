@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Stack;
 
 import tue.algorithms.utility.Node;
-import tue.algorithms.utility.Point;
 import tue.algorithms.utility.Segment;
 
 public class GrahamConvexHull {
@@ -119,8 +118,8 @@ public class GrahamConvexHull {
         return resultSegments;
 	}
 	
-	public static float ccw(Point p1, Point p2, Point p3) {
-	    return (p2.getX() - p1.getX())*(p3.getY() - p1.getY()) - (p2.getY() - p1.getY())*(p3.getX() - p1.getX());
+	public static float ccw(Node p1, Node p2, Node p3) {
+	    return (p2.x - p1.x)*(p3.y - p1.y) - (p2.y - p1.y)*(p3.x - p1.x);
 	}
 	
 	public static float sqr(float x) {

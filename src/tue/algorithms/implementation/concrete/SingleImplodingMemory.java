@@ -11,9 +11,7 @@ import tue.algorithms.implementation.general.SingleImplementation;
 import tue.algorithms.other.Conversion;
 import tue.algorithms.other.Debug;
 import tue.algorithms.other.Pair;
-import tue.algorithms.utility.Line;
 import tue.algorithms.utility.Node;
-import tue.algorithms.utility.Point;
 import tue.algorithms.utility.Segment;
 
 /**
@@ -614,20 +612,20 @@ public class SingleImplodingMemory implements SingleImplementation {
 		return new Pair<Segment[], Node[]>(segmentsInOrder, nodesInOrder);
 	}
 	
-	public float getLikelihood(Line line1, Line line2, Line line3) throws IllegalStateException {
+	public float getLikelihood(Segment line1, Segment line2, Segment line3) throws IllegalStateException {
 		Debug.startHold("likelihood");
-		if (!line1.getPoint2().equals(line2.getPoint1())) {
-			if (!line2.getPoint2().equals(line3.getPoint1())) {
-				line2 = line2.invertDirection();
-			} else {
-				line1 = line1.invertDirection();
-			}
-		}
-		Point goingTo = line3.getPoint2();
-		Point standingAt = line3.getPoint1();
-		Point comingFrom = line2.getPoint1();
-		Point lookingBack = line1.getPoint1();
-		float totalDistance = new Line(goingTo, standingAt).length()+new Line(standingAt, comingFrom).length()+new Line(comingFrom, lookingBack).length();
+        if (line1.node2 != line2.node1) {
+            if (line2.node2 != line3.node1) {
+                line2 = line2.invertDirection();
+            } else {
+                line1 = line1.invertDirection();
+            }   
+        }   
+        Node goingTo = line3.node2;
+        Node standingAt = line3.node1;
+        Node comingFrom = line2.node1;
+        Node lookingBack = line1.node1;
+        float totalDistance = goingTo.getDistanceTo(standingAt) + standingAt.getDistanceTo(comingFrom) + comingFrom.getDistanceTo(lookingBack);
 		double angleBetweenComingFromAndStandingAt = rewrapAngle(comingFrom.getAngleTo(standingAt));
 		double angleBetweenLookingBackAndComingFrom = rewrapAngle(lookingBack.getAngleTo(comingFrom));
 		double angularDifferenceSum = abs(centerAngle(angleBetweenComingFromAndStandingAt))+abs(centerAngle(angleBetweenLookingBackAndComingFrom));

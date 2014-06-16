@@ -7,10 +7,8 @@ import tue.algorithms.other.Pair;
 import tue.algorithms.utility.AdjacentNodes;
 import tue.algorithms.utility.AdjacentNodes.NodeDistancePair;
 import tue.algorithms.utility.ConnectedNodes;
-import tue.algorithms.utility.Line;
 import tue.algorithms.utility.MinimumSpanningTree;
 import tue.algorithms.utility.Node;
-import tue.algorithms.utility.Point;
 import tue.algorithms.utility.Segment;
 
 /**
@@ -20,34 +18,19 @@ import tue.algorithms.utility.Segment;
  */
 public class NetworkRMST implements NetworkImplementation {
 
-    ArrayList<Node> addedNodesList = new ArrayList<>();
+    ArrayList<Node> addedNodesList = new ArrayList<Node>();
     float MAXDISTANCE = 0f;
-    double MINANGLE = 165;
+    double MINANGLE = 167;
     double STRAIGHTANGLE = 170;
     
     @Override
     public Pair<Segment[], Node[]> getOutput(Node[] input) {
-        Segment[] segments = MinimumSpanningTree.getSegmentsPermutation(input);
-        Comparator<Segment> comparator = new Comparator<Segment>() {
-            @Override
-            public int compare(Segment s1, Segment s2) {
-                float diff = s1.length() - s2.length();
-                if (diff < 0) {
-                    return -1;
-                } else if (diff > 0) {
-                    return 1;
-                }
-                return 0;
-            }
-        };
-
-        Segment[] mst = MinimumSpanningTree.applyMST(segments, input, comparator);
         ConnectedNodes cn = new ConnectedNodes();
-        for (Segment segment : mst) {
+        for (Segment segment : MinimumSpanningTree.getMST(input)) {
             cn.addSegment(segment);
             MAXDISTANCE += segment.length();
         }
-        MAXDISTANCE = (MAXDISTANCE/mst.length)*2.5f;
+        MAXDISTANCE = (MAXDISTANCE / (input.length - 1)) * 2.5f;
         AdjacentNodes adjNodes = new AdjacentNodes(input);
         
         connectEndPoints(cn, adjNodes, input);
@@ -166,8 +149,10 @@ public class NetworkRMST implements NetworkImplementation {
         for (int i = 0; i < ndps.length && i < 10; i++) {
             Segment[] neighbors = cn.getSegments(ndps[i].node);
             for (Segment neighbor : neighbors) {
-                Point p = new Point(node.x + (float) (Math.cos(segment.endAt(node).getAngle()) * MAXDISTANCE), node.y + (float) (Math.sin(segment.endAt(node).getAngle()) * MAXDISTANCE));
-                Line line = new Line(node.x, node.y, p.x, p.y);
+                Node p = new Node(Node.FAKE_NODE_ID,
+                        node.x + (float) (Math.cos(segment.endAt(node).getAngle()) * MAXDISTANCE),
+                        node.y + (float) (Math.sin(segment.endAt(node).getAngle()) * MAXDISTANCE));
+                Segment line = new Segment(node, p);
                 if (line.intersectsWith(neighbor) && segment != neighbor) {
                     float x = (line.getY1()-line.getSlope()*line.getX1()-neighbor.getY1()+neighbor.getSlope()*neighbor.getX1())/(neighbor.getSlope()-line.getSlope());
                     float y = line.getSlope()*(x-line.getX1())+line.getY1();
