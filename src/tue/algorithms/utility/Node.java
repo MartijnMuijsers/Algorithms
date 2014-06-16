@@ -3,7 +3,7 @@ package tue.algorithms.utility;
 import java.util.HashMap;
 
 /**
- * A node that has an id and a point location.
+ * A node that has an id and a point location (x,y).
  * The constructor is used in two scenarios:
  * 1. Nodes are loaded from a file.
  * 2. New Nodes are created (added, e.g. in the Network algorithm).
@@ -14,7 +14,7 @@ import java.util.HashMap;
  *
  * This class is immutable.
  */
-public class Node extends Point {
+public class Node {
 
 	/** ID of first node */
 	final static private int MINIMAL_NODE_ID = 1;
@@ -22,7 +22,10 @@ public class Node extends Point {
 
 	/** ID of fake nodes, i.e. nodes that are only needed for calculations but never output. */
 	final static public int FAKE_NODE_ID = MINIMAL_NODE_ID - 1;
+
 	public final int id;
+	public final float x;
+	public final float y;
 	
 	/**
 	 * Create a node with the given id and coordinates (x, y).
@@ -39,8 +42,9 @@ public class Node extends Point {
 	 * Nodes MUST be created in sequence, starting at the lowest Node ID.
 	 */
 	public Node(int id, float x, float y) {
-		super(x, y);
 		this.id = id;
+		this.x = x;
+		this.y = y;
 		if (id != FAKE_NODE_ID) {
 			assert id == nextNodeId;
 			++nextNodeId;
@@ -56,6 +60,65 @@ public class Node extends Point {
 	public int getId() {
 		return id;
 	}
+
+    /**
+     * Use .x
+     * @deprecated
+     */
+    @Deprecated
+    public float getX() {
+        return x;
+    }
+
+    /**
+     * Use .y
+     * @deprecated
+     */
+    @Deprecated
+    public float getY() {
+        return y;
+    }
+
+    /** 
+     * Get the length of this point when treated as a vector (distance to the origin).
+     * @return The length as a float.
+     */
+    public float length() {
+        return (float) Math.sqrt(this.x * this.x + this.y * this.y);
+    }   
+    
+    /** 
+     * Get the angle between this point, when treated as a vector, and the x-axis.
+     * An angle of 0 means this point points to the right.
+     * An angle of Math.PI/2 means this point points upwards.
+     * If the point points to the left, then the angle is Math.PI.
+     * The angle can also be -Math.PI, when the point is slightly (epsilon) below
+     *  the negative X-axis.
+     * @return The angle as a double in the range [-Math.PI, Math.PI].
+     */
+    public double getAngle() {
+        return Math.atan2(this.y, this.x);
+    }   
+    
+    /** 
+     * Get the angle between this point and another point.
+     * @param point The other point.
+     * @return The angle as a double.
+     */
+    public double getAngleTo(Node point) {
+		return Math.atan2(point.y - y, point.x - x);
+    }
+
+    /**
+     * Get the distance between this point and another.
+     * @param point The other point.
+     * @return The Euclidian distance as a float.
+     */
+    public float getDistanceTo(Node point) {
+        float x = this.x - point.x;
+        float y = this.y - point.y;
+        return (float) Math.sqrt(x * x + y * y);
+    }
 	
 	/* -- START Override equals(), hashCode() and toString() -- */
 	
