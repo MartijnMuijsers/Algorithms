@@ -147,6 +147,7 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 		}
 		removeIntersections();
 		supplementFromMST(input);
+		removeTooLong();
 		Segment[] result = new Segment[foundSegments.size()];
 		int i = 0;
 		for (Segment os : foundSegments) {
