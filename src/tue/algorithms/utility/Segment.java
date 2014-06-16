@@ -14,21 +14,9 @@ package tue.algorithms.utility;
  */
 public class Segment extends Line {
 	
-	/* -- START Private final fields -- */
-	
-	/**
-	 * The id of the node the segment starts at.
-	 */
-	protected final int node1id;
-	/**
-	 * The id of the node the segment ends at.
-	 */
-	protected final int node2id;
-	
-	/* -- END Private final fields -- */
-	
-	/* -- START Constructors -- */
-	
+	protected final Node node1;
+	protected final Node node2;
+
 	/**
 	 * Create a segment from node1 to node2.
 	 * @param node1 The node the segment starts at.
@@ -36,20 +24,19 @@ public class Segment extends Line {
 	 */
 	public Segment(Node node1, Node node2) {
 		super(node1, node2);
-		this.node1id = node1.getId();
-		this.node2id = node2.getId();
+		this.node1 = node1;
+		this.node2 = node2;
 	}
 	
 	/**
 	 * Create a segment from the node with id node1id to the node with id node2id.
 	 * @param node1id The id of the node the segment starts at.
 	 * @param node2id The id of the node the segment ends at.
+	 * @deprecated
 	 */
 	public Segment(int node1id, int node2id) {
 		this(Node.getById(node1id), Node.getById(node2id));
 	}
-	
-	/* -- END Constructors -- */
 	
 	/* -- START Public getters for private fields -- */
 	
@@ -58,7 +45,7 @@ public class Segment extends Line {
 	 * @return The id as an integer.
 	 */
 	public int getNode1Id() {
-		return node1id;
+		return node1.id;
 	}
 	
 	/**
@@ -66,7 +53,7 @@ public class Segment extends Line {
 	 * @return The id as an integer.
 	 */
 	public int getNode2Id() {
-		return node2id;
+		return node2.id;
 	}
 	
 	/* -- END Public getters for private fields -- */
@@ -75,20 +62,18 @@ public class Segment extends Line {
 	
 	/**
 	 * Get the node the segment starts at.
-	 * This method relies on the node cache to retrieve the node with node1id.
 	 * @return The node.
 	 */
 	public Node getNode1() {
-		return Node.getById(node1id);
+		return node1;
 	}
 	
 	/**
 	 * Get the node the segment ends at.
-	 * This method relies on the node cache to retrieve the node with node2id.
 	 * @return The node.
 	 */
 	public Node getNode2() {
-		return Node.getById(node2id);
+		return node2;
 	}
 
 	/**
@@ -96,8 +81,7 @@ public class Segment extends Line {
 	 * @return Whether the segment has {@code node} as one of its end points.
 	 */
 	public boolean isEndPoint(Node node) {
-		int nodeId = node.getId();
-		return node1id == nodeId || node2id == nodeId;
+		return node1.id == node.id || node2.id == node.id;
 	}
 
 	/**
@@ -106,7 +90,7 @@ public class Segment extends Line {
 	 * @pre {@code node} is one of the endpoints.
 	 */
 	public Node getOtherEndpoint(Node node) {
-		return node.getId() != node1id ? getNode1() : getNode2();
+		return node.id != node1.id ? node1 : node2;
 	}
 	
 	/* -- END Getters for node representations of private fields -- */
@@ -130,7 +114,7 @@ public class Segment extends Line {
 	 *  {@code isEndPoint(node) == true}
 	 */
 	public Segment originAt(Node node) {
-		if (x1 == node.getX() && y1 == node.getY()) {
+		if (node1.x == node.x && node1.y == node.y) {
 			return this;
 		} else {
 			return invertDirection();
@@ -143,7 +127,7 @@ public class Segment extends Line {
 	 */
 	@Override
 	public Segment invertDirection() {
-		return new Segment(getNode2Id(), getNode1Id());
+		return new Segment(node2, node1);
 	}
 	
 	/* -- END Manipulation method to invert line -- */
@@ -154,35 +138,34 @@ public class Segment extends Line {
 	public boolean equals(Object obj) {
 		if (obj instanceof Segment) {
 			Segment other = (Segment) obj;
-			return (other.getNode1Id() == getNode1Id() && other.getNode2Id() == getNode2Id());
+			return other.node1.id == node1.id && other.node2.id == node2.id;
 		}
 		return false;
 	}
 	
 	@Override
 	public int hashCode() {
-		return getNode1Id() * 12000 + getNode2Id();
+		return node1.id * 12000 + node2.id;
 	}
 	
 	@Override
 	public String toString() {
 		return super.toString() + "["
-			+ "id1=" + getNode1Id() + ", "
-			+ "x1=" + getX1() + ", "
-			+ "y1=" + getY1() + ", "
-			+ "id2=" + getNode2Id() + ", "
-			+ "x2=" + getX2() + ", "
-			+ "y2=" + getY2()
+			+ "id1=" + node1.id + ", "
+			+ "x1=" + node1.x + ", "
+			+ "y1=" + node1.y + ", "
+			+ "id2=" + node2.id + ", "
+			+ "x2=" + node2.x + ", "
+			+ "y2=" + node2.y
 			+ "]";
 	}
 	
 	/* -- END Override equals(), hashCode() and toString() -- */
-	
 	/**
 	 * Use minimally!!!
 	 */
 	public OpSegment toOpSegment() {
-		return new OpSegment(getNode1().toOpNode(), getNode2().toOpNode());
+		return new OpSegment(node1.toOpNode(), node2.toOpNode());
 	}
 	
 }
