@@ -189,7 +189,14 @@ public class MultipleCurves implements MultipleImplementation {
                 if (deltaDistance > bestLengthDelta && !oldShape.contains(otherSegment)) {
                     Segment newSegment1 = new Segment(node, ndp.node);
                     Segment newSegment2 = new Segment(node2, otherEndPoint);
-                    if (!newSegment1.intersectsWith(newSegment2) &&
+                    // TODO: Put 5f in a constant.
+                    // This magic number is used to determine whether the new segments do NOT
+                    // get "too close" to one of the endpoints of the other segments.
+                    if (newSegment1.getDistanceOf(node2) * 5f > newSegment1.length() &&
+                        newSegment1.getDistanceOf(otherEndPoint) * 5f > newSegment1.length() &&
+                        newSegment2.getDistanceOf(ndp.node) * 5f > newSegment2.length() &&
+                        newSegment2.getDistanceOf(node) * 5f > newSegment2.length() &&
+                        !newSegment1.intersectsWith(newSegment2) &&
                         !cn.intersectsGraph(newSegment1) &&
                         !cn.intersectsGraph(newSegment2)) {
                         bestLengthDelta = deltaDistance;

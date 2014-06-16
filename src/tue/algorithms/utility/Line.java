@@ -353,6 +353,18 @@ public class Line {
 	}
 	
 	/* -- END Method to check for intersection -- */
+
+	/**
+	 * @return The distance between {@code point} and this line segment viewed as a line.
+	 */
+	public float getDistanceOf(Point point) {
+		// Note: getAngleOf() is relative to node1
+		// Get the angle in the range [0, 0.5PI]
+		double angle = Math.abs(getAngleOf(point));
+	    if (angle >= 0.5 * Math.PI) angle = Math.PI - angle;
+		float diagonalLength = point.getDistanceTo(getPoint1());
+		return diagonalLength * (float)Math.sin(angle);
+	}
 	
 	/* -- START Override equals(), hashCode() and toString() -- */
 	
