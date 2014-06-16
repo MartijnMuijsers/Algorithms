@@ -61,7 +61,7 @@ public class SingleImplodingStillWithMaps implements SingleImplementation {
 		OpNode[] input = new OpNode[jnput.length];
 		for (int i = 0; i < jnput.length; i++) {
 			Node n = jnput[i];
-			input[i] = new OpNode(n.getId(), n.getX(), n.getY());
+			input[i] = new OpNode(n.id, n.x, n.y);
 		}
 		foundOpSegments = new HashSet<OpSegment>();
 		for (Segment s : convexHullA) {
@@ -87,7 +87,7 @@ public class SingleImplodingStillWithMaps implements SingleImplementation {
 				for (Entry<OpSegment, List<OpPair<OpNode, Float>>> entry : likelinesses.entrySet()) {
 					b += entry.getValue().size();
 				}
-				System.out.println(a + " / " + b);
+				//System.out.println(a + " / " + b);
 			}
 			OpSegment opSegmentWithSmallestLikeliness = null;
 			OpNode opNodeWithSmallestLikeliness = null;
@@ -108,6 +108,7 @@ public class SingleImplodingStillWithMaps implements SingleImplementation {
 					opNodeWithSmallestLikeliness = opPair.first;
 				}
 			}
+			System.out.println("Decided smallest " + opNodeWithSmallestLikeliness.id + " , " + opSegmentWithSmallestLikeliness.node1.id + " , " + opSegmentWithSmallestLikeliness.node2.id);
 			OpSegment newOpSegment1 = new OpSegment(opNodeWithSmallestLikeliness, opSegmentWithSmallestLikeliness.node1);
 			OpSegment newOpSegment2 = new OpSegment(opNodeWithSmallestLikeliness, opSegmentWithSmallestLikeliness.node2);
 			foundOpSegments.add(newOpSegment1);
@@ -176,6 +177,12 @@ public class SingleImplodingStillWithMaps implements SingleImplementation {
 			opNodeLikelinesses.add(new OpPair<OpNode, Float>(n, likeliness));
 		}
 		Collections.sort(opNodeLikelinesses, opNodeLikelinessComparator);
+		if (opSegment.node1.id+opSegment.node2.id == 65) {
+			System.out.println("For segment (" + opSegment.node1.id + "," + opSegment.node2.id + "):");
+			for (int i = 0; i < opNodeLikelinesses.size(); i++) {
+				System.out.println(i + ": (" + opNodeLikelinesses.get(i).first.id + "," + opNodeLikelinesses.get(i).second + ")");
+			}
+		}
 		return opNodeLikelinesses;
 	}
 	
