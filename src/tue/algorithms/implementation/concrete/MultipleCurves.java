@@ -35,7 +35,7 @@ public class MultipleCurves implements MultipleImplementation {
         ConnectedNodes cn = new ConnectedNodes();
         Segment[] segments = MinimumSpanningTree.getSegmentsPermutation(input);
 
-        // Shortest node first.
+        // Shortest segment first.
         Arrays.sort(segments, new Comparator<Segment>() {
             @Override
             public int compare(Segment s1, Segment s2) {
@@ -57,6 +57,7 @@ public class MultipleCurves implements MultipleImplementation {
                 cn.addSegment(segment);
             }
         }
+        segments = null;
 
         // If sharp corner (i.e. node with two segments in a folded setting), try
         // 1. remove longest segment
