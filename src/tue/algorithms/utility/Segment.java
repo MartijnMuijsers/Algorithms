@@ -13,8 +13,8 @@ public class Segment {
      */
     final static float LINE_WIDTH = 0.0001f;
 
-	protected final Node node1;
-	protected final Node node2;
+	public final Node node1;
+	public final Node node2;
 
 	/**
 	 * Create a segment from node1 to node2.
