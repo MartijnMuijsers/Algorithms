@@ -21,9 +21,9 @@ import tue.algorithms.utility.Segment;
 public class NetworkRMST implements NetworkImplementation {
 
     ArrayList<Node> addedNodesList = new ArrayList<>();
-    float MAXDISTANCE = 0.07f;
+    float MAXDISTANCE = 0.1f;
     double MINANGLE = 165;
-    double STRAIGHTANGLE = 175;
+    double STRAIGHTANGLE = 170;
     
     @Override
     public Pair<Segment[], Node[]> getOutput(Node[] input) {
@@ -109,21 +109,23 @@ public class NetworkRMST implements NetworkImplementation {
     public void addNewSegments(ConnectedNodes cn, AdjacentNodes adjNodes, Node[] nodes) {
         for (Node node : nodes) {
             Segment[] neighbors = cn.getSegments(node);
-            NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(node);
             if (neighbors.length == 1) {
+                System.out.println(node.toString());
+                NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(node);
                 Node connectNode = null;
                 double angle = 0;
                 double newAngle;
+                float distance;
                 for (int i = 0; i < ndps.length && i < 5; i++) {
                     newAngle = Math.abs(neighbors[0].originAt(node).getAngleOf(ndps[i].node) * (180 / Math.PI));
-                    if (angle < newAngle) {
+                    distance = neighbors[0].getOtherEndpoint(node).getDistanceTo(ndps[i].node);
+
+                    if (angle < newAngle && distance < MAXDISTANCE+0.56f) {
                         angle = newAngle;
                         connectNode = ndps[i].node;
                     }
                 }
-                float distance = neighbors[0].getOtherEndpoint(node).getDistanceTo(connectNode);
-
-                if (angle > MINANGLE && connectNode != null && distance < MAXDISTANCE+0.03f) {
+                if (angle > MINANGLE && connectNode != null) {
                     Segment segment = new Segment(node, connectNode);
                     boolean intersects = false;
                     for (int i = 0; i < ndps.length && i < 5; i++) {
@@ -133,7 +135,7 @@ public class NetworkRMST implements NetworkImplementation {
                                 intersects= true;
                                 float x = (segment.getY1()-segment.getSlope()*segment.getX1()-intersection.getY1()+intersection.getSlope()*intersection.getX1())/(intersection.getSlope()-segment.getSlope());
                                 float y = segment.getSlope()*(x-segment.getX1())+segment.getY1();
-                                Node intersectionNode = new Node(nodes.length+1, x, y);
+                                Node intersectionNode = new Node(nodes.length+addedNodesList.size()+1, x, y);
                                 addedNodesList.add(intersectionNode);
                                 cn.addSegment(new Segment(node, intersectionNode));
                                 cn.addSegment(new Segment(segment.getOtherEndpoint(node), intersectionNode));
@@ -146,8 +148,6 @@ public class NetworkRMST implements NetworkImplementation {
                     
                     if (!intersects) {
                         cn.addSegment(segment);
-                    } else{
-                        
                     }
                 } else {
                     tJunction(neighbors[0], node, adjNodes, cn, nodes);
@@ -166,9 +166,10 @@ public class NetworkRMST implements NetworkImplementation {
                 if (line.intersectsWith(neighbor) && segment != neighbor) {
                     float x = (line.getY1()-line.getSlope()*line.getX1()-neighbor.getY1()+neighbor.getSlope()*neighbor.getX1())/(neighbor.getSlope()-line.getSlope());
                     float y = line.getSlope()*(x-line.getX1())+line.getY1();
-                    Node intersectionNode = new Node(nodes.length+1, x, y);
+                    Node intersectionNode = new Node(nodes.length+addedNodesList.size()+1, x, y);
+                    
                     addedNodesList.add(intersectionNode);
-                    cn.addSegment(new Segment(node,intersectionNode));
+                    cn.addSegment(new Segment(node, intersectionNode));
                     cn.addSegment(new Segment(neighbor.getNode1(), intersectionNode));
                     cn.addSegment(new Segment(neighbor.getNode2(), intersectionNode));
                     cn.removeSegment(neighbor);
