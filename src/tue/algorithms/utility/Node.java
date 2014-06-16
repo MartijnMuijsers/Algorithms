@@ -27,15 +27,7 @@ public class Node extends Point {
 
 	/** ID of first node */
 	final static public int MINIMAL_NODE_ID = 1;
-	
-	/* -- START Private final fields -- */
-	
-	/**
-	 * The id of the node.
-	 */
-	protected final int id;
-	
-	/* -- END Private final fields -- */
+	public final int id;
 	
 	/* -- START Constructors -- */
 	
@@ -58,7 +50,7 @@ public class Node extends Point {
 	 * @param point The point as coordinates of the node.
 	 */
 	public Node(int id, Point point) {
-		this(id, point.getX(), point.getY());
+		this(id, point.x, point.y);
 	}
 	
 	/* -- END Constructors -- */
@@ -68,7 +60,9 @@ public class Node extends Point {
 	/**
 	 * Get the id of the node.
 	 * @return The id as an integer.
+	 * @deprecated Use .id getter
 	 */
+	@Deprecated
 	public int getId() {
 		return id;
 	}
@@ -82,7 +76,7 @@ public class Node extends Point {
 	 * @return The point
 	 */
 	public Point getPoint() {
-		return new Point(getX(), getY());
+		return new Point(x, y);
 	}
 	
 	/* -- END Methods for conversion -- */
@@ -93,22 +87,22 @@ public class Node extends Point {
 	public boolean equals(Object obj) {
 		if (obj instanceof Node) {
 			Node other = (Node) obj;
-			return (other.getId() == getId());
+			return other.id == id;
 		}
 		return false;
 	}
 	
 	@Override
 	public int hashCode() {
-		return getId();
+		return id;
 	}
 	
 	@Override
 	public String toString() {
 		return super.toString() + "["
-			+ "id=" + getId() + ", "
-			+ "x=" + getX() + ", "
-			+ "y=" + getY()
+			+ "id=" + id + ", "
+			+ "x=" + x + ", "
+			+ "y=" + y
 			+ "]";
 	}
 	
@@ -143,7 +137,7 @@ public class Node extends Point {
 	 * @param node The node to be added to the cache.
 	 */
 	private static void addToNodeCache(Node node) {
-		nodeCache.put(node.getId(), node);
+		nodeCache.put(node.id, node);
 	}
 	
 	/* -- END Static node cache -- */
