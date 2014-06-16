@@ -34,7 +34,6 @@ public abstract class SimulationSettings {
      */
     public static SingleImplementation getSingleImplementation() {
         return new SingleImplodingTryingFaster();
-    	//return new SingleImplodingStillWithMaps();
     }
 
     /**

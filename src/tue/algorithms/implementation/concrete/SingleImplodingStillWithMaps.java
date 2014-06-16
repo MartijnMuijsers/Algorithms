@@ -81,14 +81,14 @@ public class SingleImplodingStillWithMaps implements SingleImplementation {
 			likelinesses.put(opSegment, opNodeLikelinesses);
 		}
 		while (opNodesToDo.size() != 0) {
-			{
+			/*{
 				int a = opNodesToDo.size()*foundOpSegments.size();
 				int b = 0;
 				for (Entry<OpSegment, List<OpPair<OpNode, Float>>> entry : likelinesses.entrySet()) {
 					b += entry.getValue().size();
 				}
-				//System.out.println(a + " / " + b);
-			}
+				System.out.println(a + " / " + b);
+			}*/
 			OpSegment opSegmentWithSmallestLikeliness = null;
 			OpNode opNodeWithSmallestLikeliness = null;
 			float smallestLikeliness = Integer.MAX_VALUE;
@@ -108,7 +108,6 @@ public class SingleImplodingStillWithMaps implements SingleImplementation {
 					opNodeWithSmallestLikeliness = opPair.first;
 				}
 			}
-			System.out.println("Decided smallest " + opNodeWithSmallestLikeliness.id + " , " + opSegmentWithSmallestLikeliness.node1.id + " , " + opSegmentWithSmallestLikeliness.node2.id);
 			OpSegment newOpSegment1 = new OpSegment(opNodeWithSmallestLikeliness, opSegmentWithSmallestLikeliness.node1);
 			OpSegment newOpSegment2 = new OpSegment(opNodeWithSmallestLikeliness, opSegmentWithSmallestLikeliness.node2);
 			foundOpSegments.add(newOpSegment1);
@@ -177,12 +176,6 @@ public class SingleImplodingStillWithMaps implements SingleImplementation {
 			opNodeLikelinesses.add(new OpPair<OpNode, Float>(n, likeliness));
 		}
 		Collections.sort(opNodeLikelinesses, opNodeLikelinessComparator);
-		if (opSegment.node1.id+opSegment.node2.id == 65) {
-			System.out.println("For segment (" + opSegment.node1.id + "," + opSegment.node2.id + "):");
-			for (int i = 0; i < opNodeLikelinesses.size(); i++) {
-				System.out.println(i + ": (" + opNodeLikelinesses.get(i).first.id + "," + opNodeLikelinesses.get(i).second + ")");
-			}
-		}
 		return opNodeLikelinesses;
 	}
 	

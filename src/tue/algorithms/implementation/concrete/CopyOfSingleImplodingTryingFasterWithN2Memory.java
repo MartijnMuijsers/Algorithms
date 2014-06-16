@@ -1,13 +1,11 @@
 package tue.algorithms.implementation.concrete;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import tue.algorithms.implementation.general.SingleImplementation;
 import tue.algorithms.other.OpPair;
@@ -20,7 +18,7 @@ import tue.algorithms.utility.Segment;
  * Under development. Testing ground here.
  * @author Martijn
  */
-public class SingleImplodingTryingFaster implements SingleImplementation {
+public class CopyOfSingleImplodingTryingFasterWithN2Memory implements SingleImplementation {
 	
 	private static Comparator<OpPair<OpNode, Float>> nodeLikelinessComparator = new Comparator<OpPair<OpNode, Float>>() {
 		
@@ -39,7 +37,7 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 		
 	};
 	
-	private boolean tryOpenEnabled = true;
+	private boolean tryOpenEnabled = false;
 	
 	private HashSet<OpSegment> foundSegments;
 	
@@ -74,10 +72,10 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 			nodesToDo.remove(segment.node2);
 		}
 		List<OpSegment> likelinessesList1 = new ArrayList<OpSegment>(ll);
-		List<OpNode> likelinessesList2 = new ArrayList<OpNode>(ll);
-		List<Float> likelinessesList3 = new ArrayList<Float>(ll);
+		List<List<OpNode>> likelinessesList2 = new ArrayList<List<OpNode>>(ll);
+		List<List<Float>> likelinessesList3 = new ArrayList<List<Float>>(ll);
 		for (OpSegment segment : foundSegments) {
-			OpPair<OpNode, Float> nodeLikelinesses = buildNodeLikelinesses(segment, nodesToDo);
+			OpPair<List<OpNode>, List<Float>> nodeLikelinesses = buildNodeLikelinesses(segment, nodesToDo);
 			likelinessesList1.add(segment);
 			likelinessesList2.add(nodeLikelinesses.first);
 			likelinessesList3.add(nodeLikelinesses.second);
@@ -94,13 +92,23 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 			}
 			OpSegment segmentWithSmallestLikeliness = null;
 			OpNode nodeWithSmallestLikeliness = null;
-			float smallestLikeliness = Float.MAX_VALUE;
+			float smallestLikeliness = Integer.MAX_VALUE;
 			int smallestI = -1;
 			for (int i = 0; i < si; i++) {
-				float likeliness = likelinessesList3.get(i);
+				List<OpNode> nodeLikelinesses2 = likelinessesList2.get(i);
+				List<Float> nodeLikelinesses3 = likelinessesList3.get(i);
+				int s = nodeLikelinesses2.size()-1;
+				OpNode element2 = nodeLikelinesses2.get(s);
+				while (!nodesToDo.contains(element2)) {
+					nodeLikelinesses2.remove(s);
+					nodeLikelinesses3.remove(s);
+					s--;
+					element2 = nodeLikelinesses2.get(s);
+				}
+				float likeliness = nodeLikelinesses3.get(s);
 				if (likeliness < smallestLikeliness) {
 					smallestLikeliness = likeliness;
-					nodeWithSmallestLikeliness = likelinessesList2.get(i);
+					nodeWithSmallestLikeliness = element2;
 					smallestI = i;
 				}
 			}
@@ -114,37 +122,23 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 			likelinessesList1.remove(smallestI);
 			likelinessesList2.remove(smallestI);
 			likelinessesList3.remove(smallestI);
-			int sip = si-1;
-			if (nodesToDo.size() > 0) {
-				for (int i = 0; i < sip; i++) {
-					OpNode n = likelinessesList2.get(i);
-					if (n.id == nodeWithSmallestLikeliness.id) {
-						OpPair<OpNode, Float> nodeLikelinesses = buildNodeLikelinesses(likelinessesList1.get(i), nodesToDo);
-						likelinessesList2.set(i, nodeLikelinesses.first);
-						likelinessesList3.set(i, nodeLikelinesses.second);
-					}
-				}
-				{
-					likelinessesList1.add(newSegment1);
-					OpPair<OpNode, Float> nodeLikelinesses = buildNodeLikelinesses(newSegment1, nodesToDo);
-					likelinessesList2.add(nodeLikelinesses.first);
-					likelinessesList3.add(nodeLikelinesses.second);
-				}
-				{
-					likelinessesList1.add(newSegment2);
-					OpPair<OpNode, Float> nodeLikelinesses = buildNodeLikelinesses(newSegment2, nodesToDo);
-					likelinessesList2.add(nodeLikelinesses.first);
-					likelinessesList3.add(nodeLikelinesses.second);
-				}
-				si++;
+			{
+				likelinessesList1.add(newSegment1);
+				OpPair<List<OpNode>, List<Float>> nodeLikelinesses = buildNodeLikelinesses(newSegment1, nodesToDo);
+				likelinessesList2.add(nodeLikelinesses.first);
+				likelinessesList3.add(nodeLikelinesses.second);
 			}
-			
+			{
+				likelinessesList1.add(newSegment2);
+				OpPair<List<OpNode>, List<Float>> nodeLikelinesses = buildNodeLikelinesses(newSegment2, nodesToDo);
+				likelinessesList2.add(nodeLikelinesses.first);
+				likelinessesList3.add(nodeLikelinesses.second);
+			}
+			si++;
 		}
 		if (tryOpenEnabled) {
-			while(removeTooLong()){}
+			while(removeTooLong(input)){}
 		}
-		removeIntersections();
-		supplementFromMST();
 		Segment[] result = new Segment[foundSegments.size()];
 		int i = 0;
 		for (OpSegment os : foundSegments) {
@@ -155,76 +149,41 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 		return result;
 	}
 	
-	private boolean removeTooLong() {
-		float longestLength = Integer.MIN_VALUE;
-		float oneToLongestLength = Integer.MIN_VALUE;
-		OpSegment longestSegment = null;
-		for (OpSegment segment : foundSegments) {
-			float length = segment.length();
-			if (length > longestLength) {
-				oneToLongestLength = longestLength;
-				longestLength = length;
-				longestSegment = segment;
-			} else if (length > oneToLongestLength) {
-				oneToLongestLength = length;
+	private boolean removeTooLong(OpNode[] input) {
+		if (type == CurveType.CLOSED) {
+			float longestLength = Integer.MIN_VALUE;
+			float oneToLongestLength = Integer.MIN_VALUE;
+			OpSegment longestSegment = null;
+			for (OpSegment segment : foundSegments) {
+				float length = segment.length();
+				if (length > longestLength) {
+					oneToLongestLength = longestLength;
+					longestLength = length;
+					longestSegment = segment;
+				} else if (length > oneToLongestLength) {
+					oneToLongestLength = length;
+				}
 			}
-		}
-		if (longestSegment != null) {
-			if (longestLength > 1.4*oneToLongestLength) {
-				foundSegments.remove(longestSegment);
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	private void removeIntersections() {
-		Map<OpSegment, Set<OpSegment>> m = new HashMap<OpSegment, Set<OpSegment>>();
-		for (OpSegment segment : foundSegments) {
-			for (OpSegment oSegment : foundSegments) {
-				if (!segment.equals(oSegment)) {
-					if (segment.intersectsWith(oSegment)) {
-						Set<OpSegment> h;
-						if (!m.containsKey(segment)) {
-							h = new HashSet<OpSegment>();
-						} else {
-							h = m.get(segment);
-						}
-						h.add(oSegment);
-						m.put(segment, h);
+			if (longestSegment != null) {
+				//if (makeOpenCondition(longestLength, oneToLongestLength)) {TODO
+					foundSegments.remove(longestSegment);
+					type = CurveType.OPEN;
+					HashMap<OpNode, HashSet<OpSegment>> segmentsByNodes = new HashMap<OpNode, HashSet<OpSegment>>();
+					for (OpNode n : input) {
+						segmentsByNodes.put(n, new HashSet<OpSegment>());
+					}
+					for (OpSegment segment : foundSegments) {
+						segmentsByNodes.get(segment.node1).add(segment);
+						segmentsByNodes.get(segment.node2).add(segment);
 					}
 				}
-			}
+			//}TODO
 		}
-		while (m.size() > 0) {
-			int hc = -1;
-			OpSegment hs = null;
-			for (Entry<OpSegment, Set<OpSegment>> e : m.entrySet()) {
-				int c = e.getValue().size();
-				if (c > hc) {
-					hc = c;
-					hs = e.getKey();
-				}
-			}
-			foundSegments.remove(hs);
-			Set<OpSegment> fr = new HashSet<OpSegment>();
-			for (Entry<OpSegment, Set<OpSegment>> e : m.entrySet()) {
-				Set<OpSegment> s = e.getValue();
-				s.remove(hs);
-				if (s.size() == 0) {
-					fr.add(e.getKey());
-				}
-			}
-			for (OpSegment oo : fr) {
-				m.remove(oo);
-			}
-			m.remove(hs);
-		}
+		return false;//TODO
 	}
 	
-	private OpPair<OpNode, Float> buildNodeLikelinesses(OpSegment segment, HashSet<OpNode> nodesToDo) {
-		OpNode smallestNode = null;
-		float smallestLikeliness = 1337.13371337f;
+	private OpPair<List<OpNode>, List<Float>> buildNodeLikelinesses(OpSegment segment, HashSet<OpNode> nodesToDo) {
+		List<OpPair<OpNode, Float>> nodeLikelinesses = new ArrayList<OpPair<OpNode, Float>>();
 		for (OpNode n : nodesToDo) {
 			float dx = segment.x2-segment.x1;
 			float dy = segment.y2-segment.y1;
@@ -239,13 +198,18 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 			dx = sNode2.x-nx;
 			dy = sNode2.y-ny;
 			float distance2 = (float) Math.sqrt(dx*dx+dy*dy);
-			float likeliness = (distance1*distance1+distance2*distance2)/(segmentLength*segmentLength);
-			if (likeliness < smallestLikeliness || smallestLikeliness == 1337.13371337f) {
-				smallestLikeliness = likeliness;
-				smallestNode = n;
-			}
+			nodeLikelinesses.add(new OpPair<OpNode, Float>(n, (distance1*distance1+distance2*distance2)/(segmentLength*segmentLength)));
 		}
-		return new OpPair<OpNode, Float>(smallestNode, smallestLikeliness);
+		Collections.sort(nodeLikelinesses, nodeLikelinessComparator);
+		int s = nodeLikelinesses.size();
+		List<OpNode> list1 = new ArrayList<OpNode>(s);
+		List<Float> list2 = new ArrayList<Float>(s);
+		for (int i = 0; i < s; i++) {
+			OpPair<OpNode, Float> pair = nodeLikelinesses.get(i);
+			list1.add(pair.first);
+			list2.add(pair.second);
+		}
+		return new OpPair<List<OpNode>, List<Float>>(list1, list2);
 	}
 	
 }
