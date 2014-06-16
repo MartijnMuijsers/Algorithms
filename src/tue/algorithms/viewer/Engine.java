@@ -8,8 +8,9 @@ import javax.swing.JOptionPane;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.Dimension;
 
 public class Engine {
@@ -17,33 +18,28 @@ public class Engine {
 
     private Simulation simulation;
     private Dimension resolution;
-    public static Camera camera;
+    private Camera camera;
 
     /*---------------- main ----------------*/
     public static void main(String[] args) throws IOException, LWJGLException {
         Engine engine = new Engine();
 
         // Initialize
-        engine.resolution = new Dimension(640, 640);
         engine.initDisplay();
         engine.initProjection();
         engine.initInput();
         engine.initSimulation();
 
         // Run simulation
-        engine.doSimulation();
+        engine.runSimulation();
 
         // Close 
         engine.cleanUp();
     }
     /*-------------- methods ---------------*/
 
-    private void initProjection() {
-        camera = new Camera(resolution.getWidth(), resolution.getHeight());
-        camera.initialize();
-    }
-
     private void initDisplay() {
+        resolution = new Dimension(640, 640);
         try {
             Display.setDisplayMode(new DisplayMode(resolution.getWidth(), resolution.getHeight()));
             Display.setTitle("DBL Algorithms");
@@ -52,6 +48,11 @@ public class Engine {
         } catch (LWJGLException e) {
         }
     }
+    
+    private void initProjection() {
+        camera = new Camera(resolution.getWidth(), resolution.getHeight());
+        camera.initialize();
+    }    
 
     private void initInput() {
         try {
@@ -67,7 +68,7 @@ public class Engine {
         simulation.initialize();
     }
 
-    private void doSimulation() throws IOException {
+    private void runSimulation() throws IOException {
         while (!Display.isCloseRequested()) {
             getInput();
             if (processInput()) {
@@ -77,6 +78,12 @@ public class Engine {
             resize();
             render();
         }
+    }
+    
+    private void cleanUp() {
+        Display.destroy();
+        Keyboard.destroy();
+        Mouse.destroy();
     }
 
     private void resize() {
@@ -135,12 +142,6 @@ public class Engine {
         simulation.render();
         Display.update();
         Display.sync(60);
-    }
-
-    private void cleanUp() {
-        Display.destroy();
-        Keyboard.destroy();
-        Mouse.destroy();
     }
 
 }

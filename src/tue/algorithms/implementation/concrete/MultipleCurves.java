@@ -35,7 +35,7 @@ public class MultipleCurves implements MultipleImplementation {
         ConnectedNodes cn = new ConnectedNodes();
         Segment[] segments = MinimumSpanningTree.getSegmentsPermutation(input);
 
-        // Shortest node first.
+        // Shortest segment first.
         Arrays.sort(segments, new Comparator<Segment>() {
             @Override
             public int compare(Segment s1, Segment s2) {
@@ -57,6 +57,7 @@ public class MultipleCurves implements MultipleImplementation {
                 cn.addSegment(segment);
             }
         }
+        segments = null;
 
         // If sharp corner (i.e. node with two segments in a folded setting), try
         // 1. remove longest segment
@@ -188,7 +189,14 @@ public class MultipleCurves implements MultipleImplementation {
                 if (deltaDistance > bestLengthDelta && !oldShape.contains(otherSegment)) {
                     Segment newSegment1 = new Segment(node, ndp.node);
                     Segment newSegment2 = new Segment(node2, otherEndPoint);
-                    if (!newSegment1.intersectsWith(newSegment2) &&
+                    // TODO: Put 5f in a constant.
+                    // This magic number is used to determine whether the new segments do NOT
+                    // get "too close" to one of the endpoints of the other segments.
+                    if (newSegment1.getDistanceOf(node2) * 5f > newSegment1.length() &&
+                        newSegment1.getDistanceOf(otherEndPoint) * 5f > newSegment1.length() &&
+                        newSegment2.getDistanceOf(ndp.node) * 5f > newSegment2.length() &&
+                        newSegment2.getDistanceOf(node) * 5f > newSegment2.length() &&
+                        !newSegment1.intersectsWith(newSegment2) &&
                         !cn.intersectsGraph(newSegment1) &&
                         !cn.intersectsGraph(newSegment2)) {
                         bestLengthDelta = deltaDistance;
@@ -210,69 +218,5 @@ public class MultipleCurves implements MultipleImplementation {
             cn.removeSegment(segmentToRemove);
             return true;
         }
-    }
-
-    /**
-     * Get the weight of a segment.
-     *
-     * @param segment
-     * @param otherSegmentAtNode1 Optional, if set it must be connected to segment.getNode1()
-     * @param otherSegmentAtNode2 Optional, if set it must be connected to segment.getNode2()
-     *
-     * @return The weight of the segment (positive floating point number). Lower = better.
-     */
-    private static float getSegmentWeight(Segment segment, Segment otherSegmentAtNode1, Segment otherSegmentAtNode2) {
-        Node node1 = segment.getNode1();
-        Node node2 = segment.getNode2();
-        float weight1 = otherSegmentAtNode1 == null ? 1 : angleToWeight(segment.getAngleOf(otherSegmentAtNode1.getOtherEndpoint(node1)));
-        float weight2 = otherSegmentAtNode2 == null ? 1 : angleToWeight(segment.getAngleOf(otherSegmentAtNode2.getOtherEndpoint(node2)));
-        float weight = segment.length();
-        weight *= 1 + (weight1 + weight2) / 2;
-        return weight;
-    }
-
-    // TODO: Remove if unused
-    /**
-     * Helper function for getSegmentWeight: Converts an angle to a weight.
-     * @param angle Angle in radian, [-PI, PI]. |angle| close to 0 is worst, close to PI is best.
-     * @return relative weight in range [0, 1]. 0 = best, 1 = worst
-     */
-    private static float angleToWeight(double angle) {
-        // |angle| is within the range [0, PI]
-        // In the best case, all segments form a straight line, so |angle| = PI.
-        // In the worst case, the segments are almost folded (think of a Z-shape), so the angle is close to 0.
-        angle = Math.abs(angle);
-
-        // The following function maps [0, PI] to [1, 0]
-        // weight(angle) = (1 - angle/PI)^2
-        float weight;
-        weight = 1f - (float)(angle / Math.PI);
-        weight = weight * weight;
-        return weight;
-    }
-
-    // TODO: Remove if unused
-    /**
-     * Checks whether the segment intersects any existing node or segment.
-     *
-     * This method relies on the fact that the neighbors for a given node are known,
-     * and that if there is a node that is intersected by the segment, then it must
-     * be one of these neighbors (all other nodes are too far away).
-     * Time complexity: O(k) where k is the number of nodes with a smaller distance
-     * than {@code neighbor}.
-     */
-    private static boolean intersectsGraph(ConnectedNodes cn, NodeDistancePair[] neighbors, NodeDistancePair neighbor, Segment segment) {
-        if (cn.intersectsGraph(segment)) {
-            return true;
-        }
-        for (NodeDistancePair ndp : neighbors) {
-            if (ndp.distance >= neighbor.distance) {
-                return false;
-            }
-            if (segment.intersectsWith(ndp.node)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

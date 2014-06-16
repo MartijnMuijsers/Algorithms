@@ -75,6 +75,9 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 			opNodesToDo.remove(opSegment.node1);
 			opNodesToDo.remove(opSegment.node2);
 		}
+		List<OpSegment> likelinessesList1 = new ArrayList<OpSegment>();
+		List<List<OpNode>> likelinessesList2 = new ArrayList<List<OpNode>>();
+		List<List<Float>> likelinessesList3 = new ArrayList<List<Float>>();
 		HashMap<OpSegment, List<OpPair<OpNode, Float>>> likelinesses = new HashMap<OpSegment, List<OpPair<OpNode, Float>>>();
 		for (OpSegment opSegment : foundOpSegments) {
 			List<OpPair<OpNode, Float>> opNodeLikelinesses = buildOpNodeLikelinesses(opSegment, opNodesToDo);

@@ -1,7 +1,21 @@
 package tue.algorithms.viewer;
 
-import org.lwjgl.opengl.*;
-import static org.lwjgl.opengl.GL11.*;
+import org.lwjgl.opengl.Display;
+import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
+import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
+import static org.lwjgl.opengl.GL11.GL_POLYGON_SMOOTH;
+import static org.lwjgl.opengl.GL11.GL_PROJECTION;
+import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
+import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glLoadIdentity;
+import static org.lwjgl.opengl.GL11.glMatrixMode;
+import static org.lwjgl.opengl.GL11.glOrtho;
+import static org.lwjgl.opengl.GL11.glScalef;
+import static org.lwjgl.opengl.GL11.glTranslatef;
+import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
 
 public class Camera {
@@ -53,7 +67,7 @@ public class Camera {
         glEnable(GL_BLEND);
         glEnable(GL_POLYGON_SMOOTH);
         glEnable(GL_MULTISAMPLE);
-        glClearColor(0, 0, 0, 0);
+        glClearColor(1, 1, 1, 0);
     }
 
     public void flip(){

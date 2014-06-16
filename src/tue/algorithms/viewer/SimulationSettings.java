@@ -1,6 +1,6 @@
 package tue.algorithms.viewer;
 
-import tue.algorithms.implementation.concrete.RMST;
+import tue.algorithms.implementation.concrete.NetworkRMST;
 import tue.algorithms.implementation.concrete.SingleImplodingTryingFaster;
 import tue.algorithms.implementation.concrete.SingleMultipleConvexHull;
 import tue.algorithms.implementation.general.MultipleImplementation;
@@ -53,7 +53,7 @@ public abstract class SimulationSettings {
      * @return An instance of a class that extends NetworkImplementation.
      */
     public static NetworkImplementation getNetworkImplementation() {
-        return new RMST();
+        return new NetworkRMST();
     }
 	
 	/**
