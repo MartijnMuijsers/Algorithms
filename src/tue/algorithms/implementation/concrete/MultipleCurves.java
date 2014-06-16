@@ -7,7 +7,7 @@ import java.util.HashSet;
 
 import tue.algorithms.implementation.general.MultipleImplementation;
 import tue.algorithms.utility.AdjacentNodes;
-import tue.algorithms.utility.AdjacentNodes.NodeDistancePair;
+import tue.algorithms.utility.NodeDistancePair;
 import tue.algorithms.utility.ConnectedNodes;
 import tue.algorithms.utility.MinimumSpanningTree;
 import tue.algorithms.utility.Node;
