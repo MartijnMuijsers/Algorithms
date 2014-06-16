@@ -28,46 +28,53 @@ final public class MinimumSpanningTree {
 	}
 
 	/**
-	 * Calculate the MST using Kruskal's algorithm.
-	 * Time complexity: O(E log E) where E is the number of segments,
-	 *					assuming that nodes.length = O(sqrt(E)).
+	 * Calculate the MST using Prim's algorithm.
+	 * Time complexity: O(n^2) where n is the number of nodes.
+	 * Memory complexity: O(n)
 	 *
-	 * @param segments
 	 * @param nodes
-	 * @param comparator The comparator to use to sort {@code segments}.
 	 * @return Array of segments, calculated via a MST algorithm.
 	 */
-	public static Segment[] applyMST(Segment[] segments, Node[] nodes, Comparator<Segment> comparator) {
-		HashMap<Node, Integer> A = new HashMap<Node, Integer>();
-		HashMap<Integer, HashSet<Node>> B = new HashMap<Integer, HashSet<Node>>();
 
-		for (Node node : nodes) {
-			A.put(node, node.getId());
-			HashSet<Node> set = new HashSet<Node>();
-			set.add(node);
-			B.put(node.getId(), set);
+	public static Segment[] getMST(Node[] nodes) {
+		final int segmentsCount = nodes.length - 1;
+		int[] parent = new int[segmentsCount];
+		float[] minimumDistanceToTree = new float[segmentsCount];
+
+		// Attach every node to the root
+		for (int i = 0; i < segmentsCount; ++i) {
+			// nodes[segmentsCount] is the root of the tree.
+			parent[i] = segmentsCount;
+			minimumDistanceToTree[i] = nodes[i].getDistanceTo(nodes[segmentsCount]);
 		}
-
-		Segment[] sortedSegments = segments.clone();
-		Arrays.sort(sortedSegments, comparator);
-		HashSet<Segment> mst = new HashSet<Segment>();
-		for (Segment segment : sortedSegments) {
-			int u = A.get(segment.getNode1());
-			int v = A.get(segment.getNode2());
-			if (u != v) {
-				mst.add(segment);
-				HashSet<Node> U = B.get(u);
-				HashSet<Node> V = B.get(v);
-				for (Node node : U) {
-					A.put(node, v);
-					V.add(node);
+		for (int i = 0; i < segmentsCount; ++i) {
+			// Find the closest node...
+			int closestNodeIndex = 0;
+			float smallestDistance = Integer.MAX_VALUE;
+			for (int j = 0; j < segmentsCount; ++j) {
+				if (minimumDistanceToTree[j] != 0 && minimumDistanceToTree[j] < smallestDistance) {
+					closestNodeIndex = j;
+					smallestDistance = minimumDistanceToTree[closestNodeIndex];
 				}
-				U.clear();
+			}
+			// ... and add it to the tree.
+			minimumDistanceToTree[closestNodeIndex] = 0;
+
+			// Re-calculate the distances of all other nodes.
+			for (int j = 0; j < segmentsCount; ++j) {
+				if (minimumDistanceToTree[j] != 0) {
+					float distance = nodes[j].getDistanceTo(nodes[closestNodeIndex]);
+					if (distance < minimumDistanceToTree[j]) {
+						parent[j] = closestNodeIndex;
+						minimumDistanceToTree[j] = distance;
+					}
+				}
 			}
 		}
-
-		Segment[] resultSegments = new Segment[mst.size()];
-		mst.toArray(resultSegments);
-		return resultSegments;
+		Segment[] segments = new Segment[segmentsCount];
+		for (int i = 0; i < segmentsCount; ++i) {
+			segments[i] = new Segment(nodes[i], nodes[parent[i]]);
+		}
+		return segments;
 	}
 }

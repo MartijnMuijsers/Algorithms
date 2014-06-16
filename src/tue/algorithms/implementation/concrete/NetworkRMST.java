@@ -25,27 +25,12 @@ public class NetworkRMST implements NetworkImplementation {
     
     @Override
     public Pair<Segment[], Node[]> getOutput(Node[] input) {
-        Segment[] segments = MinimumSpanningTree.getSegmentsPermutation(input);
-        Comparator<Segment> comparator = new Comparator<Segment>() {
-            @Override
-            public int compare(Segment s1, Segment s2) {
-                float diff = s1.length() - s2.length();
-                if (diff < 0) {
-                    return -1;
-                } else if (diff > 0) {
-                    return 1;
-                }
-                return 0;
-            }
-        };
-
-        Segment[] mst = MinimumSpanningTree.applyMST(segments, input, comparator);
         ConnectedNodes cn = new ConnectedNodes();
-        for (Segment segment : mst) {
+        for (Segment segment : MinimumSpanningTree.getMST(input)) {
             cn.addSegment(segment);
             MAXDISTANCE += segment.length();
         }
-        MAXDISTANCE = (MAXDISTANCE/mst.length)*2.5f;
+        MAXDISTANCE = (MAXDISTANCE / (input.length - 1)) * 2.5f;
         AdjacentNodes adjNodes = new AdjacentNodes(input);
         
         connectEndPoints(cn, adjNodes, input);
