@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 /**
  * An immutable data structure that constructs in O(n^2) time
- * and provides the nearest neighbors in O(1) time.
+ * and provides the nearest 10 neighbors in O(1) time.
  */
 public class AdjacentNodes {
 
@@ -16,20 +16,38 @@ public class AdjacentNodes {
 	private HashMap<Integer, NodeDistancePair[]> adjMap;
 
 	public AdjacentNodes(final Node[] nodes) {
+		this(nodes, 10);
+	}
+	private AdjacentNodes(final Node[] nodes, final int maximumLengthOfAdjacencyList) {
 		adjMap = new HashMap<Integer, NodeDistancePair[]>(nodes.length);
+		// Number of nodes min one because an adjacency list can be at most nodes.length - 1.
+		int nodesLengthMinOne = nodes.length - 1;
+		int ndpLength = Math.min(nodesLengthMinOne, maximumLengthOfAdjacencyList);
 		for (Node node : nodes) {
 			// Array that holds all nodes except for the current one
-			NodeDistancePair[] nodeDistancePairs = new NodeDistancePair[nodes.length - 1];
-			int i = 0;
+			final NodeDistancePair[] nodeDistancePairs = new NodeDistancePair[nodesLengthMinOne];
+			int k = 0;
 			for (Node otherNode : nodes) {
 				if (node != otherNode) {
 					float distance = node.getDistanceTo(otherNode);
 					if (distance < 0) distance = -distance;
-					nodeDistancePairs[i++] = new NodeDistancePair(otherNode, distance);
+					nodeDistancePairs[k++] = new NodeDistancePair(otherNode, distance);
 				}
 			}
-			Arrays.sort(nodeDistancePairs);
-			adjMap.put(node.getId(), nodeDistancePairs);
+			// Now select the first |ndpLength| NodeDistancePairs.
+			for (int i = 0; i < ndpLength; ++i) {
+				int indexOfSmallestValue = i;
+				NodeDistancePair smallestNDP = nodeDistancePairs[i];
+				for (int j = i + 1; j < nodesLengthMinOne; ++j) {
+					if (nodeDistancePairs[j].distance < smallestNDP.distance) {
+						indexOfSmallestValue = j;
+						smallestNDP = nodeDistancePairs[j];
+					}
+				}
+				nodeDistancePairs[indexOfSmallestValue] = nodeDistancePairs[i];
+				nodeDistancePairs[i] = smallestNDP;
+			}
+			adjMap.put(node.getId(), Arrays.copyOfRange(nodeDistancePairs, 0, ndpLength));
 		}
 	}
 
