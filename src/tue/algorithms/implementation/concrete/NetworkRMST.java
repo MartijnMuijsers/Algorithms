@@ -21,7 +21,7 @@ import tue.algorithms.utility.Segment;
 public class NetworkRMST implements NetworkImplementation {
 
     ArrayList<Node> addedNodesList = new ArrayList<>();
-    float MAXDISTANCE = 0.1f;
+    float MAXDISTANCE = 0f;
     double MINANGLE = 165;
     double STRAIGHTANGLE = 170;
     
@@ -45,15 +45,17 @@ public class NetworkRMST implements NetworkImplementation {
         ConnectedNodes cn = new ConnectedNodes();
         for (Segment segment : mst) {
             cn.addSegment(segment);
+            MAXDISTANCE += segment.length();
         }
+        MAXDISTANCE = (MAXDISTANCE/mst.length)*2.5f;
         AdjacentNodes adjNodes = new AdjacentNodes(input);
-
+        
         connectEndPoints(cn, adjNodes, input);
         removeObliqueSegments(cn, adjNodes, input);
         addNewSegments(cn, adjNodes, input);
         addNewSegments(cn, adjNodes, input);
         connectEndPoints(cn, adjNodes, input);
-
+       
 
         Node[] addedNodes = addedNodesList.toArray(new Node[0]);
         return new Pair(cn.getAllSegments(), addedNodes);
@@ -66,12 +68,16 @@ public class NetworkRMST implements NetworkImplementation {
             if (neighbors.length == 1) {
 
                 NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(node);
-                for (int i = 0; i < ndps.length && i < 5; i++) {
+                for (int i = 0; i < ndps.length && i < 10; i++) {
                     if (Math.abs(neighbors[0].originAt(node).getAngleOf(ndps[i].node)) > Math.PI / 2 && node.getDistanceTo(ndps[i].node) < MAXDISTANCE) {
                         cn.addSegment(new Segment(node, ndps[i].node));
                         break;
                     }
                 }
+            }
+            if (neighbors.length == 0) {
+                NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(node);
+                cn.addSegment(new Segment(node, ndps[0].node));
             }
         }
     }
@@ -89,7 +95,7 @@ public class NetworkRMST implements NetworkImplementation {
                                 double secondAngle = Math.abs(neighbor.originAt(neighbor.getOtherEndpoint(node)).getAngleOf(secondNeighbor.getOtherEndpoint(neighbor.getOtherEndpoint(node))) * (180 / Math.PI));
                                 if (secondAngle < MINANGLE) {
                                     NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(neighbor.getOtherEndpoint(node));
-                                    for (int i = 0; i < ndps.length && i < 5; i++) {
+                                    for (int i = 0; i < ndps.length && i < 10; i++) {
                                         double thirdAngle = Math.abs(neighbor.originAt(neighbor.getOtherEndpoint(node)).getAngleOf(ndps[i].node)) * (180 / Math.PI);
                                         float distance = neighbor.getOtherEndpoint(node).getDistanceTo(ndps[i].node);
                                         if (thirdAngle > MINANGLE && distance < MAXDISTANCE) {
@@ -110,25 +116,24 @@ public class NetworkRMST implements NetworkImplementation {
         for (Node node : nodes) {
             Segment[] neighbors = cn.getSegments(node);
             if (neighbors.length == 1) {
-                System.out.println(node.toString());
                 NodeDistancePair[] ndps = adjNodes.getAdjacentNodes(node);
                 Node connectNode = null;
                 double angle = 0;
                 double newAngle;
                 float distance;
-                for (int i = 0; i < ndps.length && i < 5; i++) {
+                for (int i = 0; i < ndps.length && i < 10; i++) {
                     newAngle = Math.abs(neighbors[0].originAt(node).getAngleOf(ndps[i].node) * (180 / Math.PI));
                     distance = neighbors[0].getOtherEndpoint(node).getDistanceTo(ndps[i].node);
 
-                    if (angle < newAngle && distance < MAXDISTANCE+0.56f) {
+                    if (angle < newAngle && distance < MAXDISTANCE) {
                         angle = newAngle;
                         connectNode = ndps[i].node;
                     }
                 }
-                if (angle > MINANGLE && connectNode != null) {
+                if (angle > MINANGLE) {
                     Segment segment = new Segment(node, connectNode);
                     boolean intersects = false;
-                    for (int i = 0; i < ndps.length && i < 5; i++) {
+                    for (int i = 0; i < ndps.length && i < 10; i++) {
                         Segment[] intersections = cn.getSegments(ndps[i].node);
                         for (Segment intersection : intersections) {
                             if (segment.intersectsWith(intersection) && segment !=intersection) {
@@ -167,7 +172,6 @@ public class NetworkRMST implements NetworkImplementation {
                     float x = (line.getY1()-line.getSlope()*line.getX1()-neighbor.getY1()+neighbor.getSlope()*neighbor.getX1())/(neighbor.getSlope()-line.getSlope());
                     float y = line.getSlope()*(x-line.getX1())+line.getY1();
                     Node intersectionNode = new Node(x, y);
-                    
                     addedNodesList.add(intersectionNode);
                     cn.addSegment(new Segment(node, intersectionNode));
                     cn.addSegment(new Segment(neighbor.getNode1(), intersectionNode));
