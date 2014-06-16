@@ -36,7 +36,6 @@ import tue.algorithms.other.Debug;
 import tue.algorithms.other.Pair;
 import tue.algorithms.test.FakeInputReader;
 import tue.algorithms.utility.Node;
-import tue.algorithms.utility.Point;
 import tue.algorithms.utility.Segment;
 
 public class Simulation {
@@ -159,13 +158,13 @@ public class Simulation {
         }        
     }
    
-    public Point getMousePosition() {
+    public Node getMousePosition() {
         float clickX = (float) Mouse.getX() / Camera.width * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
         float clickY = (float) Mouse.getY() / Camera.heigth * 1.0f / Camera.SCALINGFACTOR - Camera.OFFSETFACTOR;
         if (Camera.flipped) {
             clickY = 1f - clickY;
         }
-        return new Point(clickX, clickY);
+        return new Node(Node.FAKE_NODE_ID, clickX, clickY);
     }
 
     public void getInput() throws IOException {
@@ -349,15 +348,15 @@ public class Simulation {
         
         float clickX = getMousePosition().getX();
         float clickY = getMousePosition().getY();
-        Point mouseNode = new Point(clickX, clickY);
+        Node mouseNode = new Node(Node.FAKE_NODE_ID, clickX, clickY);
 
         for (Node node : nodes) {
-            if (node.subtract(mouseNode).length() < eraserRadius) {
+            if (node.getDistanceTo(mouseNode) < eraserRadius) {
                 // Found a node under the eraser, reconstruct the whole set of nodes.
                 ArrayList<Node> oldNodes = nodes;
                 nodes = new ArrayList<Node>(nodes.size());
                 for (Node n : oldNodes) {
-                    if (n.subtract(mouseNode).length() >= eraserRadius) {
+                    if (n.getDistanceTo(mouseNode) >= eraserRadius) {
                         nodes.add(new Node(n.x, n.y));
                     }
                 }
@@ -481,7 +480,7 @@ public class Simulation {
         
         glColor3f(1f, 0f, 0f);
         if (brushMode){
-            drawPoint(eraserRadius, new Point(getMousePosition().getX(), getMousePosition().getY()), false);
+            drawPoint(eraserRadius, new Node(Node.FAKE_NODE_ID, getMousePosition().getX(), getMousePosition().getY()), false);
         }
     }
     
@@ -492,7 +491,7 @@ public class Simulation {
         glEnd();
     }
 
-    private void drawPoint(float radius, Point n, boolean scale) {
+    private void drawPoint(float radius, Node n, boolean scale) {
         float ratio = ((float) Camera.width) / Camera.heigth;
         glPushMatrix();
         glTranslatef(n.getX(), n.getY(), 0);
