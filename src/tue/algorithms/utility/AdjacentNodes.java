@@ -18,7 +18,7 @@ public class AdjacentNodes {
 	public AdjacentNodes(final Node[] nodes) {
 		this(nodes, 10);
 	}
-	private AdjacentNodes(final Node[] nodes, final int maximumLengthOfAdjacencyList) {
+	public AdjacentNodes(final Node[] nodes, final int maximumLengthOfAdjacencyList) {
 		adjMap = new HashMap<Integer, NodeDistancePair[]>(nodes.length);
 		// Number of nodes min one because an adjacency list can be at most nodes.length - 1.
 		int nodesLengthMinOne = nodes.length - 1;
