@@ -46,14 +46,7 @@ public abstract class SimulationSettings {
      * @return An instance of a class that extends MultipleImplementation.
      */
     public static MultipleImplementation getMultipleImplementation() {
-        return new MultipleImplementation() {
-
-            @Override
-            public Segment[] getOutput(Node[] input) {
-                NetworkImplementation rmst = new RMST();
-                return rmst.getOutput(input).first();
-            }
-        };
+        return new MultipleCurves();
     }
 
     /**
