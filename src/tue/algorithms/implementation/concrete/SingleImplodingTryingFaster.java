@@ -1,6 +1,7 @@
 package tue.algorithms.implementation.concrete;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,10 +11,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import tue.algorithms.implementation.general.SingleImplementation;
+import tue.algorithms.other.Conversion;
 import tue.algorithms.other.OpPair;
+import tue.algorithms.utility.MinimumSpanningTree;
 import tue.algorithms.utility.Node;
-import tue.algorithms.utility.OpNode;
-import tue.algorithms.utility.OpSegment;
 import tue.algorithms.utility.Segment;
 
 /**
@@ -22,11 +23,11 @@ import tue.algorithms.utility.Segment;
  */
 public class SingleImplodingTryingFaster implements SingleImplementation {
 	
-	private static Comparator<OpPair<OpNode, Float>> nodeLikelinessComparator = new Comparator<OpPair<OpNode, Float>>() {
+	private static Comparator<OpPair<Node, Float>> nodeLikelinessComparator = new Comparator<OpPair<Node, Float>>() {
 		
 		@Override
-		public int compare(OpPair<OpNode, Float> arg0,
-				OpPair<OpNode, Float> arg1) {
+		public int compare(OpPair<Node, Float> arg0,
+				OpPair<Node, Float> arg1) {
 			float likelihood0 = arg0.second;
 			float likelihood1 = arg1.second;
 			if (likelihood0 < likelihood1) {
@@ -39,9 +40,9 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 		
 	};
 	
-	private boolean tryOpenEnabled = true;
+	private final boolean tryOpenEnabled = true;
 	
-	private HashSet<OpSegment> foundSegments;
+	private HashSet<Segment> foundSegments;
 	
 	private CurveType type = CurveType.CLOSED;
 	private enum CurveType {
@@ -54,46 +55,47 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 		return getOutput(input, GrahamConvexHull.getConvexHull(input));
 	}
 	
-	private Segment[] getOutput(Node[] jnput, HashSet<Segment> convexHullA) {
-		int ll = jnput.length;
-		OpNode[] input = new OpNode[ll];
+	private Segment[] getOutput(Node[] input, HashSet<Segment> convexHullA) {
+		int ll = input.length;
+		/*
+		Node[] input = new Node[ll];
 		for (int i = 0; i < ll; i++) {
 			Node n = jnput[i];
-			input[i] = new OpNode(n.id, n.x, n.y);
-		}
-		foundSegments = new HashSet<OpSegment>();
+			input[i] = new Node(n.id, n.x, n.y);
+		}*/
+		foundSegments = new HashSet<Segment>();
 		for (Segment s : convexHullA) {
-			foundSegments.add(s.toOpSegment());
+			foundSegments.add(s);
 		}
-		HashSet<OpNode> nodesToDo = new HashSet<OpNode>();
-		for (OpNode n : input) {
+		HashSet<Node> nodesToDo = new HashSet<Node>();
+		for (Node n : input) {
 			nodesToDo.add(n);
 		}
-		for (OpSegment segment : foundSegments) {
+		for (Segment segment : foundSegments) {
 			nodesToDo.remove(segment.node1);
 			nodesToDo.remove(segment.node2);
 		}
-		List<OpSegment> likelinessesList1 = new ArrayList<OpSegment>(ll);
-		List<OpNode> likelinessesList2 = new ArrayList<OpNode>(ll);
+		List<Segment> likelinessesList1 = new ArrayList<Segment>(ll);
+		List<Node> likelinessesList2 = new ArrayList<Node>(ll);
 		List<Float> likelinessesList3 = new ArrayList<Float>(ll);
-		for (OpSegment segment : foundSegments) {
-			OpPair<OpNode, Float> nodeLikelinesses = buildNodeLikelinesses(segment, nodesToDo);
+		for (Segment segment : foundSegments) {
+			OpPair<Node, Float> nodeLikelinesses = buildNodeLikelinesses(segment, nodesToDo);
 			likelinessesList1.add(segment);
 			likelinessesList2.add(nodeLikelinesses.first);
 			likelinessesList3.add(nodeLikelinesses.second);
 		}
 		int si = likelinessesList1.size();
-		long largestMemoryUsed = 0;
+		//long largestMemoryUsed = 0;
 		while (nodesToDo.size() > 0) {
-			{
+			/*{
 				Runtime runtime = Runtime.getRuntime();
 				long memoryUsed = (runtime.totalMemory() - runtime.freeMemory());
 				if (memoryUsed > largestMemoryUsed) {
 					largestMemoryUsed = memoryUsed;
 				}
-			}
-			OpSegment segmentWithSmallestLikeliness = null;
-			OpNode nodeWithSmallestLikeliness = null;
+			}*/
+			Segment segmentWithSmallestLikeliness = null;
+			Node nodeWithSmallestLikeliness = null;
 			float smallestLikeliness = Float.MAX_VALUE;
 			int smallestI = -1;
 			for (int i = 0; i < si; i++) {
@@ -105,8 +107,8 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 				}
 			}
 			segmentWithSmallestLikeliness = likelinessesList1.get(smallestI);
-			OpSegment newSegment1 = new OpSegment(nodeWithSmallestLikeliness, segmentWithSmallestLikeliness.node1);
-			OpSegment newSegment2 = new OpSegment(nodeWithSmallestLikeliness, segmentWithSmallestLikeliness.node2);
+			Segment newSegment1 = new Segment(nodeWithSmallestLikeliness, segmentWithSmallestLikeliness.node1);
+			Segment newSegment2 = new Segment(nodeWithSmallestLikeliness, segmentWithSmallestLikeliness.node2);
 			foundSegments.add(newSegment1);
 			foundSegments.add(newSegment2);
 			foundSegments.remove(segmentWithSmallestLikeliness);
@@ -117,22 +119,22 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 			int sip = si-1;
 			if (nodesToDo.size() > 0) {
 				for (int i = 0; i < sip; i++) {
-					OpNode n = likelinessesList2.get(i);
+					Node n = likelinessesList2.get(i);
 					if (n.id == nodeWithSmallestLikeliness.id) {
-						OpPair<OpNode, Float> nodeLikelinesses = buildNodeLikelinesses(likelinessesList1.get(i), nodesToDo);
+						OpPair<Node, Float> nodeLikelinesses = buildNodeLikelinesses(likelinessesList1.get(i), nodesToDo);
 						likelinessesList2.set(i, nodeLikelinesses.first);
 						likelinessesList3.set(i, nodeLikelinesses.second);
 					}
 				}
 				{
 					likelinessesList1.add(newSegment1);
-					OpPair<OpNode, Float> nodeLikelinesses = buildNodeLikelinesses(newSegment1, nodesToDo);
+					OpPair<Node, Float> nodeLikelinesses = buildNodeLikelinesses(newSegment1, nodesToDo);
 					likelinessesList2.add(nodeLikelinesses.first);
 					likelinessesList3.add(nodeLikelinesses.second);
 				}
 				{
 					likelinessesList1.add(newSegment2);
-					OpPair<OpNode, Float> nodeLikelinesses = buildNodeLikelinesses(newSegment2, nodesToDo);
+					OpPair<Node, Float> nodeLikelinesses = buildNodeLikelinesses(newSegment2, nodesToDo);
 					likelinessesList2.add(nodeLikelinesses.first);
 					likelinessesList3.add(nodeLikelinesses.second);
 				}
@@ -144,22 +146,22 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 			while(removeTooLong()){}
 		}
 		removeIntersections();
-		supplementFromMST();
+		supplementFromMST(input);
 		Segment[] result = new Segment[foundSegments.size()];
 		int i = 0;
-		for (OpSegment os : foundSegments) {
-			result[i] = os.toSegment();
+		for (Segment os : foundSegments) {
+			result[i] = os;
 			i++;
 		}
-		System.out.println("Largest memory used (MB): " + largestMemoryUsed/(1024*1024));
+		//System.out.println("Largest memory used (MB): " + largestMemoryUsed/(1024*1024));
 		return result;
 	}
 	
 	private boolean removeTooLong() {
 		float longestLength = Integer.MIN_VALUE;
 		float oneToLongestLength = Integer.MIN_VALUE;
-		OpSegment longestSegment = null;
-		for (OpSegment segment : foundSegments) {
+		Segment longestSegment = null;
+		for (Segment segment : foundSegments) {
 			float length = segment.length();
 			if (length > longestLength) {
 				oneToLongestLength = longestLength;
@@ -178,15 +180,83 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 		return false;
 	}
 	
+	private void supplementFromMST(Node[] input) {
+		Segment[] MST = MinimumSpanningTree.getMST(input);
+		List<Segment> MSTa = Conversion.toArrayList(MST);
+		Collections.sort(MSTa, new Comparator<Segment>() {
+			
+			@Override
+			public int compare(Segment obj0, Segment obj1) {
+				float l0 = obj0.length();
+				float l1 = obj1.length();
+				if (l0 < l1) {
+					return -1;
+				} else if (l0 > l1) {
+					return 1;
+				}
+				return 0;
+			}
+			
+		});
+		Map<Node, Integer> occ = new HashMap<Node, Integer>();
+		for (Segment segment : foundSegments) {
+			Node n1 = segment.node1;
+			Node n2 = segment.node2;
+			if (occ.containsKey(n1)) {
+				occ.put(n1, occ.get(n1)+1);
+			} else {
+				occ.put(n1, 1);
+			}
+			if (occ.containsKey(n2)) {
+				occ.put(n2, occ.get(n2)+1);
+			} else {
+				occ.put(n2, 1);
+			}
+		}
+		for (Segment segment : MSTa) {
+			Node n1 = segment.node1;
+			Node n2 = segment.node2;
+			int o1 = 0;
+			if (occ.containsKey(n1)) {
+				o1 = occ.get(n1);
+			}
+			int o2 = 0;
+			if (occ.containsKey(n2)) {
+				o2 = occ.get(n2);
+			}
+			if (o1 < 2 && o2 < 2) {
+				boolean v = true;
+				for (Segment oSegment : foundSegments) {
+					if (segment.intersectsWith(oSegment)) {
+						v = false;
+					}
+				}
+				if (v) {
+					if (occ.containsKey(n1)) {
+						occ.put(n1, occ.get(n1)+1);
+					} else {
+						occ.put(n1, 1);
+					}
+					if (occ.containsKey(n2)) {
+						occ.put(n2, occ.get(n2)+1);
+					} else {
+						occ.put(n2, 1);
+					}
+					foundSegments.add(segment);
+				}
+			}
+		}
+	}
+	
 	private void removeIntersections() {
-		Map<OpSegment, Set<OpSegment>> m = new HashMap<OpSegment, Set<OpSegment>>();
-		for (OpSegment segment : foundSegments) {
-			for (OpSegment oSegment : foundSegments) {
+		Map<Segment, Set<Segment>> m = new HashMap<Segment, Set<Segment>>();
+		for (Segment segment : foundSegments) {
+			for (Segment oSegment : foundSegments) {
 				if (!segment.equals(oSegment)) {
 					if (segment.intersectsWith(oSegment)) {
-						Set<OpSegment> h;
+						Set<Segment> h;
 						if (!m.containsKey(segment)) {
-							h = new HashSet<OpSegment>();
+							h = new HashSet<Segment>();
 						} else {
 							h = m.get(segment);
 						}
@@ -198,8 +268,8 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 		}
 		while (m.size() > 0) {
 			int hc = -1;
-			OpSegment hs = null;
-			for (Entry<OpSegment, Set<OpSegment>> e : m.entrySet()) {
+			Segment hs = null;
+			for (Entry<Segment, Set<Segment>> e : m.entrySet()) {
 				int c = e.getValue().size();
 				if (c > hc) {
 					hc = c;
@@ -207,35 +277,35 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 				}
 			}
 			foundSegments.remove(hs);
-			Set<OpSegment> fr = new HashSet<OpSegment>();
-			for (Entry<OpSegment, Set<OpSegment>> e : m.entrySet()) {
-				Set<OpSegment> s = e.getValue();
+			Set<Segment> fr = new HashSet<Segment>();
+			for (Entry<Segment, Set<Segment>> e : m.entrySet()) {
+				Set<Segment> s = e.getValue();
 				s.remove(hs);
 				if (s.size() == 0) {
 					fr.add(e.getKey());
 				}
 			}
-			for (OpSegment oo : fr) {
+			for (Segment oo : fr) {
 				m.remove(oo);
 			}
 			m.remove(hs);
 		}
 	}
 	
-	private OpPair<OpNode, Float> buildNodeLikelinesses(OpSegment segment, HashSet<OpNode> nodesToDo) {
-		OpNode smallestNode = null;
+	private OpPair<Node, Float> buildNodeLikelinesses(Segment segment, HashSet<Node> nodesToDo) {
+		Node smallestNode = null;
 		float smallestLikeliness = 1337.13371337f;
-		for (OpNode n : nodesToDo) {
-			float dx = segment.x2-segment.x1;
-			float dy = segment.y2-segment.y1;
+		for (Node n : nodesToDo) {
+			Node sNode1 = segment.node1;
+			Node sNode2 = segment.node2;
+			float dx = sNode2.x-sNode1.x;
+			float dy = sNode2.y-sNode1.y;
 			float segmentLength = (float) Math.sqrt(dx*dx+dy*dy);
 			float nx = n.x;
 			float ny = n.y;
-			OpNode sNode1 = segment.node1;
 			dx = sNode1.x-nx;
 			dy = sNode1.y-ny;
 			float distance1 = (float) Math.sqrt(dx*dx+dy*dy);
-			OpNode sNode2 = segment.node2;
 			dx = sNode2.x-nx;
 			dy = sNode2.y-ny;
 			float distance2 = (float) Math.sqrt(dx*dx+dy*dy);
@@ -245,7 +315,7 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 				smallestNode = n;
 			}
 		}
-		return new OpPair<OpNode, Float>(smallestNode, smallestLikeliness);
+		return new OpPair<Node, Float>(smallestNode, smallestLikeliness);
 	}
 	
 }
