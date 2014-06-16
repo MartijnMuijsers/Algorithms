@@ -19,6 +19,9 @@ public class Node extends Point {
 	/** ID of first node */
 	final static private int MINIMAL_NODE_ID = 1;
 	private static int nextNodeId = MINIMAL_NODE_ID;
+
+	/** ID of fake nodes, i.e. nodes that are only needed for calculations but never output. */
+	final static public int FAKE_NODE_ID = MINIMAL_NODE_ID - 1;
 	public final int id;
 	
 	/**
@@ -37,10 +40,12 @@ public class Node extends Point {
 	 */
 	public Node(int id, float x, float y) {
 		super(x, y);
-		assert id == nextNodeId;
-		++nextNodeId;
 		this.id = id;
-		addToNodeCache(this);
+		if (id != FAKE_NODE_ID) {
+			assert id == nextNodeId;
+			++nextNodeId;
+			addToNodeCache(this);
+		}
 	}
 	
 	/**
