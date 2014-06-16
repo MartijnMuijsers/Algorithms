@@ -3,9 +3,7 @@ package tue.algorithms.utility;
 import java.util.HashMap;
 
 /**
- * <p>
  * A node that has an id and a point location.
- * </p>
  * <p>
  * You should not create two different node instances with equal id,
  * but different coordinates,
@@ -21,15 +19,12 @@ import java.util.HashMap;
  * The static part of this class provides a cache for constructed nodes,
  * so that nodes are retrievable by their id after their construction.
  * </p>
- * @author Martijn
  */
 public class Node extends Point {
 
 	/** ID of first node */
 	final static public int MINIMAL_NODE_ID = 1;
 	public final int id;
-	
-	/* -- START Constructors -- */
 	
 	/**
 	 * Create a node with the given id and coordinates (x, y).
@@ -45,41 +40,13 @@ public class Node extends Point {
 	}
 	
 	/**
-	 * Create a node with the given id and the coordinates of the given point.
-	 * @param id The id of the node.
-	 * @param point The point as coordinates of the node.
-	 */
-	public Node(int id, Point point) {
-		this(id, point.x, point.y);
-	}
-	
-	/* -- END Constructors -- */
-	
-	/* -- START Public getters for private fields -- */
-	
-	/**
-	 * Get the id of the node.
-	 * @return The id as an integer.
-	 * @deprecated Use .id getter
+	 * Use .id getter instead of getId()
+	 * @deprecated
 	 */
 	@Deprecated
 	public int getId() {
 		return id;
 	}
-	
-	/* -- END Public getters for private fields -- */
-	
-	/* -- START Methods for conversion -- */
-	
-	/**
-	 * Get a point representation of this node.
-	 * @return The point
-	 */
-	public Point getPoint() {
-		return new Point(x, y);
-	}
-	
-	/* -- END Methods for conversion -- */
 	
 	/* -- START Override equals(), hashCode() and toString() -- */
 	
