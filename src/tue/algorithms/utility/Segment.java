@@ -121,7 +121,7 @@ public class Segment {
      * @return The angle in radians in the range [-Math.PI, Math.PI]
      */
     public double getAngleOf(Node other) {
-        double otherAbsoluteAngle = Math.atan2(node2.y - other.y, node2.x - other.x);
+		double otherAbsoluteAngle = Math.atan2(other.y - node1.y, other.x - node1.x);
         double thisAbsoluteAngle = getAngle();
         double relativeAngle = otherAbsoluteAngle - thisAbsoluteAngle;
         if (relativeAngle <= -Math.PI) relativeAngle += 2 * Math.PI;
