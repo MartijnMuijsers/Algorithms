@@ -19,11 +19,11 @@ public class Point {
 	/**
 	 * The x-coordinate of the point.
 	 */
-	protected final float x;
+	public final float x;
 	/**
 	 * The y-coordinate of the point.
 	 */
-	protected final float y;
+	public final float y;
 	
 	/* -- END Private final fields -- */
 	
@@ -46,6 +46,7 @@ public class Point {
 	/**
 	 * Get the x-coordinate of the point.
 	 * @return The x-coordinate as an float.
+	 * @deprecated
 	 */
 	public float getX() {
 		return x;
@@ -54,6 +55,7 @@ public class Point {
 	/**
 	 * Get the y-coordinate of the point.
 	 * @return The y-coordinate as an float.
+	 * @deprecated
 	 */
 	public float getY() {
 		return y;
@@ -68,7 +70,7 @@ public class Point {
 	 * @return The length as a float.
 	 */
 	public float length() {
-		return (float) Math.sqrt(getX() * getX() + getY() * getY());
+		return (float) Math.sqrt(this.x * this.x + this.y * this.y);
 	}
 	
 	/**
@@ -81,7 +83,7 @@ public class Point {
 	 * @return The angle as a double in the range [-Math.PI, Math.PI].
 	 */
 	public double getAngle() {
-		return Math.atan2(getY(), getX());
+		return Math.atan2(this.y, this.x);
 	}
 	
 	/**
@@ -103,7 +105,7 @@ public class Point {
 	 * @return The sum vector point.
 	 */
 	public Point add(Point point) {
-		return add(point.getX(), point.getY());
+		return add(point.x, point.y);
 	}
 	
 	/**
@@ -113,7 +115,7 @@ public class Point {
 	 * @return The sum vector point.
 	 */
 	public Point add(float x, float y) {
-		return new Point(getX() + x, getY() + y);
+		return new Point(this.x + x, this.y + y);
 	}
 	
 	/**
@@ -122,7 +124,7 @@ public class Point {
 	 * @return The subtraction vector point.
 	 */
 	public Point subtract(Point point) {
-		return subtract(point.getX(), point.getY());
+		return subtract(point.x, point.y);
 	}
 	
 	/**
@@ -134,30 +136,6 @@ public class Point {
 	public Point subtract(float x, float y) {
 		return add(-x, -y);
 	}
-	
-	/* -- END Manipulation methods for adding and subtracting points -- */
-	
-	/* -- START Manipulation methods for changing coordinates -- */
-	
-	/**
-	 * Get a point that has the same y-coordinate as this one, but a different, given x-coordinate.
-	 * @param x The x-coordinate of the point to return.
-	 * @return The point with the correct coordinates.
-	 */
-	public Point withXAs(float x) {
-		return new Point(x, getY());
-	}
-	
-	/**
-	 * Get a point that has the same x-coordinate as this one, but a different, given y-coordinate.
-	 * @param y The y-coordinate of the point to return.
-	 * @return The point with the correct coordinates.
-	 */
-	public Point withYAs(float y) {
-		return new Point(getX(), y);
-	}
-	
-	/* -- END Manipulation methods for changing coordinates -- */
 	
 	/* -- START Method to get the distance between points -- */
 	
@@ -180,7 +158,7 @@ public class Point {
 	 * @return The line.
 	 */
 	public Line getLineFromHereToPoint(Point point) {
-		return getLineFromHereToPoint(point.getX(), point.getY());
+		return getLineFromHereToPoint(point.x, point.y);
 	}
 	
 	/**
@@ -190,7 +168,7 @@ public class Point {
 	 * @return The line.
 	 */
 	public Line getLineFromHereToPoint(float x, float y) {
-		return new Line(getX(), getY(), x, y);
+		return new Line(this.x, this.y, x, y);
 	}
 	
 	/**
@@ -199,7 +177,7 @@ public class Point {
 	 * @return The line.
 	 */
 	public Line getLineFromPointToHere(Point point) {
-		return getLineFromPointToHere(point.getX(), point.getY());
+		return getLineFromPointToHere(point.x, point.y);
 	}
 	
 	/**
@@ -209,7 +187,7 @@ public class Point {
 	 * @return The line.
 	 */
 	public Line getLineFromPointToHere(float x, float y) {
-		return new Line(x, y, getX(), getY());
+		return new Line(x, y, this.x, this.y);
 	}
 	
 	/* -- END Methods to get the line between points -- */
@@ -220,21 +198,21 @@ public class Point {
 	public boolean equals(Object obj) {
 		if (obj instanceof Point) {
 			Point other = (Point) obj;
-			return (other.getX() == getX() && other.getY() == getY());
+			return (other.x == this.x && other.y == this.y);
 		}
 		return false;
 	}
 	
 	@Override
 	public int hashCode() {
-		return (int) ((getX() * 10000) + (getY() * 10000) * (getY() * 10000));
+		return (int) ((this.x * 10000) + (this.y * 10000) * (this.y * 10000));
 	}
 	
 	@Override
 	public String toString() {
 		return super.toString() + "["
-			+ "x=" + getX() + ", "
-			+ "y=" + getY()
+			+ "x=" + this.x + ", "
+			+ "y=" + this.y
 			+ "]";
 	}
 	
