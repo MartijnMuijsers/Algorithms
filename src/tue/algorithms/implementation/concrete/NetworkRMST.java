@@ -161,8 +161,8 @@ public class NetworkRMST implements NetworkImplementation {
         for (int i = 0; i < ndps.length && i < 10; i++) {
             Segment[] neighbors = cn.getSegments(ndps[i].node);
             for (Segment neighbor : neighbors) {
-                Point p = new Point(node.getX() + (float) (Math.cos(segment.endAt(node).getAngle()) * MAXDISTANCE), node.getY() + (float) (Math.sin(segment.endAt(node).getAngle()) * MAXDISTANCE));
-                Line line = new Line(node.getX(), node.getY(), p.getX(), p.getY());
+                Point p = new Point(node.x + (float) (Math.cos(segment.endAt(node).getAngle()) * MAXDISTANCE), node.y + (float) (Math.sin(segment.endAt(node).getAngle()) * MAXDISTANCE));
+                Line line = new Line(node.x, node.y, p.x, p.y);
                 if (line.intersectsWith(neighbor) && segment != neighbor) {
                     float x = (line.getY1()-line.getSlope()*line.getX1()-neighbor.getY1()+neighbor.getSlope()*neighbor.getX1())/(neighbor.getSlope()-line.getSlope());
                     float y = line.getSlope()*(x-line.getX1())+line.getY1();
