@@ -155,15 +155,15 @@ public class Segment {
                 yRight = node1.y;
             }
             if (other.isNode1AtLeft()) {
-                xLeftOther = node1.x;
-                yLeftOther = node1.y;
-                xRightOther = node2.x;
-                yRightOther = node2.y;
+                xLeftOther = other.node1.x;
+                yLeftOther = other.node1.y;
+                xRightOther = other.node2.x;
+                yRightOther = other.node2.y;
             } else {
-                xLeftOther = node2.x;
-                yLeftOther = node2.y;
-                xRightOther = node1.x;
-                yRightOther = node1.y;
+                xLeftOther = other.node2.x;
+                yLeftOther = other.node2.y;
+                xRightOther = other.node1.x;
+                yRightOther = other.node1.y;
             }
 
             // Tests for touching lines
