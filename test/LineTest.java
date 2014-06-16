@@ -83,8 +83,8 @@ public class LineTest {
         }
 
         expectedAngle %= 2 * Math.PI;
-        assertEquals("Line(" + line.getX1() + ", " + line.getY1() + " ; " + line.getX2() + ", " + line.getY2() +
-                ").getAngleOf(Point(" + point.getX() + " ; " + point.getY() + "))/Math.PI",
+        assertEquals("Segment(" + line.getX1() + ", " + line.getY1() + " ; " + line.getX2() + ", " + line.getY2() +
+                ").getAngleOf(Node(" + point.getX() + " ; " + point.getY() + "))/Math.PI",
                 expectedAngle / Math.PI, actualAngle / Math.PI, epsilon);
     }
 
@@ -95,8 +95,8 @@ public class LineTest {
     private void assertRelativeAngleWithExpectedRotation(Segment line, Node t, double rotation) {
         float sqrt3div2 = (float) Math.sqrt(3) / 2;
         // Points listed in counter-clockwise order.
-        Node onposx = new Node(2 + t.x, 0 + t.y);
-        Node quad1_closetox = new Node(sqrt3div2 + t.x, 0.5f + t.y);
+        Node onposx = new Node(Node.FAKE_NODE_ID, 2 + t.x, 0 + t.y);
+        Node quad1_closetox = new Node(Node.FAKE_NODE_ID, sqrt3div2 + t.x, 0.5f + t.y);
         Node quad1_diagonal = new Node(Node.FAKE_NODE_ID, 2 + t.x, 2 + t.y);
         Node quad1_closetoy = new Node(Node.FAKE_NODE_ID, 0.5f + t.x, sqrt3div2 + t.y);
         Node onposy = new Node(Node.FAKE_NODE_ID, 0 + t.x, 2 + t.y);
