@@ -1,0 +1,63 @@
+\documentclass[11pt, twocolumn]{article}
+
+\usepackage{amsmath,amssymb}
+\usepackage{a4wide}
+\usepackage{graphicx}
+\usepackage{tikz}
+
+
+
+\begin{document}
+\section{The algorithms}
+\label{se:algorithms}
+\subsection{Network Algorithm}
+\subsubsection{Background definitions}
+\begin{itemize}
+  \item $\mathbb{R}^2$ is the two dimensional Euclidian space, a point in $\mathbb{R}^2$ is denoted by (x,y).
+  \item $P$ is the given set of points in $\mathbb{R}^2$
+  \item Euclidian minimum spanning tree $EMST$is the tree spanning all points in $P$ such that the sum of its edge distances is the minimum.
+  \item $EMST_{add}$ is a minimum reconstruction of the road network where missing road segments are added to the $EMST$.
+  \item $EMST_{rem}$ is a reconstruction of the road network where divergent segments are removed from $EMST_{add}$.
+  \item $EMST_{new}$ is a reconstruction of the road network where all endpoints are connected.
+\end{itemize}
+\subsubsection{Outline}
+
+The algorithm consists of the following steps:
+\begin{enumerate}
+  \item Given the set $P$ create a graph $G(V,E)$ where $V=P$ and $E=V\times V$.
+  \item Compute the $EMST$ of $G$.
+  \item Compute $EMST_{add}$ by connecting each endpoint, if possible, to a nearby node.
+  \item Find segment that divert from straight roads and remove these segments to get $EMST_{rem}$.
+  \item Connect
+\end{enumerate}
+  \begin{figure}[h]
+    \begin{center}
+      \graphicspath{ {/home/chris/Documents/Github/Algorithms/report/images/}}
+      \includegraphics[width=0.4\textwidth]{NetworkMST}
+      \label{fig:}
+      \caption{}
+    \end{center}
+  \end{figure}
+\subsubsection{Description}
+Given the set $V$ of points in $\mathbb{R}^2$ we first generate a graph $G$ in which every point $p\in V$ is connected to every point $q \in V$. Then the algorithms computes the $RMST$, using kruskal's algorithm, for $G$ resulting in a connected graph that gives a good approximation of the road network but some straight road segments may not be connected.
+ 
+ We now find a set of points $S$ for which every $s \in S$ is a endpoint of a road segment. For these points a edge $e \in E$ is found such that $e=(s,x)$ where $x \in V$. The slope of the edge determines the direction for the road segment for which $s$ is the endpoint. A line $l_1$ perpendicular to the slope is calculated and it is checked whether a nearby point $x \in V$ is below $l_1$ for $e$ with a negative slope or if $x$ is above $l_1$ for $e$ with a positive slope. 
+ 
+ Finally we calculate $RN_{com}$. First we find all segments $e \in E$ for which the slope of the following segment $e' \in E$ is divergent. For the segment $e$ we draw a line in the same direction and look for a intersection with a segment $x \in E$. If the distance between $e$ and $x$ is sufficiently small segment $e'$ is removed from $RN_{min}$ and a new segment from $e$ to $x$ is added to $RN_{com}$.
+
+
+\bibliographystyle{plain}
+
+\begin{thebibliography}{}
+
+\bibitem{k-osssgtsp-56}
+J.B. Kruskal.
+On the shortest spanning subtree of a graph and the traveling salesman problem.
+In \emph{Proceedings of the American Mathematical Society},7: 48-50, 1956.
+
+\bibitem{cghs-rnrop-20}
+D. Chen, L.J. Guibas, J. Hershberger, J. Sun.
+Road Network Reconstruction for Organizing Paths.
+In \emph{Proceedings  of  21st  ACM-SIAM  Symposium  on  Discrete  Algorithms}, 10: 1309-1320, 2010.
+\end{thebibliography}
+\end{document}
