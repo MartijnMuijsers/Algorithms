@@ -18,7 +18,7 @@ public abstract class PeachOutputWriter {
 	public static void writeCurveOutput(Segment[] output) {
 		System.out.println(output.length + " number of segments");
 		for (Segment segment : output) {
-			System.out.println(segment.getNode1Id() + " " + segment.getNode2Id());
+			System.out.println(segment.node1.id + " " + segment.node2.id);
 		}
 	}
 	
@@ -35,7 +35,7 @@ public abstract class PeachOutputWriter {
 		int id = originalNodeAmount;
 		for (Node node : addedNodes) {
 			id++;
-			System.out.println(id + " " + node.getX() + " " + node.getY());
+			System.out.println(id + " " + node.x + " " + node.y);
 		}
 		writeCurveOutput(segments);
 	}

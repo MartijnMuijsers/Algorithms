@@ -18,7 +18,7 @@ public class AdjacentNodes {
 	public AdjacentNodes(final Node[] nodes) {
 		this(nodes, 10);
 	}
-	private AdjacentNodes(final Node[] nodes, final int maximumLengthOfAdjacencyList) {
+	public AdjacentNodes(final Node[] nodes, final int maximumLengthOfAdjacencyList) {
 		adjMap = new HashMap<Integer, NodeDistancePair[]>(nodes.length);
 		// Number of nodes min one because an adjacency list can be at most nodes.length - 1.
 		int nodesLengthMinOne = nodes.length - 1;
@@ -73,38 +73,5 @@ public class AdjacentNodes {
 			throw new RuntimeException("No node found with ID " + nodeId);
 		}
 		return nodes;
-	}
-
-	public class NodeDistancePair implements Comparable<NodeDistancePair> {
-		public final Node node;
-		public final float distance;
-
-		protected NodeDistancePair(Node node, float distance) {
-			this.node = node;
-			this.distance = distance;
-		}
-
-		/**
-		 * Comparator that sorts in ascending order.
-		 */
-		@Override
-		public int compareTo(NodeDistancePair other) {
-			float diff = other.distance - distance;
-			return diff == 0 ? 0 : diff < 0 ? 1 : -1;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof NodeDistancePair) {
-				NodeDistancePair other = (NodeDistancePair) obj;
-				return node.equals(other.node);
-			}
-			return false;
-		}
-
-		@Override
-		public String toString() {
-			return "[node=" + node.toString() + ", distance=" + distance + "]";
-		}
 	}
 }

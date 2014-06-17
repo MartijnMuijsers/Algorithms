@@ -9,25 +9,6 @@ final public class MinimumSpanningTree {
 	private MinimumSpanningTree() { /* just a namespace to hold the function */ }
 
 	/**
-	 * Time complexity: O(n^2) where n is nodes.length
-	 *
-	 * @param nodes
-	 * @return Array of all possible segments for the given set of nodes.
-	 */
-	public static Segment[] getSegmentsPermutation(Node[] nodes) {
-		Segment[] segments = new Segment[nodes.length * (nodes.length - 1)];
-		int i = 0;
-		for (Node node1 : nodes) {
-			for (Node node2 : nodes) {
-				if (node1 != node2) {
-					segments[i++] = new Segment(node1, node2);
-				}
-			}
-		}
-		return segments;
-	}
-
-	/**
 	 * Calculate the MST using Prim's algorithm.
 	 * Time complexity: O(n^2) where n is the number of nodes.
 	 * Memory complexity: O(n)

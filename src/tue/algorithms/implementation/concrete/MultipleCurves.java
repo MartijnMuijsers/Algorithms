@@ -1,13 +1,13 @@
 package tue.algorithms.implementation.concrete;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 
 import tue.algorithms.implementation.general.MultipleImplementation;
 import tue.algorithms.utility.AdjacentNodes;
-import tue.algorithms.utility.AdjacentNodes.NodeDistancePair;
+import tue.algorithms.utility.NodeDistancePair;
 import tue.algorithms.utility.ConnectedNodes;
 import tue.algorithms.utility.MinimumSpanningTree;
 import tue.algorithms.utility.Node;
@@ -31,12 +31,18 @@ public class MultipleCurves implements MultipleImplementation {
 
     @Override
     public Segment[] getOutput(Node[] input) {
-        AdjacentNodes adjNodes = new AdjacentNodes(input);
+        final int adjacencyListLength = Math.min(input.length, 10);
+        AdjacentNodes adjNodes = new AdjacentNodes(input, adjacencyListLength);
         ConnectedNodes cn = new ConnectedNodes();
-        Segment[] segments = MinimumSpanningTree.getSegmentsPermutation(input);
+        ArrayList<Segment> segments = new ArrayList<Segment>(input.length * adjacencyListLength);
+        for (Node node : input) {
+            for (NodeDistancePair ndp : adjNodes.getAdjacentNodes(node)) {
+                segments.add(new Segment(node, ndp.node));
+            }
+        }
 
         // Shortest segment first.
-        Arrays.sort(segments, new Comparator<Segment>() {
+        Collections.sort(segments, new Comparator<Segment>() {
             @Override
             public int compare(Segment s1, Segment s2) {
                 float diff = s1.length() - s2.length();
@@ -88,7 +94,6 @@ public class MultipleCurves implements MultipleImplementation {
                 }
             }
         }
-
 
         return cn.getAllSegments();
     }
@@ -164,7 +169,7 @@ public class MultipleCurves implements MultipleImplementation {
             // TODO: Add an extra condition, to limit the max length of the segment?
             //       Perhaps use statistics and the oldShape subroutine to determine
             //       a sensible max length? Not sure what to do at 6 am.
-            if (ndp.distance > oldSegmentLength * 2) {
+            if (ndp.distance > oldSegmentLength * 5) {
                 break;
             }
             if (Math.abs(keptSegmentOrigin.getAngleOf(ndp.node)) < TOO_SHARP_ANGLE_TRESHOLD) {
@@ -179,7 +184,7 @@ public class MultipleCurves implements MultipleImplementation {
                 // TODO: Multiply the following variable with a magic number to allow shapes to be reconnected
                 // over greater distances. Pick e.g. 1.5f to allow shapes to be connected even if both of
                 // the new segment are 1.5x longer than the removed segment.
-                float reqMinSegmentLength = otherSegmentLength;
+                float reqMinSegmentLength = otherSegmentLength * 1.2f;
                 if (distanceToNode2 > reqMinSegmentLength && ndp.distance > reqMinSegmentLength) {
                     // Never replace a segment if the new segments are going to be longer
                     // than the removed segment.

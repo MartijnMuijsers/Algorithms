@@ -348,11 +348,5 @@ public class Segment {
 	}
 
 	/* -- END Override equals(), hashCode() and toString() -- */
-	/**
-	 * Use minimally!!!
-	 */
-	public OpSegment toOpSegment() {
-		return new OpSegment(node1.toOpNode(), node2.toOpNode());
-	}
 
 }
