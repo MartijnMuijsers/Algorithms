@@ -447,7 +447,7 @@ Finally we calculate $RN_{com}$, see algorithm \ref{alg:RNcomalg}. First we find
 
 \section{Experimental evaluation}
 \subsection{Generating input}
-To properly test the presented algorithms, many test cases have been created. The majority of these test cases were created by hand, made to be as difficult as possible for the algorithms. Some have sharp corners, or have points with large gaps between them as shown below. %TODO: Add figure number (automatic using labels?)
+To properly test the presented algorithms, many test cases have been created. The majority of these test cases were created by hand, made to be as difficult as possible for the algorithms. Some have sharp corners, or have points with large gaps between them as shown in figure \ref{single}.
 
 \begin{figure}[ht!]
 \centering
@@ -456,11 +456,19 @@ To properly test the presented algorithms, many test cases have been created. Th
 \label{single}
 \end{figure}
 
-Other test cases have been created to test the running time of the algorithm, with the amount of nodes ranging from $10$ to $10000$.
+Other test cases have been created to test the running time of the algorithm, with the amount of nodes ranging from $100$ to $10000$. This same input is then used on all algorithms.
 
-%TODO: Table with input amount and running time for each algorithm
+\begin{table}[ht!]
+    \begin{tabular}{lrrrrr}
+    ~                       & 100 nodes & 500 nodes & 1.000 nodes & 5.000 			nodes & 10.000 nodes \\
+    Single Reconstruction   & 33ms      & 126ms     & 782ms       & 3.985ms     	& 20.604ms     \\
+    Multiple Reconstruction & 38ms      & 146ms     & 207ms       & 2.947ms     	& 7.387ms      \\
+    Network Reconstruction  & 18ms      & 85ms      & 143ms       & 1.996ms     	& 4.802ms      \\
+    \end{tabular}
+\caption{Table showing the computing time required for different input sizes.}
+\end{table}
 
-The multiple curve algorithm has additional test cases that are not run by the single curve algorithm, made specifically to test whether it correctly distinguishes between the multiple curves. These include curves enclosed in another curve, some curves that are close to each other and multiple curves that spiral around each other, some examples of these test cases are given in figure. %TODO: Figure number again
+The multiple curve algorithm has additional test cases that are not run by the single curve algorithm, made specifically to test whether it correctly distinguishes between the multiple curves. These include curves enclosed in another curve, some curves that are close to each other and multiple curves that spiral around each other, some examples of these test cases are given in figure \ref{multi}.
 
 \begin{figure}[ht!]
 \centering
@@ -482,16 +490,8 @@ The network algorithm has different input than the other two given curve reconst
 Dingen die je erin kan zetten:\\
 Parameters, input sizes, sampling conditions, wat niet werkt en waarom niet, allemaal met plaatjes/tabellen erbij. Geef ook aan hoe je de werking van het algoritme kan zien in de output.
 
-\begin{table}[ht!]
-    \begin{tabular}{lrrrrr}
-    ~                       & 100 nodes & 500 nodes & 1.000 nodes & 5.000 			nodes & 10.000 nodes \\
-    Single Reconstruction   & 33ms      & 126ms     & 782ms       & 3.985ms     	& 20.604ms     \\
-    Multiple Reconstruction & 38ms      & 146ms     & 207ms       & 2.947ms     	& 7.387ms      \\
-    Network Reconstruction  & 18ms      & 85ms      & 143ms       & 1.996ms     	& 4.802ms      \\
-    \end{tabular}
-\caption{Table showing the computing time required for different input sizes.}
-\end{table}
 \subsubsection{Single curve}
+
 \subsubsection{Multiple curves}
 \subsubsection{Network reconstruction}
 
