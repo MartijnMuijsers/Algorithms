@@ -86,6 +86,7 @@ The road network reconstruction problems is solved using a minimum spanning tree
 \label{outputOverview}
 \end{figure}$ $\\
 
+
 \section{The algorithms}
 \label{se:algorithms}
 
@@ -480,6 +481,16 @@ The network algorithm has different input than the other two given curve reconst
 \subsection{Resulting output}
 Dingen die je erin kan zetten:\\
 Parameters, input sizes, sampling conditions, wat niet werkt en waarom niet, allemaal met plaatjes/tabellen erbij. Geef ook aan hoe je de werking van het algoritme kan zien in de output.
+
+\begin{table}[ht!]
+    \begin{tabular}{llllll}
+    ~                       & 100 nodes & 500 nodes & 1.000 nodes & 5.000 			nodes & 10.000 nodes \\
+    Single Reconstruction   & 33ms      & 126ms     & 782ms       & 3.985ms     	& 20.604ms     \\
+    Multiple Reconstruction & 38ms      & 146ms     & 207ms       & 2.947ms     	& 7.387ms      \\
+    Network Reconstruction  & 18ms      & 85ms      & 143ms       & 1.996ms     	& 4.802ms      \\
+    \end{tabular}
+\caption{Table showing the computing time required for different input sizes.}
+\end{table}
 \subsubsection{Single curve}
 \subsubsection{Multiple curves}
 \subsubsection{Network reconstruction}
