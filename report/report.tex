@@ -72,10 +72,19 @@ For the network problem there exists a road network reconstruction algorithm \ci
 
 Delaunay triangulation \cite{delaunay} could possibly be used to create a relatively small set of edges for the third problem, after which a rectilinear spanning graph or straight lines can be determined between points. This will improve efficiency, as it has a running time of $O(n \log{n})$, whereas Kruskal's algorithm will check all possible edges initially, resulting in $O(n^2 \log{n})$.
 
-For the single curve reconstruction problem, we have also looked at the convex hull \cite{convex}. A convex hull will create segments between all the outermost points, such that no unconnected point is outside of the enclosed area. Like putting a rubber band around all the points. This can be very useful for connecting the outermost edges, but it is not as useful for inner edges.
+For the single curve reconstruction problem, we have also looked at the convex hull \cite{convex}. A convex hull will create segments between all the outermost points, such that no unconnected point is outside of the enclosed area. Like putting a rubber band around all the points. This is useful for the outermost nodes, but does not do anything with the nodes inside this outline.
 
-To solve the single curve reconstruction problem, we have chosen for a spider-type algorithm, which will go from point to point and then determines the next best point to go to.
-The multiple curve and road network reconstruction problems are solved using a minimum spanning tree. In multiple curve construction problem, the graph is completed using an adjacency matrix and another supporting data structure. The road network problem uses a particular kind of spanning trees, namely rectilinear minimum spanning tree to get an initial solution the problem. After reconstructing this tree, we try to find straight lines and connect those, since a spanning tree will not create cycles.
+For solving these three problems, we present an algorithm for each problem.
+To solve the single curve reconstruction problem, the algorithm creates a convex hull and then continues by removing the largest edge and then reconnecting the figure by creating 2 new segments with another nearby point.
+Multiple curves are solved using a seperate algorithm, which first connects the shortest segments such that there are no intersecting lines, after which it will seek out sharp angles and tries to remove and replace these with obtuse angles.
+The road network reconstruction problems is solved using a minimum spanning tree. After reconstructing this tree, the algorithm finds nodes with degree 1 and connects these to a nearby node. To correctly create intersections, nodes with degree 3 or higher will check their surrounding segments and will add a point based on their angles.
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[scale=0.3]{images/outputOverview.png}
+\caption{Output of the single curve (Left), multiple curve (Middle) and Network (Right) reconstruction algorithms.}
+\label{outputOverview}
+\end{figure}$ $\\
 
 \section{The algorithms}
 \label{se:algorithms}
