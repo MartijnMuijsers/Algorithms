@@ -106,8 +106,38 @@ $\varphi(s_{u,v}, s_{v_w})$ is the absolute value of the smallest angle between 
 For any $p \in P$, the degree of $p$ denoted by $deg(p)$ is the number of line segments that are connected to $p$.
 
 \subsection{Single curve reconstruction}
+%TODO Martijn: check definitions at previous section and describe algorithm. Stick to the conventions and styles introduced used in the next two sections!
+
 \subsection{Multiple curve reconstruction}
+\subsubsection{Description}
+For a given set of $n$ points $P \subset U$, this algorithm generates a set of non-intersecting line segments $S$ such that for every point, its degree is at most two. This result is generated in two steps.
+
+During both steps, two invariants are maintained:%
+\noindent\begin{enumerate}\topsep=0pt\itemsep=0pt\parsep=0pt
+\item $\forall p \in P : deg(p) \leq 2$
+\item The segments in $S$ do not intersect each other.
+\end{enumerate}
+
+%First, a set of segments is generated from the input. From this set, the shortest segments are selected and added to $S$ if the invariants are not invalidated. More precisely:
+
+Let $T \subset \{s_{p,q} | p,q \in P \land p \neq q \}$. A segment $s_{shortest}$ is said to be the shortest segment if there is no other segment in $T$ whose length is smaller than the length of $s_{shortest}$.
+While $T$ is not an empty set, find $s_{shortest}$ and remove it from the set and add $s_{shortest}$ to $S$ if doing so does not invalidate the invariants. Repeat this step until $T$ is empty.
+%TODO Early termination is also possible when $S$ has $n$ elements.
+
+%TODO Justify previous method.
+
+The elements for set $T$ can be generated in two ways. A straight-forward approach is to create a list of all possible segments, sort the list and iterate through it. The number of possible segments is $(n-1)^2$, so the memory complexity is $O(n^2)$. Sorting time is linearithmic in terms of the number of elements to sort, so the time complexity is $O(n^2\log(n))$.
+
+A quadratic complexity for memory is highly undesirable, because most computer systems have a limited amount of memory. To reduce the memory requirements, the first step can also be calculated using the following alternative method. For each point $p \in P$, find the $m$ nearest points and store the segments that are constructed from these points in a list. Then as before sort the list and iterate through its elements.
+
+With this alternative method, the memory complexity is reduced to $O(mT)$. The $m$ nearest points can be found in $O(mn)$ time with partial selection sort.
+%TODO Add reference for partial selection sort.
+ $mn$ segments will thus be generated in $O(mn^2)$ time and sorted in $O(mn\log(mn))$ time. If $m$ is a (small) constant, then the memory complexity is $O(n)$ and the time complexity is $O(n\log(n))$. This is a huge improvement over the previous algorithm! The disadvantage of this method over the previous is that a dense cluster of $m$ points will never be connected to other points and leave gaps in a curve.
+
+%TODO Rob: Step 2
+
 \subsection{Network Algorithm}
+%TODO Chris: Insert content of network2.tex.
 
 \section{Experimental evaluation}
 \subsection{Generating input}
