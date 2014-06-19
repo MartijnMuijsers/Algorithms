@@ -1,6 +1,8 @@
 package tue.algorithms.peach;
 
-
+import tue.algorithms.implementation.concrete.MultipleCurves;
+import tue.algorithms.implementation.concrete.NetworkRMST;
+import tue.algorithms.implementation.concrete.SingleImplodingTryingFaster;
 import tue.algorithms.implementation.general.MultipleImplementation;
 import tue.algorithms.implementation.general.NetworkImplementation;
 import tue.algorithms.implementation.general.ProblemType;
@@ -20,8 +22,7 @@ public abstract class PeachSubmitMain {
 	 * @return An instance of a class that extends SingleImplementation.
 	 */
 	public static SingleImplementation getSingleImplementation() {
-		/* TODO Choose an implementation */
-		return null;
+		return new SingleImplodingTryingFaster();
 	}
 	
 	/**
@@ -29,8 +30,7 @@ public abstract class PeachSubmitMain {
 	 * @return An instance of a class that extends MultipleImplementation.
 	 */
 	public static MultipleImplementation getMultipleImplementation() {
-		/* TODO Choose an implementation */
-		return null;
+		return new MultipleCurves();
 	}
 	
 	/**
@@ -38,8 +38,7 @@ public abstract class PeachSubmitMain {
 	 * @return An instance of a class that extends NetworkImplementation.
 	 */
 	public static NetworkImplementation getNetworkImplementation() {
-		/* TODO Choose an implementation */
-		return null;
+		return new NetworkRMST();
 	}
 	
 	/**

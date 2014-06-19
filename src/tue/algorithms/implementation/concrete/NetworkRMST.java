@@ -5,7 +5,7 @@ import java.util.Comparator;
 import tue.algorithms.implementation.general.NetworkImplementation;
 import tue.algorithms.other.Pair;
 import tue.algorithms.utility.AdjacentNodes;
-import tue.algorithms.utility.AdjacentNodes.NodeDistancePair;
+import tue.algorithms.utility.NodeDistancePair;
 import tue.algorithms.utility.ConnectedNodes;
 import tue.algorithms.utility.MinimumSpanningTree;
 import tue.algorithms.utility.Node;
