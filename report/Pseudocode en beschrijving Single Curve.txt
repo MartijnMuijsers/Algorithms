@@ -1,0 +1,256 @@
+Graham scan
+Implosion
+Remove all too long
+Remove intersections
+Supplement from MST
+Remove one too long
+
+The algorithm is based on the idea that a single curve always outlines some concave polygon, and thus can be gotten by starting with an outline of the points and collapsing this outline onto the other points to wrap a curve around a polygon containing all the points.
+
+Collapsing an outline to wrap it around all points must mean all points must be inside the polygon defined by that outline. For this purpose, we start with the boundaryof the convex hull as our initial set of segments. To compute the convex hull, we will use Graham's scan, an algorithm taht finds all vertices of the convex hull ordered along its boundary. Below pseudocode describes the Graham's Scan algorithm:
+
+// Returns twice the signed area of the triangle with vertices p1, p2 and p3.
+// CCW > 0 if three points are a counter-clockwise turn
+// CCW < 0 if three points are a clockwise turn
+// CCW = 0 if three points are collinear
+CCW ( p1 , p2 , p3 ):
+	return (p2.x - p1.x) * (p3.y - p1.y) - (p2.y-p1.y) * (p3.x - p1.x)
+
+// Returns the vertices of the convex hull of given points P ordered along its boundary
+GrahamScan ( P ) :
+	let n = P.length
+	// Let i be the index so that for every 0 <= j < n it goes that P[i].y < P[j].y || (P[i].y <= [j].y && P[i].x <= P[j].y)
+	let i = 0
+	for k = 1 to n-1
+		if P[k].y < P[i].y
+			k = i
+		else if P[k].y == P[i].y && P[k].x < P[i].x
+			k = i
+	// Let the first element of P be the one with the smallest y-coordinate (and in case of a tie: the one with the smallest x-coordinate)
+	swap P[0] with P[i]
+	sort P[1] to P[n-1] by their polar angle with P[0] from small to great // Using a common sorting algorithm like Timsort
+	// H will denote a stack of vertices of the convex hull found
+	let H be an empty stack
+	push P[0] to H
+	// Find index b of first point P[b] not collinear with P[0] and P[1]
+	let b = 0
+	for b = 2 to n-1
+		if CCW ( P[0] , P[1] , P[b] ) != 0
+			break
+	push P[b-1] to H
+	// Fill H with vertices of the convex hull boundary
+	for k = b to n-1
+		pop t from H
+		while CCW ( H.top , t , P[k] ) <= 0
+			pop t from H
+		push t to H
+		push P[k] to H
+	let R be an array containing the same ordered elements as H
+	return R
+
+After the convex hull boundary vertices are found, we start adding points to that set by determining which point would be most suitable to connect to two segment endpoints, where those segments are the segments that were found until that moment, starting with the convex hull boundary. In other words, while there are points left that we did not include in our set of segments, we find which of these points should best be added next and to which existing segment endpoints. We then remove the old segment S and add two new segments: one from the new point to the first endpoint of S, and one from the P to the second endpoint of S. This way, we end up with a curve with exactly as many segments as there were points given (per point added, we end up with one more segment), where the segments form a single, closed curve. Below is pseudocode for this algorithm:
+
+// Returns the best point in a set P for a segment s to collapse onto, and the corresponding likelihood, together in a tuple
+Likelihood ( s , P ) :
+	// a will be the largest likelihood
+	let a = -INFINITY
+	// n will be the point with the largest likelihood
+	for every point p in P
+		let d1 = distance between p and s.endpoint1
+		let d2 = distance between p and s.endpoint2
+		let l = length of s
+		// b will be the likelihood for p
+		let b = l*l/(d1*d1+d2*d2) // This is a parameter
+		if b >= a
+			a = b
+			n = p
+	return new tuple ( n , a )
+
+// Returns a set of segments that form a single closed curve through all the given points P
+Collapse ( P ) :
+	// C will contain the segments found thus far
+	let C be an empty set of segments
+	let G = GrahamScan ( P )
+	for k = 0 to G.length-1
+		add a new segment with endpoints G[k] and G[k+1] to C
+	add a new segment with endpoints G[0] and G[G.length-1] to C
+	// H will denote the points left to connect
+	let H be a set of points, specifically P \ G
+	// S will hold all currently found segments in some order
+	let S be an empty list of segments
+	// N will hold at index i the point p that S[i] is best to be collapsed on
+	let N be an empty list of points
+	// L will hold at index i the likelihood l that S[i] is to be collapsed onto N[i]
+	let L be an empty list of numbers
+	// Fill S, N and L
+	for every segment s in C
+		add s to S
+		// Retrieve the most likely point for s to be collapsed on and the likelihood of that action as a tuple
+		let <p , l> = Likelihood ( c , H )
+		add p to N
+		add l to L
+	while H.size > 0
+		// Let i be the index with the largest likelihood in L
+		let i = 0
+		for j = 1 to L.size-1
+			if L[j] > L[i]
+				i = j
+		// Collapse S[i] onto N[i]
+		let s = S[i]
+		let p = N[i]
+		let s1 be a new segment with endpoints S[i].endpoint1 and p
+		let s2 be a new segment with endpoints S[i].endpoint2 and p
+		// Update C
+		add s1 to C
+		add s2 to C
+		remove s from C
+		// Remove the found instances from the likelihood lists
+		remove s from S
+		remove the point at index i from N
+		remove the likelihood at index i from L
+		// Mark p as no longer to-do
+		remove p from H
+		if H.size > 0
+			// Check likelihoods for the removed node and update if there was another segment with that node as most likely
+			for k = 0 to N.size-1
+				if N[k] == p
+					let <p , l> = Likelihood ( S[k] , H )
+					N[k] = p
+					L[k] = l
+			// Check likelihoods for the new segments
+			add s1 to S
+			let <p, l> = Likelihood ( s1 , H )
+			add p to N
+			add l to L
+			add s2 to S
+			let <p, l> = Likelihood ( s2 , H )
+			add p to N
+			add l to L
+	return C
+
+Next, we wish to remove all lines which seem inappropriate. Choosing to remove lines that stick out in length or intersect with others, and trying to fix gaps with the minimum spanning tree, the pseudocode for the algorithm looks like this:
+
+// Returns the segments of the single curve derived from an array of points P :
+Algorithm ( P ) :
+	let S = Collapse ( P )
+	while true
+		let S2 = RemoveTooLong ( S )
+		if S == S2
+			break
+		S = S2
+	S = RemoveIntersections ( S )
+	S = SupplementFromMST ( S , P )
+	// Last extra fix just in case the curve was wrongly closed again
+	S = RemoveTooLong ( S )
+	return S
+
+// Returns a set of segments that is the given set of segments S possibly without a line that was oddly long
+RemoveTooLong ( S ) :
+	// l1 will be the longest length found
+	let l1 = 0
+	// l2 will be the one-to-longest length found
+	let l2 = 0
+	// t will be the longest segment found
+	let t = null
+	for every segment s in S
+		let length = length of s
+		if length >= l1
+			l2 = l1
+			l1 = length
+			t = s
+		else if length > l2
+			l2 = length
+	if l1 > 1.4 * l2 // 1.4 is a parameter
+		remove t from S
+	return S
+
+// Returns a set of segments that is the given set of segments S with no more intersecting segments, and as many segments as possible still there
+RemoveIntersections ( S ) :
+	// M will store the other segments that each segment intersects with (as a set of segments, per segment)
+	let M be an empty key-value map
+	for every segment s1 in S
+		for every segment s2 in S
+			if s1 != s2
+				if s1 intersects with s2
+					let V be an empty set
+					if M contains key s1
+						let V = value of s1 in M
+					add s2 to V
+					put V as value of s1 in M
+	// Keep going until there are no more intersections
+	while M.size > 0
+		// j will denote the highest number of intersections a segment has
+		let j = 0
+		// t will denote the segment with the highest number of intersections
+		let t = null
+		for every key-value pair p in M
+			let s = p.value.size
+			if s >= j
+				j = s
+				t = p.key
+		// Remove segment t
+		remove t from S
+		// Remove all intersections that no longer exist from M
+		let V = value of t in M
+		remove key t from M
+		for every segment v in V
+			let U = value of v in M
+			remove t from U
+			if U.size > 0
+				put U as value of v in M
+			else
+				remove key v from M
+	return S
+
+// Returns a set of segments, at least containing the given set of segments S, that also tries to connect endpoints with degree 0 or 1 with new segments from the minimum spanning tree of given points P
+SupplementFromMST ( S , P ) :
+	let C = MinimumSpanningTree ( P )
+	// It is better to try to add smaller edges first since they are more likely to be valid connections between two unconnected points
+	sort C by length from small to great // Using a common sorting algorithm like Timsort
+	// M will contain the degree of points
+	let M be an empty key-value map
+	for every segment s in S
+		let p1 = s.endpoint1
+		if M contains key p1
+			increment the value of p1 in M
+		else
+			put 1 as value of p1 in M
+		let p2 = s.endpoints2
+		if M contains key p2
+			increment the value of p2 in M
+		else
+			put 1 as value of p2 in M
+	// Try to add segments from the MST
+	for every segment c in C
+		// Get the degrees of the endpoints of c
+		let d1 = 0
+		if M contains key c.endpoint1
+			d1 = value of c.endpoint1 in M
+		let d2 = 0
+		if M contains key c.endpoint2
+			d2 = value of c.endpoint2 in M
+		// Only proceed if both degrees are smaller than 2
+		if d1 < 2 && d2 < 2
+			// Of course, we cannot add a segment now that intersects with another existing segment
+			let intersects = false
+			for every segment s in S
+				if c intersects with s
+					intersects = true
+			if ! intersects
+				// Increase the degrees of the endpoints
+				put d1+1 as value of c.endpoint1 in M
+				put d2+1 as value of c.endpoint2 in M
+				// Add segment c to S
+				add c to S
+	return S
+
+A short recap:
+- First, we take the convex hull boundary of the set of points
+- We then 'collapse' these boundary segments, where each time we remove a segment and replace it by two segments, connecting the previous endpoints of the old segment with a point, until no more points are unconnceted
+- Next, any oddly long segments are removed
+- Then, any intersecting segments are removed
+- After that, points with degree smaller than 2 are attempted to be connected using segments from the minimum spanning tree
+- As a last check, at most one oddly long segment is removed
+
+General algorithm ssumptions:
+- No two give points are the same
