@@ -89,6 +89,21 @@ The road network reconstruction problems is solved using a minimum spanning tree
 
 \section{The algorithms}
 \label{se:algorithms}
+\subsubsection{Background definitions}
+Let $U = [0,1]^2$ be a set of points in a two-dimensional space.
+For any $u,v \in U$, the line segment between $u$ and $v$ is denoted as $s_{u,v}$. $u$ and $v$ are called the endpoints of $s_{u,v}$. Each of the presented algorithms take $P \subset U$ as input, and output $S \subset \{s_{p,q} | p,q \in P \land p \neq q \}$.
+ Two distinct points $a$ and $b$ are called \textit{connected} if there is a segment in $S$ whose endpoints are $a$ and $b$.
+ Two segments are \textit{intersecting} each other if the line segments have a common point besides than the endpoints.
+%TODO (rob): The next line does not belong here, it's a detail specific to the algorithm, right?
+%None of these output line segments intersect another line segment in $S$.
+
+For any $p,q \in U$, $d(p,q)$ is the Euclidean distance between $p$ and $q$. %\ref{todo:euclid_distance}.
+
+For every $p \in P$ and $n \in \mathbb{N}$, $Adj_{p,n}$ is an adjacency list consisting of the $n$ nearest points to $p$, sorted in ascending order.
+
+$\varphi(s_{u,v}, s_{v_w})$ is the absolute value of the smallest angle between two segments that share a common point, in degrees.
+
+For any $p \in P$, the degree of $p$ denoted by $deg(p)$ is the number of line segments that are connected to $p$.
 
 \subsection{Single curve reconstruction}
 \subsection{Multiple curve reconstruction}
