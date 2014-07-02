@@ -7,6 +7,8 @@
 \usepackage{algorithm}
 \usepackage{algorithmic}
 \usepackage{parskip}
+\usepackage{subcaption}
+\usepackage{gensymb}
 
 \newcommand{\maxsize}[1]{\begin{quotation} {\sl \noindent Maximum size: #1.} \end{quotation}}
 
@@ -101,16 +103,19 @@ For any $p,q \in U$, $d(p,q)$ is the Euclidean distance between $p$ and $q$. %\r
 
 For every $p \in P$ and $n \in \mathbb{N}$, $Adj_{p,n}$ is an adjacency list consisting of the $n$ nearest points to $p$, sorted in ascending order.
 
-$\varphi(s_{u,v}, s_{v_w})$ is the absolute value of the smallest angle between two segments that share a common point, in degrees.
-
 For any $p \in P$, the degree of $p$ denoted by $deg(p)$ is the number of line segments that are connected to $p$.
+
+$\varphi(s_{u,v}, s_{v_w})$ is the absolute value of the smallest angle between two segments that share a common point,
+If $p \in P$ has degree two, then $\alpha_p$ is defined to be the absolute value of the smallest angle between its two connected segments. %TODO What if degree is not two?
+
+
 
 \subsection{Single curve reconstruction}
 %TODO Martijn: check definitions at previous section and describe algorithm. Stick to the conventions and styles introduced used in the next two sections!
 
 \subsection{Multiple curve reconstruction}
 \subsubsection{Description}
-For a given set of $n$ points $P \subset U$, this algorithm generates a set of non-intersecting line segments $S$ such that for every point, its degree is at most two. This result is generated in two steps.
+For a given set of $n$ points $P \subset U$, this algorithm generates a set of non-intersecting line segments $S$ such that for every point, its degree is at most two. This result is generated in two steps. The segments in $S$ connect points in $P$ and form one or more shapes.
 
 During both steps, two invariants are maintained:%
 \noindent\begin{enumerate}\topsep=0pt\itemsep=0pt\parsep=0pt
@@ -130,11 +135,76 @@ The elements for set $T$ can be generated in two ways. A straight-forward approa
 
 A quadratic complexity for memory is highly undesirable, because most computer systems have a limited amount of memory. To reduce the memory requirements, the first step can also be calculated using the following alternative method. For each point $p \in P$, find the $m$ nearest points and store the segments that are constructed from these points in a list. Then as before sort the list and iterate through its elements.
 
-With this alternative method, the memory complexity is reduced to $O(mT)$. The $m$ nearest points can be found in $O(mn)$ time with partial selection sort.
+With this alternative method, the memory complexity is reduced to $O(mn)$. The $m$ nearest points can be found in $O(mn)$ time with partial selection sort.
 %TODO Add reference for partial selection sort.
  $mn$ segments will thus be generated in $O(mn^2)$ time and sorted in $O(mn\log(mn))$ time. If $m$ is a (small) constant, then the memory complexity is $O(n)$ and the time complexity is $O(n\log(n))$. This is a huge improvement over the previous algorithm! The disadvantage of this method over the previous is that a dense cluster of $m$ points will never be connected to other points and leave gaps in a curve.
 
 %TODO Rob: Step 2
+This first step only accounts for the lengths of the segments, not for any other properties of the shapes in the graph, such as the angle between two segments. Consequently, there may be points with two connected segments that have a small angle. An initial experimental evaluation showed that this first step of the algorithm yields a reasonable solution, but tends to create small and disconnected shapes. This is not surprising, because in a sparse graph nodes in a corner are often close to each other. Consequently, the segments of the initial solution often form a set of small shapes, as seen in figure \ref{fig:multiple_initial_solution}.
+
+\begin{figure}[hbtp]
+\centering
+\begin{subfigure}{.33\linewidth}
+  \centering
+  \includegraphics[width=0.9\linewidth]{multiplecurves/algo_step0_dots.pdf}
+  \caption{Input}
+\end{subfigure}%
+\begin{subfigure}{.33\linewidth}
+  \centering
+  \includegraphics[width=0.9\linewidth]{multiplecurves/algo_step1_add_lines_with_numbers.pdf}
+  \caption{Initial solution}
+\end{subfigure}%
+  \caption{Input and output of the multiple curve algorithm's first step.}
+\label{fig:multiple_initial_solution}
+\end{figure}
+
+In the next step, disconnected shapes are joined if possible, by replacing segments in $S$ that are part of a corner with a sharp angle. Since the previous step yields a good initial solution, most of the segments will not be modified, so the angles at the endpoints of most segments will not change. This observation is important, because replacing a segment affects the angles of the segments that are connected to the former and new endpoints of the replaced segment, which could invalidate a previous calculation that relied on the angles.
+
+For every $p \in P$ where $deg(p) = 2$, select $p$ for the next step of the algorithm if $\alpha_p < \alpha_{required}$. $\alpha_{required}$ is a parameter that is used to determine whether an angle is considered to be too sharp. It is set to $90\degree$.
+
+For each of the selected points, try to replace a segment as follows:
+
+\begin{enumerate}
+\item Let $p_1$ be the selected point, and $s_{p_1,p_2}$ be the longest segments that is connected to $p_1$. The other segment is connected to $p_3$.
+% The next line is commented out because checking this early is just an optimization detail, not necessarily part of the algorithm.
+%\item Identify all points that are (indirectly) connected to $p_1$.
+\item Select the best point from $Adj_{p_1,10}$ (look ahead for the definition of "best").
+\item If the best point $q_1$ exists, remove $s_{p_1,p_2}$ and $s_{q_1,q_2}$ from $S$, and add $s_{p_1,q_1}$ and $s_{p_2,q_2}$ to $S$.
+\item Otherwise the longest segment cannot be replaced, so check whether the shortest segment can be replaced by repeating these steps with the shortest segment instead of the longest one.
+\end{enumerate}
+
+To check whether a point $q_1 \in Adj_{p_1,10}$ is the best point, follow the next steps:
+\begin{enumerate}
+\item If $deg(q_1) = 0$, then $q_1$ is not the best point.
+\item Let $q_2$ be a point that is connected with $q_1$.
+\item If $\varphi(s_{p_1,p_3}, s_{p_1,q_1}) < \alpha_{sharp}$, then $q_1$ is not the best point. $\alpha_{sharp}$ is a parameter that specifies the minimum required angle. This step exists to prevent inserting sharp corners again. This parameter is typically lower than $\alpha_{required}$ and is set to $45\degree$.
+\item If $d(p_1, q_1)$ and $d(p_2,q_2)$ are both greater than $d(p_1,p_3) \cdot \lambda$, then $p_1$ is not the best point.
+This step ensures that a segment is not replaced by segments that are significantly shorter. % (i.e. shorter than the original segment multiplied by $\lambda$).
+Parameter $\lambda$ is set to $1.2$ to allow points that result in a slightly shorter segment to be considered as best point.
+\item If $s_{q_1,q_2}$ is already in $S$, and (indirectly) connected to $p_1$, then $p_1$ is not the best point. This step exists to avoid breaking shapes in even smaller shapes.
+\item If any of the new segments intersect each other or other segments in $S$ (besides the to-be-removed ones), then $p_1$ is not the best point.
+\item Otherwise, $p_1$ is the best point if $d(p_1,q_1) + d(p_2,q_2) - d(p_1,p_2) - d(q_1,q_2)$ is minimal (relative to all other $p \in Adj_{p_1,10}$), \textit{and} greater than $\textsc{minWeight}$. This parameter specifies the threshold for the weight. A positive value means that the sum of the new segment's lengths must be smaller than the existing segments, while a negative value means that the sum is allowed to be bigger. $\textsc{minWeight}$ is set to $-0.2$.
+This par
+\end{enumerate}
+
+The meaning and relations between $p_1$, $p_2$, $p_3$, $q_1$ and $q_2$ are displayed in figure \ref{fig:multiple_pppqq}.
+
+\begin{figure}[hbtp]
+\centering
+\begin{subfigure}{.33\linewidth}
+  \centering
+  \includegraphics[width=0.9\linewidth]{multiplecurves/algo_replace_segment.pdf}
+  \caption{Initial solution}
+\end{subfigure}%
+\begin{subfigure}{.33\linewidth}
+  \centering
+  \includegraphics[width=0.9\linewidth]{multiplecurves/algo_final.pdf}
+  \caption{Final solution}
+\end{subfigure}%
+  \caption{Meaning of $p_1$, $p_2$, $p_3$, $q_1$ and $q_2$.}
+\label{fig:multiple_pppqq}
+\end{figure}
+
 
 \subsection{Network Algorithm}
 %TODO Chris: Insert content of network2.tex.
