@@ -171,7 +171,7 @@ For each of the selected points, try to replace a segment as follows:
 \item Select the best point, by running the following steps for each $q_1 \in Adj_{p_1,10}$.
   \begin{enumerate}
   \item If $deg(q_1) = 0$, then $q_1$ is not the best point.
-  \item Let $q_2$ be a point that is connected with $q_1$.
+  \item Let $q_2$ be a point that is connected with $q_1$. If $deg(p_1) = 2$, repeat the same steps from here for the endpoint of the other segment.
   \item If $\varphi(s_{p_1,p_3}, s_{p_1,q_1}) < \alpha_{sharp}$, then $q_1$ is not the best point. $\alpha_{sharp}$ is a parameter that specifies the minimum required angle. This step exists to prevent inserting sharp corners again. This parameter is typically lower than $\alpha_{required}$ and is set to $45\degree$.
   \item If $d(p_1, q_1)$ and $d(p_2,q_2)$ are both greater than $d(p_1,p_3) \cdot \lambda$, then $p_1$ is not the best point.
   This step ensures that a segment is not replaced by segments that are significantly shorter. % (i.e. shorter than the original segment multiplied by $\lambda$).
