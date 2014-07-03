@@ -4,6 +4,8 @@
 \usepackage{a4wide}
 \usepackage{graphicx}
 \usepackage{tikz}
+\usepackage{caption}
+\usepackage{subcaption}
 
 
 
@@ -14,30 +16,31 @@
 \subsubsection{Outline}
 The algorithm consists of the following steps:
 \begin{enumerate}
-  \item Given the set $P$ create a graph $G(V,E)$ where $V=P$ and $E=V\times V$.
-  \item Compute the $EMST$ of $G$.
-  \item Compute $EMST_{add}$ by connecting each endpoint, if possible, to a nearby node.
-  \item Find segment that divert from straight roads and remove these segments to get $EMST_{rem}$.
-  \item Connect
+  \item Compute the $EMST$ of $P$.
+  \item Find points with degree 1 and connect, if possible, to a nearby node.
+  \item Find segment that divert from straight roads and remove these segments from the graph.
+  \item After removing segments, find better segment to fit the road network.
 \end{enumerate}
-  \begin{figure}[h]
+  
+\subsubsection{Description}
+Given the set $P$ of points in $\mathbb{R}^2$ first the Eucledian minimum spanning tree $EMST$ is calculated by using Prim's algorithm with running time $O(n^2)$ and memory $O(n)$. This results in a connected graph $RN(P,S)$, where $s_{a,b}\in S$ represents a road segment between points $a,b \in P$, that gives a good approximation of the road network but some road segments may be missing.
+
+\begin{figure}[h]
   \centering
       \graphicspath{ {images/}}
-      \includegraphics[width=0.7\linewidth]{NetworkMST}
+      \includegraphics[width=0.5\linewidth]{NetworkMST}
       \label{fig:EMST}
       \caption{$EMST$ for a given set $p$. The red dotted circles indicate the misssing road segments.}
   \end{figure}
-\subsubsection{Description}
-Given the set $P$ of points in $\mathbb{R}^2$ first the Eucledian minimum spanning tree $EMST$ is calculated by using Prim's algorithm. This results in a connected graph $RN(P,S)$, where $s_{a,b}\in S$ represents a road segment between points $a,b \in P$, that gives a good approximation of the road network but some road segments may be missing.%TODO ref 
 
-From $RN$ a new graph is made in which the missing road segments are added in a naive way. For each point $p_1 \in P$ that has degree $1$ the nearest point $p_n \in Adj_{p_1,5}$ is found such that the angle between the segment that contains $p_n$ and point $p_n$ is $>90$, this avoids that roads contain sharp angles. 
+From $RN$ a new graph is made in which the missing road segments are added in a naive way. For each point $p_1 \in P$ that has degree $1$ the nearest point $p_n \in Adj_{p_1,5}$ is found such that the angle between the segment that contains $p_n$ and point $p_n$ is $>90$, this avoids that roads contain sharp angles. A minimum spanning tree has at most $n-1$ points with degree 1, the operations for each point take $O(1)$ therefore this step takes $O(n)$ time in the worst case. 
 
-The next step in the algorithm is to find road segments that diverge from straight roads. $\alpha_{straight}$ is defined as the minimum angle for which two consecutive road segments are consider a straight road. $\alpha_{min}$ is the minimum angle that a road segment must make with the previous segment for it not to be a bend. For every point $p_2 \in P$ that has degree $2$ there are two points $r_1, q_1 \in P$ which make up the segments $s_{p_2, q_1}$ and $s_{p_2,r_1}$. Segments $s_{q_1, q_2}$ and $s_{r_1,r_2}$ are the segments that are connected to $q_1$ and $r_1$. $\theta=\varphi(s_{p_2, q_1},s_{p_2,r_1})$, if $\theta> \alpha_{straight}$ then $\alpha_1=\varphi(s_{p_2, q_1},s_{q_1, q_2})$ and $\alpha_2=\varphi(s_{p_2, r_1},s_{r_1, r_2})$. If $\alpha_1$ or $\alpha_2$ $<\alpha_{min}$ then $s_{q_1, q_2}$ or $s_{r_1, r_2}$ is removed from $S$.
+The next step in the algorithm is to find road segments that diverge from straight roads. $\alpha_{straight}$ is defined as the minimum angle for which two consecutive road segments are consider a straight road. $\alpha_{min}$ is the minimum angle that a road segment must make with the previous segment for it not to be a bend. For every point $p_2 \in P$ that has degree $2$ there are two points $r_1, q_1 \in P$ which make up the segments $s_{p_2, q_1}$ and $s_{p_2,r_1}$. Segments $s_{q_1, q_2}$ and $s_{r_1,r_2}$ are the segments that are connected to $q_1$ and $r_1$. $\theta=\varphi(s_{p_2, q_1},s_{p_2,r_1})$, if $\theta> \alpha_{straight}$ then $\alpha_1=\varphi(s_{p_2, q_1},s_{q_1, q_2})$ and $\alpha_2=\varphi(s_{p_2, r_1},s_{r_1, r_2})$. If $\alpha_1$ or $\alpha_2$ $<\alpha_{min}$ then $s_{q_1, q_2}$ or $s_{r_1, r_2}$ is removed from $S$. Every point is visted once and finding the segment that include this point takes $O(|S|)$, since $|s|<n$ a upper bound would be $O(n)$. This gives running time of $O(n^2)$ for this step.
 
 \begin{figure}[h]
 \centering
   \graphicspath{ {images/}}
-  \includegraphics[width=0.9\linewidth]{NetworkRemoveSegmentsDetail}
+  \includegraphics[width=0.5\linewidth]{NetworkRemoveSegmentsDetail}
   \label{fig:NetworkRemove}
   \caption{Calculation of $\theta$, $\alpha_1$ and $\alpha_2$}
 \end{figure}
@@ -47,15 +50,74 @@ $RN$ is now a unconnected graph. For $RN$ to represent the road network it must 
 \begin{figure}[h]
 \centering
       \graphicspath{ {images/}}
-      \includegraphics[width=0.9\linewidth]{NetworkAddIntersection}
+      \includegraphics[width=0.5\linewidth]{NetworkAddIntersection}
       \label{fig:AddIntersect}
       \caption{Adding a new segment that intersects the existing segment $s_{w_1,w_2}$}.
   \end{figure}
 
-When no such point is found in $Adj_{p_3,10}$ the segment $s_{q_3, p_3}$ is extended with a new segment $s_{p_3,q_4}$ where $q_4 \in U$ and $d(p_3,q_4)<d_{max}$. If $s_{p_3,q_4}$ intersects with a other segment $s_{w_3,w_4} \in S$ at $u_2 \in U$ then three new segments $s_{p_3,u_2}$, $s_{w_3,u_2}$ and $s_{u_2,w_4}$ are added to $S$, $s_{w_3,w_4}$ is removed from $S$ and $P_{add}=P_{add}\cup u_2$.
+When no such point is found in $Adj_{p_3,10}$ the segment $s_{q_3, p_3}$ is extended with a new segment $s_{p_3,q_4}$ where $q_4 \in U$ and $d(p_3,q_4)<d_{max}$. If $s_{p_3,q_4}$ intersects with a other segment $s_{w_3,w_4} \in S$ at $u_2 \in U$ then three new segments $s_{p_3,u_2}$, $s_{w_3,u_2}$ and $s_{u_2,w_4}$ are added to $S$, $s_{w_3,w_4}$ is removed from $S$ and $P_{add}=P_{add}\cup u_2$. Every point with degree 1 is visited, in the worse case this are all points. For every point at most 10 points are looked up in the adjacency list. Comparisons between the points takes $O(1)$. This gives a running time of $O(n)$.
 
+If we add the running times for each step that gives us: $O(n^2+O(n)+O(n^2)+O(n)=O(n^2)$
 
+\subsubsection{Evaluation}
 
+\begin{figure}[h]
+\centering
+  \begin{subfigure}{.4\linewidth}
+  \centering
+  \graphicspath{ {images/}}
+  \includegraphics[width=\linewidth]{given167_170}
+  \end{subfigure}
+    \begin{subfigure}{0.4\linewidth}
+  \centering
+  \graphicspath{ {images/}}
+  \includegraphics[width=\linewidth]{given90_90}
+  \end{subfigure}
+  \caption{Left test case with $\alpha_{min}=167$ and $\alpha_{straight}= 170$, right test case with $\alpha_{min}=90$ and $\alpha_{straight=170}$. }
+  \label{}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+  \begin{subfigure}{0.4\linewidth}
+  \centering
+  \graphicspath{ {images/}}
+  \includegraphics[width=\linewidth]{test1165_170}
+  \end{subfigure}
+    \begin{subfigure}{0.4\linewidth}
+  \centering
+  \graphicspath{ {images/}}
+  \includegraphics[width=\linewidth]{test1140_170}
+  \end{subfigure}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+  \begin{subfigure}{0.4\linewidth}
+  \centering
+  \graphicspath{ {images/}}
+  \includegraphics[width=\linewidth]{roundabout165_165}
+  \end{subfigure}
+    \begin{subfigure}{0.4\linewidth}
+  \centering
+  \graphicspath{ {images/}}
+  \includegraphics[width=\linewidth]{roundabout167_170}
+  \end{subfigure}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+  \begin{subfigure}{0.4\linewidth}
+  \centering
+  \graphicspath{ {images/}}
+  \includegraphics[width=\linewidth]{knooppunt165_165}
+  \end{subfigure}
+    \begin{subfigure}{0.4\linewidth}
+  \centering
+  \graphicspath{ {images/}}
+  \includegraphics[width=\linewidth]{knooppunt167_170}
+  \end{subfigure}
+\end{figure}
 
 \bibliographystyle{plain}
 
