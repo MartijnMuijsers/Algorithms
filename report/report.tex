@@ -258,6 +258,27 @@ Parameters, input sizes, sampling conditions, wat niet werkt en waarom niet, all
 \subsubsection{Single curve}
 
 \subsubsection{Multiple curves}
+The accuracy of the multiple curve algorithm relies on the effectiveness of the initial solution. The description provided two ways to reach the initial solution. The original method is relatively expensive, so the alternative method was made available to make the algorithm feasible for bigger input sizes. In the next section, the experimental results of the initial solution are evaluated. Then, the transformation from the initial solution to the final solution is evaluated.
+
+\subsubsection*{Multiple curves: Initial solution}
+%TODO Compare n^2 with 10n method
+%TODO Test case: Dense = GOOD
+%TODO Test case: Dense square with sparse outer square, n^2 = GOOD, 10n = BAD
+%TODO Test case: sparse paralel = BAD
+%TODO Test case: square/circle with lonely point in middle = GOOD
+%TODO Dense line with odd gaps = BAD/GOOD
+
+\subsubsection*{Multiple curves: Final solution}
+%TODO Parameters $\alpha_{required}$ and $\alpha_{sharp}$ (briefly)
+%TODO Parameter $\lambda$ (=length multiplier)
+%TODO Parameter \textsc{minWeight}
+%TODO Parameter 10 in $Adj_{p_1,10}$ - why 10?
+%TODO (not documented in algo) Parameter 5f that determines closeness? 197-203 in MultipleCurves.java
+
+%TODO Test case: Triangle in corner = GOOD
+%TODO Test case: Paralel = OKAY (mention the undocumented feature?)
+%TODO More test cases?
+
 \subsubsection{Network reconstruction}
 
 \subsection{Conclusion}
