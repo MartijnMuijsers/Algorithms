@@ -168,23 +168,23 @@ For each of the selected points, try to replace a segment as follows:
 \item Let $p_1$ be the selected point, and $s_{p_1,p_2}$ be the longest segments that is connected to $p_1$. The other segment is connected to $p_3$.
 % The next line is commented out because checking this early is just an optimization detail, not necessarily part of the algorithm.
 %\item Identify all points that are (indirectly) connected to $p_1$.
-\item Select the best point from $Adj_{p_1,10}$ (look ahead for the definition of "best").
+\item Select the best point, by running the following steps for each $q_1 \in Adj_{p_1,10}$.
+  \begin{enumerate}
+  \item If $deg(q_1) = 0$, then $q_1$ is not the best point.
+  \item Let $q_2$ be a point that is connected with $q_1$.
+  \item If $\varphi(s_{p_1,p_3}, s_{p_1,q_1}) < \alpha_{sharp}$, then $q_1$ is not the best point. $\alpha_{sharp}$ is a parameter that specifies the minimum required angle. This step exists to prevent inserting sharp corners again. This parameter is typically lower than $\alpha_{required}$ and is set to $45\degree$.
+  \item If $d(p_1, q_1)$ and $d(p_2,q_2)$ are both greater than $d(p_1,p_3) \cdot \lambda$, then $p_1$ is not the best point.
+  This step ensures that a segment is not replaced by segments that are significantly shorter. % (i.e. shorter than the original segment multiplied by $\lambda$).
+  Parameter $\lambda$ is set to $1.2$ to allow points that result in a slightly shorter segment to be considered as best point.
+  \item If $s_{q_1,q_2}$ is already in $S$, and (indirectly) connected to $p_1$, then $p_1$ is not the best point. This step exists to avoid breaking shapes in even smaller shapes. Since the degree of every point is at most two, this can easily be checked by enumerating the segments in the paths originating from $p_1$.
+  \item If any of the new segments intersect each other or other segments in $S$ (besides the to-be-removed ones), then $p_1$ is not the best point.
+  \item Otherwise, $p_1$ is the best point if $d(p_1,q_1) + d(p_2,q_2) - d(p_1,p_2) - d(q_1,q_2)$ is minimal (relative to all other $p \in Adj_{p_1,10}$), \textit{and} greater than $\textsc{minWeight}$. This parameter specifies the threshold for the weight. A positive value means that the sum of the new segment's lengths must be smaller than the existing segments, while a negative value means that the sum is allowed to be bigger. $\textsc{minWeight}$ is set to $-0.2$.
+  \end{enumerate}
+
 \item If the best point $q_1$ exists, remove $s_{p_1,p_2}$ and $s_{q_1,q_2}$ from $S$, and add $s_{p_1,q_1}$ and $s_{p_2,q_2}$ to $S$.
 \item Otherwise the longest segment cannot be replaced, so check whether the shortest segment can be replaced by repeating these steps with the shortest segment instead of the longest one.
 \end{enumerate}
 
-To check whether a point $q_1 \in Adj_{p_1,10}$ is the best point, follow the next steps:
-\begin{enumerate}
-\item If $deg(q_1) = 0$, then $q_1$ is not the best point.
-\item Let $q_2$ be a point that is connected with $q_1$.
-\item If $\varphi(s_{p_1,p_3}, s_{p_1,q_1}) < \alpha_{sharp}$, then $q_1$ is not the best point. $\alpha_{sharp}$ is a parameter that specifies the minimum required angle. This step exists to prevent inserting sharp corners again. This parameter is typically lower than $\alpha_{required}$ and is set to $45\degree$.
-\item If $d(p_1, q_1)$ and $d(p_2,q_2)$ are both greater than $d(p_1,p_3) \cdot \lambda$, then $p_1$ is not the best point.
-This step ensures that a segment is not replaced by segments that are significantly shorter. % (i.e. shorter than the original segment multiplied by $\lambda$).
-Parameter $\lambda$ is set to $1.2$ to allow points that result in a slightly shorter segment to be considered as best point.
-\item If $s_{q_1,q_2}$ is already in $S$, and (indirectly) connected to $p_1$, then $p_1$ is not the best point. This step exists to avoid breaking shapes in even smaller shapes. Since the degree of every point is at most two, this can easily be checked by enumerating the segments in the paths originating from $p_1$.
-\item If any of the new segments intersect each other or other segments in $S$ (besides the to-be-removed ones), then $p_1$ is not the best point.
-\item Otherwise, $p_1$ is the best point if $d(p_1,q_1) + d(p_2,q_2) - d(p_1,p_2) - d(q_1,q_2)$ is minimal (relative to all other $p \in Adj_{p_1,10}$), \textit{and} greater than $\textsc{minWeight}$. This parameter specifies the threshold for the weight. A positive value means that the sum of the new segment's lengths must be smaller than the existing segments, while a negative value means that the sum is allowed to be bigger. $\textsc{minWeight}$ is set to $-0.2$.
-\end{enumerate}
 
 The meaning and relations between $p_1$, $p_2$, $p_3$, $q_1$ and $q_2$ are displayed in figure \ref{fig:multiple_pppqq}.
 Let $n$ be the size of $P$. Since $|S| \leq |P|$, $|P| = O(n)$.
