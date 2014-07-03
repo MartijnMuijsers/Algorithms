@@ -139,7 +139,6 @@ With this alternative method, the memory complexity is reduced to $O(mn)$. The $
 %TODO Add reference for partial selection sort.
  $mn$ segments will thus be generated in $O(mn^2)$ time and sorted in $O(mn\log(mn))$ time. If $m$ is a (small) constant, then the memory complexity is $O(n)$ and the time complexity is $O(n\log(n))$. This is a huge improvement over the previous algorithm! The disadvantage of this method over the previous is that a dense cluster of $m$ points will never be connected to other points and leave gaps in a curve.
 
-%TODO Rob: Step 2
 This first step only accounts for the lengths of the segments, not for any other properties of the shapes in the graph, such as the angle between two segments. Consequently, there may be points with two connected segments that have a small angle. An initial experimental evaluation showed that this first step of the algorithm yields a reasonable solution, but tends to create small and disconnected shapes. This is not surprising, because in a sparse graph nodes in a corner are often close to each other. Consequently, the segments of the initial solution often form a set of small shapes, as seen in figure \ref{fig:multiple_initial_solution}.
 
 \begin{figure}[hbtp]
@@ -166,15 +165,13 @@ For each of the selected points, try to replace a segment as follows:
 
 \begin{enumerate}
 \item Let $p_1$ be the selected point, and $s_{p_1,p_2}$ be the longest segments that is connected to $p_1$. The other segment is connected to $p_3$.
-% The next line is commented out because checking this early is just an optimization detail, not necessarily part of the algorithm.
-%\item Identify all points that are (indirectly) connected to $p_1$.
 \item Select the best point, by running the following steps for each $q_1 \in Adj_{p_1,10}$.
   \begin{enumerate}
   \item If $deg(q_1) = 0$, then $q_1$ is not the best point.
   \item Let $q_2$ be a point that is connected with $q_1$. If $deg(p_1) = 2$, repeat the same steps from here for the endpoint of the other segment.
   \item If $\varphi(s_{p_1,p_3}, s_{p_1,q_1}) < \alpha_{sharp}$, then $q_1$ is not the best point. $\alpha_{sharp}$ is a parameter that specifies the minimum required angle. This step exists to prevent inserting sharp corners again. This parameter is typically lower than $\alpha_{required}$ and is set to $45\degree$.
   \item If $d(p_1, q_1)$ and $d(p_2,q_2)$ are both greater than $d(p_1,p_3) \cdot \lambda$, then $p_1$ is not the best point.
-  This step ensures that a segment is not replaced by segments that are significantly shorter. % (i.e. shorter than the original segment multiplied by $\lambda$).
+  This step ensures that a segment is not replaced by segments that are significantly shorter.
   Parameter $\lambda$ is set to $1.2$ to allow points that result in a slightly shorter segment to be considered as best point.
   \item If $s_{q_1,q_2}$ is already in $S$, and (indirectly) connected to $p_1$, then $p_1$ is not the best point. This step exists to avoid breaking shapes in even smaller shapes. Since the degree of every point is at most two, this can easily be checked by enumerating the segments in the paths originating from $p_1$.
   \item If any of the new segments intersect each other or other segments in $S$ (besides the to-be-removed ones), then $p_1$ is not the best point.
