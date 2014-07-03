@@ -181,13 +181,16 @@ To check whether a point $q_1 \in Adj_{p_1,10}$ is the best point, follow the ne
 \item If $d(p_1, q_1)$ and $d(p_2,q_2)$ are both greater than $d(p_1,p_3) \cdot \lambda$, then $p_1$ is not the best point.
 This step ensures that a segment is not replaced by segments that are significantly shorter. % (i.e. shorter than the original segment multiplied by $\lambda$).
 Parameter $\lambda$ is set to $1.2$ to allow points that result in a slightly shorter segment to be considered as best point.
-\item If $s_{q_1,q_2}$ is already in $S$, and (indirectly) connected to $p_1$, then $p_1$ is not the best point. This step exists to avoid breaking shapes in even smaller shapes.
+\item If $s_{q_1,q_2}$ is already in $S$, and (indirectly) connected to $p_1$, then $p_1$ is not the best point. This step exists to avoid breaking shapes in even smaller shapes. Since the degree of every point is at most two, this can easily be checked by enumerating the segments in the paths originating from $p_1$.
 \item If any of the new segments intersect each other or other segments in $S$ (besides the to-be-removed ones), then $p_1$ is not the best point.
 \item Otherwise, $p_1$ is the best point if $d(p_1,q_1) + d(p_2,q_2) - d(p_1,p_2) - d(q_1,q_2)$ is minimal (relative to all other $p \in Adj_{p_1,10}$), \textit{and} greater than $\textsc{minWeight}$. This parameter specifies the threshold for the weight. A positive value means that the sum of the new segment's lengths must be smaller than the existing segments, while a negative value means that the sum is allowed to be bigger. $\textsc{minWeight}$ is set to $-0.2$.
-This par
 \end{enumerate}
 
 The meaning and relations between $p_1$, $p_2$, $p_3$, $q_1$ and $q_2$ are displayed in figure \ref{fig:multiple_pppqq}.
+Let $n$ be the size of $P$. Since $|S| \leq |P|$, $|P| = O(n)$.
+In the worst case, the algorithm checks for each segment whether it needs to be replaced. At each check, the best choice is select among the 10 nearest points (found in linear time using partial selection sort). This takes $O(n)$ time, because after spending a constant amount of time on determining the weight, $O(n)$ time is required to check for intersections. Thus the time complexity is $O(n^2) = O(n^2)$. The storage complexity is constant.
+
+If the first method of step 1 is used, then the full algorithm requires $O(n^2)$ storage and $O(n^2\log(n))$ time. If the alternative method is used, then the algorithm runs in $O(n^2)$ time using $O(n)$ storage.
 
 \begin{figure}[hbtp]
 \centering
