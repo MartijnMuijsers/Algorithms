@@ -239,7 +239,7 @@ For every point $q_1 \in Adj_{p_1,10}$, determine the points that are connected 
   \item If $s_{q_1,q_2}$ is already in $S$, and (indirectly) connected to $p_1$, then $q_1$ is not the best point. This step exists to avoid breaking shapes in even smaller shapes. Since the degree of every point is at most two, this can easily be checked by enumerating the segments in the paths originating from $p_1$.
   \item If any of the new segments is close to the endpoints of the other new segment, then $q_1$ is not the best endpoint. A point is close to a line segment if the length of the line segment is greater than the distance between the point and the segment multiplied by parameter $\textsc{ClosenessFactor}$ (set to $5$).
   \item If any of the new segments intersect each other or other segments in $S$ (besides the to-be-removed ones), then $q_1$ is not the best point.
-  \item Otherwise, $q_1$ is the best point if $d(p_1,q_1) + d(p_2,q_2) - d(p_1,p_2) - d(q_1,q_2)$ is minimal (relative to all other $q \in Adj_{p_1,10}$), \textit{and} greater than $\textsc{minWeight}$. This parameter specifies the threshold for the weight. A positive value means that the sum of the new segment's lengths must be smaller than the existing segments, while a negative value means that the sum is allowed to be bigger. $\textsc{minWeight}$ is set to $-0.2$.
+  \item Otherwise, $q_1$ is the best point if $d(p_1,q_1) + d(p_2,q_2) - d(p_1,p_2) - d(q_1,q_2)$ is minimal (relative to all other $q \in Adj_{p_1,10}$), \textit{and} greater than $\textsc{minWeight}$. This parameter specifies the threshold for the weight. A positive value means that the sum of the new segment's lengths must be smaller than the existing segments, while a negative value means that the sum is allowed to be bigger. If its value is too high, then segments will never be reconnected. When the threshold is too low, then segments are replaced regardless of the suitability of the new segments. $\textsc{minWeight}$ is set to $-0.2$.
   \end{enumerate}
 
 \item\label{multi-algo-replace} If the best point $q_1$ exists, remove $s_{p_1,p_2}$ and $s_{q_1,q_2}$ from $S$, and add $s_{p_1,q_1}$ and $s_{p_2,q_2}$ to $S$.
@@ -389,7 +389,7 @@ The alternative solution only selects a number of points in the neighbourhood of
 Experiments show that using the 10 nearest neighbours is sufficient to get an accurate initial solution.
 
 \begingroup
-\tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4,rotate=90}}%
+\tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4}}%
 \begin{figure}[ht!]
 \centering
 \begin{subfigure}{.33\linewidth}
@@ -420,7 +420,7 @@ Figure \ref{fig:exp:multiple_split_triangles:initial} shows an initial solution 
 This problem of generating triangles is very common, and sufficiently solved by the second step of the algorithm, as seen in figure \ref{fig:exp:multiple_split_triangles:output}. All triangles have been identified and merged into one big curve. Not entirely coincidentally, this example shows that the removed segments are the longest segments within the triangle. This happens quite often, because the triangle problem is caused by abusively connecting one endpoint of a short curve with the other endpoint of the same short curve.
 
 \begingroup
-\tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4,rotate=90}}%
+\tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4}}%
 \begin{figure}[ht!]
 \centering
 \begin{subfigure}{.33\linewidth}
@@ -507,12 +507,77 @@ When the distance between a point and another point is more than $\textsc{Distan
 \end{figure}
 \endgroup
 
+Figure \ref{fig:exp:multiple_weight} shows the outputs for $\textsc{minWeight} = -0.2$ and $2$. As predicted in the description of the algorithm, none of the segments from the initial solution are replaced when the parameter is set to $2$.
+\begingroup
+\tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4}}%
+\begin{figure}[ht!]
+\centering
+\begin{subfigure}{.25\linewidth}
+\centering
+\input{tikz/final_weight_input.tex}
+\caption{Input}
+\label{fig:exp:multiple_weight:input}
+\end{subfigure}%
+\begin{subfigure}{.25\linewidth}
+\centering
+\input{tikz/final_weight_2.tex}
+\caption{Initial solution}
+\label{fig:exp:multiple_weight:initial}
+\end{subfigure}%
+\begin{subfigure}{.25\linewidth}
+\centering
+\input{tikz/final_weight_-0.2.tex}
+\caption{$\textsc{minWeight} = -0.2$}
+\label{fig:exp:multiple_weight:-0.2}
+\end{subfigure}%
+\begin{subfigure}{.25\linewidth}
+\centering
+\input{tikz/final_weight_2.tex}
+\caption{$\textsc{minWeight} = 2$}
+\label{fig:exp:multiple_weight:1}
+\end{subfigure}
+\caption{Varying $\textsc{minWeight}$}
+\label{fig:exp:multiple_weight}
+\end{figure}
+\endgroup
 
-%TODO Parameter \textsc{minWeight}
-%TODO Parameter 10 in $Adj_{p_1,10}$ - why 10?
-%TODO \testsc{ClosenessFactor} Parameter 5f that determines closeness? 197-203 in MultipleCurves.java
+Figure \ref{fig:exp:multiple_bar} shows an initial solution that consists of four curves.
+With $\textsc{ClosenessFactor} = 1000$, the proximity of points is effectively not taken into account. The result of this becomes apparent in figure \ref{fig:exp:multiple_bar:bad}: the final curve looks like a bar with a dent. After setting the parameter to $5$, the dent disappears.
 
-%TODO Test case: Parallel lines
+\begingroup
+\tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4,rotate=90}}%
+\begin{figure}[ht!]
+\centering
+\begin{subfigure}{.25\linewidth}
+\centering
+\input{tikz/final_bar_input.tex}
+\caption{Input}
+\label{fig:exp:multiple_bar:input}
+\end{subfigure}%
+\begin{subfigure}{.25\linewidth}
+\centering
+\input{tikz/final_bar_initial.tex}
+\caption{Initial solution}
+\label{fig:exp:multiple_bar:initial}
+\end{subfigure}%
+\begin{subfigure}{.25\linewidth}
+\centering
+\input{tikz/final_bar_bad.tex}
+\caption{$1000$}
+\label{fig:exp:multiple_bar:bad}
+\end{subfigure}%
+\begin{subfigure}{.25\linewidth}
+\centering
+\input{tikz/final_bar_good.tex}
+\caption{factor $5$}
+\label{fig:exp:multiple_bar:good}
+\end{subfigure}
+\caption{Initial solution and output for varying $\textsc{ClosenessFactor}$}
+\label{fig:exp:multiple_bar}
+\end{figure}
+\endgroup
+
+The previous evaluations shows that the initial solution is often close to the desired result, especially for dense curves. Many errors related to sparseness of a curve are correctly identified and resolved. The algorithm fails to provide the correct output when it mistakenly detects a group of points as one curve. This problem shows up for parallel lines that are close to each other, and also for dense curves with an uneven point distribution.
 
 \subsubsection{Network reconstruction}
 For this experimental evaluation the algorithm was run on several different input sets and with different parameters. The parameter $d_{max}$ is equal to the average length of the segments of the $EMST$ multiplied by a constant. Experimental evaluation showed that this constant should be around $2.5$. The parameter $\alpha_{straight}$ is set to $170\degree$ and $\alpha_{min}$ is set to $165\degree$. In the experimental evaluation below it shown that these values give the best result overall.
