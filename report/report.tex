@@ -66,7 +66,7 @@ To be able to focus on a specific type of curve reconstruction, we will only con
 
 The goal of the road network algorithm is to create a reasonable representation of the road network, such that a person would agree with the representation that the algorithm gives. This algorithm could be used to create a road map from the given data.
 
-As with the other two algorithms, we have created some constraints for the road network to be able to focus on specific input. All points need to have at least one possible path to every other point and intersecting lines need an additional node at the intersection. The nodes are points in a 2D plane. In practice, the generation of nodes can be done by laser scanners, or in the case of the road network, by following roads and giving a gps location at certain intervals. 
+As with the other two algorithms, we have created some constraints for the road network to be able to focus on specific input. All points need to have at least one possible path to every other point and intersecting lines need an additional node at the intersection. The nodes are points in a 2D plane. In practice, the generation of nodes can be done by laser scanners, or in the case of the road network, by following roads and giving a gps location at certain intervals.
 
 There are multiple known solutions to these problems. One of these is `The Crust Algorithm' \cite{crust}, which first creates a Voronoi diagram, then uses Delaunay triangulation between the Voronoi diagram and the Voronoi vertices. The Crust Algorithm works well in three dimensions, but has difficulty with detecting sharp corners which are common in two dimensional reconstruction.
 A different algorithm, specifically made for two dimensional reconstruction is `Gathan' \cite{gathan}. This provides a good solution for general cases, but does not allow for selecting multiple or single curves and relies on difficult mathematical graphs.
@@ -112,7 +112,66 @@ If $p \in P$ has degree two, then $\alpha_p$ is defined to be the absolute value
 
 
 \subsection{Single curve reconstruction}
-%TODO Martijn: check definitions at previous section and describe algorithm. Stick to the conventions and styles introduced used in the next two sections!
+\subsubsection{Description}
+For a given set of $n$ points $P \subset U$, this algorithm attempts to generate a set of non-intersecting line segments $S$ such that:
+
+\noindent\begin{enumerate}\topsep=0pt\itemsep=0pt\parsep=0pt
+\item $\forall p \in P : deg(p) \leq 2$
+\item The segments in $S$ do not intersects each other
+\end{enumerate}
+
+Furthermore, the algorithm will conform to the following in a good-case scenario:
+
+\noindent\begin{enumerate}\topsep=0pt\itemsep=0pt\parsep=0pt
+\item The segments form an open or closed curve, i.e. $\#S = n-1 \vee \#S = n$
+\end{enumerate}
+
+The algorithm is based on the idea that a single curve always outlines some concave polygon, and thus can be gotten by starting with an outline of the points and collapsing this outline onto the other points to wrap a curve around a polygon containing all the points.
+
+Collapsing an outline to wrap it around all points means all points must be inside the polygon defined by that outline. For this purpose, we start with the boundary of the convex hull as our initial set of segments. To compute the convex hull, we will use Graham's scan, an algorithm that finds all vertices of the convex hull ordered along its boundary.
+
+The algorithm thus begins by creating a set $S$ of segments that are the boundary of the convex hull of $P$. We will now define a likelihood function, for which two existing possibilities are listed below:
+
+\noindent\begin{enumerate}\topsep=0pt\itemsep=0pt\parsep=0pt
+\item $s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)*d(u, v)/(d(p, v)*d(p, v)+d(p, u)*d(p, u))$
+\item $s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)/d(p, v)+d(p, u))$
+\end{enumerate}
+
+Then, let $Q = \{ p \in P | \neg ( \exists v \in P \exists s_{p,v} \}$. Then $\#Q = n - \#S$.
+
+After the convex hull boundary vertices are found, we start repeating the following procedure until $\#Q = 0$:
+
+\begin{enumerate}
+\item Let $p \in P$ be a point and $s_{u,v} \in S$ be a segment so that $q \in P \wedge t \in S \Rightarrow likelihood(s_{u,v}, p) \geq likelihood(t, q)$
+\item Remove $s_{u,v}$ from $S$
+\item Add $s_{u, p}$ to $S$
+\item Add $s_{v, p}$ to $S$
+\item Remove $p$ from $Q$
+\end{enumerate}
+
+This way, a curve (defined by the segments in $S$) is gotten with exactly as many segments as there were points given (per point removed from $Q$, we end up with one more segment in $S$, resulting in $\#S = n$).
+
+Now however, we may end up with segments that intersect each other, and segments that are too long and should be better replaced by a gap. To take these matters into account, the algorithm then removes all lines which seem inappropriate, choosing to remove lines that are unexpected in length or intersect with others.
+
+Now, let $l1(S)$ be the longest segment so that $l1(S) \in S$, and let $l2(S)$ be the longest segment so that $l2(S) \in S \setminus { l1(S) }$. Then it is wanted to remove all segments that could be too long by comparing the factor between the top two longest segments to some parameter $k$:
+
+\begin{enumerate}
+\item While $l1(S) \geq k \cdot l2(S)$, remove $l1(S)$ from $S$
+\end{enumerate}
+
+Then, the algorithm removes any intersections left, by removing the segments that have intersections in order of number of intersections:
+
+\begin{enumerate}
+\item Let $s \in S \Rightarrow I(s) = \{ t \in S | s$ intersects with $t \}$. Then, until $s \in S \Rightarrow \#I(s) = 0$, remove $r$ from $S$, where $s \in S \Rightarrow \#I(s) \leq \#I(r)$
+\end{enumerate}
+
+This of course can cause a great loss of size of $S$. If there are segments $s_{u,v}$ such that $deg(u) = 1$, $deg(v) = 1$, $\neg ( s_{u,v} \in S )$ then $s_{u,v}$ could be a good candidate to add to $S$. The algorithm will, in an attempt to repopulate $S$, add any such segments $s_{u,v} \in MST(P) $, where $MST(P)$ denotes the set of segments representing a minimum spanning tree of $P$. Then again, an unwantedly long segment may have been re-added, so to prevent this from showing in the final result, the algorithm tries to remove a segment that seems too long one more time:
+
+\begin{enumerate}
+\item If $l1(S) \geq k \cdot l2(S)$, remove $l1(S)$ from $S$
+\end{enumerate}
+
+A basic implementation of the algorithm requires $O(n^2)$ time (assuming a running time of a Graham scan implementation of $O(n\log(n))$ and a running time of a minimum spanning tree implementation of $O(n\log(n))$. It may run using $O(n^2)$ or $O(n)$ storage, depending on how the likelihoods are compared. If memory is slow, an index of likelihoods from every segment in $S$ to every point in $Q$ can be kept and updated, resulting in $O(n^2)$ storage. Otherwise, these likelihoods can be recalculated when needed, resulting in $O(n)$ storage.
 
 \subsection{Multiple curve reconstruction}
 \subsubsection{Description}
@@ -267,8 +326,8 @@ In figure \ref{fig:exp:multiple_initial}, the two initial solutions are displaye
 The alternative initial solution \ref{fig:exp:multiple_initial:alternative} has four unconnected points. Each of the four points are far apart from each other, with the points in the center being among their nearest 10 neighbours. Since the alternative algorithm does not look past the 10 nearest neighbours, the other free points are not visible to the algorithm and therefore they remain disconnected.
 The fact that these points are not connected is not necessarily bad. After all, one can argue that a snapshot of four points does not justify the creation of a sparse curve that is larger than the other curves that consist of many more points.
 
-The alternative solution only selects a number of points in the neighbourhood of a point. When the number of neighbors is too small, many of the input points remain disconnected. The imperfect initial solution \ref{fig:exp:multiple_initial:alternative} can be resolved by doubling the number of neighbors, but the same problem would show up again if the density of the curves in the middle is doubled as well. Since this problem cannot be solved by increasing the number of neighbors, a practical number of neighbors is chosen. 
-Experiments show that using the 10 nearest neighbours is sufficient to get an accurate initial solution. 
+The alternative solution only selects a number of points in the neighbourhood of a point. When the number of neighbors is too small, many of the input points remain disconnected. The imperfect initial solution \ref{fig:exp:multiple_initial:alternative} can be resolved by doubling the number of neighbors, but the same problem would show up again if the density of the curves in the middle is doubled as well. Since this problem cannot be solved by increasing the number of neighbors, a practical number of neighbors is chosen.
+Experiments show that using the 10 nearest neighbours is sufficient to get an accurate initial solution.
 
 \begingroup
 \tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4,rotate=90}}%
@@ -357,8 +416,8 @@ These parameters were designed to speed up the algorithm, but no evidence for su
 
 \bibitem{crust}
 
-Amenta, Nina, Marshall Bern, and Manolis Kamvysselis. 
-"A new Voronoi-based surface reconstruction algorithm." 
+Amenta, Nina, Marshall Bern, and Manolis Kamvysselis.
+"A new Voronoi-based surface reconstruction algorithm."
 \textit{Proceedings of the 25th annual conference on Computer graphics and interactive techniques}, 1998.
 
 \bibitem{kruskal}
