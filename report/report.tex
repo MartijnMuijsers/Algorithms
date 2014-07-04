@@ -233,9 +233,9 @@ For each of the selected points, try to replace a segment as follows:
 For every point $q_1 \in Adj_{p_1,10}$, determine the points that are connected to it. For each combination of $q_1$ and $q_2$, follow the following steps:
   \begin{enumerate}
   \item If $\varphi(s_{p_1,p_3}, s_{p_1,q_1}) < \alpha_{sharp}$, then $q_1$ is not the best point. $\alpha_{sharp}$ is a parameter that specifies the minimum required angle. This step exists to prevent inserting sharp corners again. This parameter is typically lower than $\alpha_{required}$ and is set to $45\degree$.
-  \item If $d(p_1, q_1)$ and $d(p_2,q_2)$ are both greater than $d(p_1,p_3) \cdot \lambda$, then $q_1$ is not the best point.
+  \item If $d(p_1, q_1)$ and $d(p_2,q_2)$ are both greater than $d(p_1,p_3) \cdot \textsc{DistanceMultiplier}$, then $q_1$ is not the best point.
   This step ensures that a segment is not replaced by segments that are significantly shorter.
-  Parameter $\lambda$ is set to $1.2$ to allow points that result in a slightly shorter segment to be considered as best point.
+  Parameter $\textsc{DistanceMultiplier}$ is set to $1.2$ to allow points that result in a slightly shorter segment to be considered as best point.
   \item If $s_{q_1,q_2}$ is already in $S$, and (indirectly) connected to $p_1$, then $q_1$ is not the best point. This step exists to avoid breaking shapes in even smaller shapes. Since the degree of every point is at most two, this can easily be checked by enumerating the segments in the paths originating from $p_1$.
   \item If any of the new segments is close to the endpoints of the other new segment, then $q_1$ is not the best endpoint. A point is close to a line segment if the length of the line segment is greater than the distance between the point and the segment multiplied by parameter $\textsc{ClosenessFactor}$ (set to $5$).
   \item If any of the new segments intersect each other or other segments in $S$ (besides the to-be-removed ones), then $q_1$ is not the best point.
@@ -405,7 +405,62 @@ When $\alpha_{sharp}$ is set to $180\degree$, then the angles with alternative s
 
 These parameters were designed to speed up the algorithm, but no evidence for such speed improvements were found during tests with 1000 and 10000 points. This might be caused by the fact that the majority of the alternative segments are ruled out during the initial steps of the "best point" finding algorithm that runs in constant time.
 
-%TODO Parameter $\lambda$ (=length multiplier)
+When the distance between a point and another point is more than $\textsc{DistanceMultiplier}$, then the line segment between these two points will never be considered as a suitable replacement. Figure \ref{fig:exp:multiple_length_factor:1} shows that two triangles are not connected due to a $\textsc{DistanceMultiplier}$ factor of 1. After increasing this parameter value to $1.2$, the triangles are joined into one curve. $1.2$ turns out to be the ideal value for this parameter. When the parameter is incremented to $1.5$, then some curves are mistakenly joined, as seen as figure \ref{fig:exp:multiple_face}.
+
+\begingroup
+\tikzset{every picture/.style={scale=0.5,radius=0.10,line width=0.4,rotate=70}}%
+\begin{figure}[ht!]
+\centering
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_length_factor_input.tex}
+\caption{Input}
+\label{fig:exp:multiple_length_factor:input}
+\end{subfigure}%
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_length_factor_1.tex}
+\caption{$\textsc{DistanceMultiplier} = 1$}
+\label{fig:exp:multiple_length_factor:1}
+\end{subfigure}%
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_length_factor_1.2.tex}
+\caption{$\textsc{DistanceMultiplier} = 1.2$}
+\label{fig:exp:multiple_length_factor:1.2}
+\end{subfigure}
+\caption{Output for different values of $\textsc{DistanceMultiplier}$}
+\label{fig:exp:multiple_length_factor}
+\end{figure}
+\endgroup
+\begingroup
+\tikzset{every picture/.style={scale=0.5,radius=0.10,line width=0.5}}%
+\begin{figure}[ht!]
+\centering
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_face_input.tex}
+\caption{Input}
+\label{fig:exp:multiple_face:input}
+\end{subfigure}%
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_face_factor_1.2.tex}
+\caption{$\textsc{DistanceMultiplier} = 1.2$}
+\label{fig:exp:multiple_face:1.2}
+\end{subfigure}%
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_face_factor_1.5.tex}
+\caption{$\textsc{DistanceMultiplier} = 1.5$}
+\label{fig:exp:multiple_face:1.5}
+\end{subfigure}
+\caption{Varying $\textsc{DistanceMultiplier}$ for a set of points that resembles a face}
+\label{fig:exp:multiple_face}
+\end{figure}
+\endgroup
+
+
 %TODO Parameter \textsc{minWeight}
 %TODO Parameter 10 in $Adj_{p_1,10}$ - why 10?
 %TODO \testsc{ClosenessFactor} Parameter 5f that determines closeness? 197-203 in MultipleCurves.java
