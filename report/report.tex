@@ -176,6 +176,7 @@ For each of the selected points, try to replace a segment as follows:
   This step ensures that a segment is not replaced by segments that are significantly shorter.
   Parameter $\lambda$ is set to $1.2$ to allow points that result in a slightly shorter segment to be considered as best point.
   \item If $s_{q_1,q_2}$ is already in $S$, and (indirectly) connected to $p_1$, then $q_1$ is not the best point. This step exists to avoid breaking shapes in even smaller shapes. Since the degree of every point is at most two, this can easily be checked by enumerating the segments in the paths originating from $p_1$.
+  \item If any of the new segments is close to the endpoints of the other new segment, then $q_1$ is not the best endpoint. A point is close to a line segment if the length of the line segment is greater than the distance between the point and the segment multiplied by parameter $\textsc{ClosenessFactor}$ (set to $5$).
   \item If any of the new segments intersect each other or other segments in $S$ (besides the to-be-removed ones), then $q_1$ is not the best point.
   \item Otherwise, $q_1$ is the best point if $d(p_1,q_1) + d(p_2,q_2) - d(p_1,p_2) - d(q_1,q_2)$ is minimal (relative to all other $q \in Adj_{p_1,10}$), \textit{and} greater than $\textsc{minWeight}$. This parameter specifies the threshold for the weight. A positive value means that the sum of the new segment's lengths must be smaller than the existing segments, while a negative value means that the sum is allowed to be bigger. $\textsc{minWeight}$ is set to $-0.2$.
   \end{enumerate}
@@ -327,13 +328,16 @@ This problem of generating triangles is very common, and sufficiently solved by 
 \end{figure}
 \endgroup
 
+$\alpha_{required}$ and $\alpha_{sharp}$ are designed to reduce the (non-asymptotic) running time of the algorithm.\\
+When $\alpha_{required}$ is set to $0\degree$, then segments are never replaced because all angles are considered to be fine. Hence it does not make sense to pick a low value for $\alpha_{required}$. Setting the value to the other extreme value, $180\degree$, does not make sense either, because the number of unnecessary calculations increase. Choosing $\alpha_{required} = 90\degree$ did not have a negative effect on the final result. This makes sense, because the second step of the algorithm is designed to cope with the triangle problem, and the angles of the sharp corners in a triangle never exceed $90\degree$.\\
+When $\alpha_{sharp}$ is set to $180\degree$, then the angles with alternative segments are considered to be too sharp, hence none of the segments will be replaced. If it is set to $0\degree$, then none of the segments will be excluded, and the algorithm evaluates for each of the $10$ neighbors of every sharp corner whether it makes sense to replace an existing segment with a new segment to the neighbor.
 
+These parameters were designed to speed up the algorithm, but no evidence for such speed improvements were found during tests with 1000 and 10000 points. This might be caused by the fact that the majority of the alternative segments are ruled out during the initial steps of the "best point" finding algorithm that runs in constant time.
 
-%TODO Parameters $\alpha_{required}$ and $\alpha_{sharp}$ (briefly)
 %TODO Parameter $\lambda$ (=length multiplier)
 %TODO Parameter \textsc{minWeight}
 %TODO Parameter 10 in $Adj_{p_1,10}$ - why 10?
-%TODO (not documented in algo) Parameter 5f that determines closeness? 197-203 in MultipleCurves.java
+%TODO \testsc{ClosenessFactor} Parameter 5f that determines closeness? 197-203 in MultipleCurves.java
 
 %TODO Test case: Parallel lines
 
