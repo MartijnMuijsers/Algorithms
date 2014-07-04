@@ -67,80 +67,82 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 		for (Segment s : convexHullA) {
 			foundSegments.add(s);
 		}
-		HashSet<Node> nodesToDo = new HashSet<Node>();
-		for (Node n : input) {
-			nodesToDo.add(n);
-		}
-		for (Segment segment : foundSegments) {
-			nodesToDo.remove(segment.node1);
-			nodesToDo.remove(segment.node2);
-		}
-		List<Segment> likelinessesList1 = new ArrayList<Segment>(ll);
-		List<Node> likelinessesList2 = new ArrayList<Node>(ll);
-		List<Float> likelinessesList3 = new ArrayList<Float>(ll);
-		for (Segment segment : foundSegments) {
-			OpPair<Node, Float> nodeLikelinesses = buildNodeLikelinesses(segment, nodesToDo);
-			likelinessesList1.add(segment);
-			likelinessesList2.add(nodeLikelinesses.first);
-			likelinessesList3.add(nodeLikelinesses.second);
-		}
-		int si = likelinessesList1.size();
-		//long largestMemoryUsed = 0;
-		while (nodesToDo.size() > 0) {
-			/*{
-				Runtime runtime = Runtime.getRuntime();
-				long memoryUsed = (runtime.totalMemory() - runtime.freeMemory());
-				if (memoryUsed > largestMemoryUsed) {
-					largestMemoryUsed = memoryUsed;
-				}
-			}*/
-			Segment segmentWithSmallestLikeliness = null;
-			Node nodeWithSmallestLikeliness = null;
-			float smallestLikeliness = Float.MAX_VALUE;
-			int smallestI = -1;
-			for (int i = 0; i < si; i++) {
-				float likeliness = likelinessesList3.get(i);
-				if (likeliness < smallestLikeliness) {
-					smallestLikeliness = likeliness;
-					nodeWithSmallestLikeliness = likelinessesList2.get(i);
-					smallestI = i;
-				}
+		if (foundSegments.size() < input.length) {
+			HashSet<Node> nodesToDo = new HashSet<Node>();
+			for (Node n : input) {
+				nodesToDo.add(n);
 			}
-			segmentWithSmallestLikeliness = likelinessesList1.get(smallestI);
-			Segment newSegment1 = new Segment(nodeWithSmallestLikeliness, segmentWithSmallestLikeliness.node1);
-			Segment newSegment2 = new Segment(nodeWithSmallestLikeliness, segmentWithSmallestLikeliness.node2);
-			foundSegments.add(newSegment1);
-			foundSegments.add(newSegment2);
-			foundSegments.remove(segmentWithSmallestLikeliness);
-			nodesToDo.remove(nodeWithSmallestLikeliness);
-			likelinessesList1.remove(smallestI);
-			likelinessesList2.remove(smallestI);
-			likelinessesList3.remove(smallestI);
-			int sip = si-1;
-			if (nodesToDo.size() > 0) {
-				for (int i = 0; i < sip; i++) {
-					Node n = likelinessesList2.get(i);
-					if (n.id == nodeWithSmallestLikeliness.id) {
-						OpPair<Node, Float> nodeLikelinesses = buildNodeLikelinesses(likelinessesList1.get(i), nodesToDo);
-						likelinessesList2.set(i, nodeLikelinesses.first);
-						likelinessesList3.set(i, nodeLikelinesses.second);
+			for (Segment segment : foundSegments) {
+				nodesToDo.remove(segment.node1);
+				nodesToDo.remove(segment.node2);
+			}
+			List<Segment> likelinessesList1 = new ArrayList<Segment>(ll);
+			List<Node> likelinessesList2 = new ArrayList<Node>(ll);
+			List<Float> likelinessesList3 = new ArrayList<Float>(ll);
+			for (Segment segment : foundSegments) {
+				OpPair<Node, Float> nodeLikelinesses = buildNodeLikelinesses(segment, nodesToDo);
+				likelinessesList1.add(segment);
+				likelinessesList2.add(nodeLikelinesses.first);
+				likelinessesList3.add(nodeLikelinesses.second);
+			}
+			int si = likelinessesList1.size();
+			//long largestMemoryUsed = 0;
+			while (nodesToDo.size() > 0) {
+				/*{
+					Runtime runtime = Runtime.getRuntime();
+					long memoryUsed = (runtime.totalMemory() - runtime.freeMemory());
+					if (memoryUsed > largestMemoryUsed) {
+						largestMemoryUsed = memoryUsed;
+					}
+				}*/
+				Segment segmentWithSmallestLikeliness = null;
+				Node nodeWithSmallestLikeliness = null;
+				float smallestLikeliness = Float.MAX_VALUE;
+				int smallestI = -1;
+				for (int i = 0; i < si; i++) {
+					float likeliness = likelinessesList3.get(i);
+					if (likeliness < smallestLikeliness) {
+						smallestLikeliness = likeliness;
+						nodeWithSmallestLikeliness = likelinessesList2.get(i);
+						smallestI = i;
 					}
 				}
-				{
-					likelinessesList1.add(newSegment1);
-					OpPair<Node, Float> nodeLikelinesses = buildNodeLikelinesses(newSegment1, nodesToDo);
-					likelinessesList2.add(nodeLikelinesses.first);
-					likelinessesList3.add(nodeLikelinesses.second);
+				segmentWithSmallestLikeliness = likelinessesList1.get(smallestI);
+				Segment newSegment1 = new Segment(nodeWithSmallestLikeliness, segmentWithSmallestLikeliness.node1);
+				Segment newSegment2 = new Segment(nodeWithSmallestLikeliness, segmentWithSmallestLikeliness.node2);
+				foundSegments.add(newSegment1);
+				foundSegments.add(newSegment2);
+				foundSegments.remove(segmentWithSmallestLikeliness);
+				nodesToDo.remove(nodeWithSmallestLikeliness);
+				likelinessesList1.remove(smallestI);
+				likelinessesList2.remove(smallestI);
+				likelinessesList3.remove(smallestI);
+				int sip = si-1;
+				if (nodesToDo.size() > 0) {
+					for (int i = 0; i < sip; i++) {
+						Node n = likelinessesList2.get(i);
+						if (n.id == nodeWithSmallestLikeliness.id) {
+							OpPair<Node, Float> nodeLikelinesses = buildNodeLikelinesses(likelinessesList1.get(i), nodesToDo);
+							likelinessesList2.set(i, nodeLikelinesses.first);
+							likelinessesList3.set(i, nodeLikelinesses.second);
+						}
+					}
+					{
+						likelinessesList1.add(newSegment1);
+						OpPair<Node, Float> nodeLikelinesses = buildNodeLikelinesses(newSegment1, nodesToDo);
+						likelinessesList2.add(nodeLikelinesses.first);
+						likelinessesList3.add(nodeLikelinesses.second);
+					}
+					{
+						likelinessesList1.add(newSegment2);
+						OpPair<Node, Float> nodeLikelinesses = buildNodeLikelinesses(newSegment2, nodesToDo);
+						likelinessesList2.add(nodeLikelinesses.first);
+						likelinessesList3.add(nodeLikelinesses.second);
+					}
+					si++;
 				}
-				{
-					likelinessesList1.add(newSegment2);
-					OpPair<Node, Float> nodeLikelinesses = buildNodeLikelinesses(newSegment2, nodesToDo);
-					likelinessesList2.add(nodeLikelinesses.first);
-					likelinessesList3.add(nodeLikelinesses.second);
-				}
-				si++;
+				
 			}
-			
 		}
 		if (tryOpenEnabled) {
 			while(removeTooLong()){}
@@ -311,6 +313,7 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 			dy = sNode2.y-ny;
 			float distance2 = (float) Math.sqrt(dx*dx+dy*dy);
 			float likeliness = (distance1*distance1+distance2*distance2)/(segmentLength*segmentLength);
+			//float likeliness = (distance1+distance2)/(segmentLength);
 			if (likeliness < smallestLikeliness || smallestLikeliness == 1337.13371337f) {
 				smallestLikeliness = likeliness;
 				smallestNode = n;
