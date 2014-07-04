@@ -24,7 +24,7 @@ The algorithm consists of the following steps:
 \end{enumerate}
   
 \subsubsection{Description}
-Given the set $P$ that contains $n$ points in $\mathbb{R}^2$ first the Eucledian minimum spanning tree $EMST$ is calculated by using Prim's algorithm \cite{p-scnsg-57}, in $O(n^2)$ time and $O(n)$ storage. This results in a connected graph $RN(P,S)$, where $s_{a,b}\in S$ represents a road segment between points $a,b \in P$. This gives a good approximation of the road network but some road segments may be missing, see figure \ref{emst}.
+Given the set $P$ that contains $n$ points in $\mathbb{R}^2$ first the Eucledian minimum spanning tree $EMST$ is calculated using Prim's algorithm \cite{p-scnsg-57}, in $O(n^2)$ time and $O(n)$ storage. This results in a connected graph $RN(P,S)$, where $s_{a,b}\in S$ represents a road segment between points $a,b \in P$. This gives a good approximation of the road network but some road segments may be missing, see figure \ref{emst}.
 
 \begin{figure}[h]
   \centering
@@ -126,9 +126,7 @@ Figure \ref{tjunction} shows a specific situation of a t-junction. With $\alpha_
   \label{testcases}
 \end{figure}
 
-In figure \ref{testcases} two different case are shown. In the first case, figure \ref{parallel}, it is clear that the algorithm doesn't give an optimal solution. The algorithm's initial step creates a $EMST$, thus connecting the points with minimum total distance. This doesn't work well for parallel roads if the distance between the points that belong the same road is greater than the distance between points from both roads. The $EMST$ then connects the points that are closest to each other and thus connects points that should be in different roads. The next step of the algorithm looks for straight road segments and tries to improve the road network from there. However, as figure \ref{parallel} shows, the two parallel roads do not contain a straight road consisting of two straight segments of which the middle point has degree 2. Therefore the algorithm is not able to improve on this solution.
-
-$sum$
+In figure \ref{testcases} two different cases are shown. In the first case, figure \ref{parallel}, it is clear that the algorithm doesn't give an optimal solution. The algorithm's initial step creates a $EMST$, thus connecting the points with minimum total distance. This doesn't work well for parallel roads if the distance between the points that belong the same road is greater than the distance between points from both roads. The $EMST$ then connects the points that are closest to each other and thus connects points that should be in different roads. The next step of the algorithm looks for straight road segments and tries to improve the road network from there. However, as figure \ref{parallel} shows, the two parallel roads do not contain a straight road consisting of two straight segments of which the middle point has degree 2. Therefore the algorithm is not able to improve on this solution.
 
 Figure \ref{roundabout} shows a test case with a roundabout and several t-junctions. The algorithm seems the give the optimal solution for this particular input. The roundabout is created by the first two steps of the algorithm. First the $EMST$ is created which nearly completes the roundabout and then point with degree 1 are connected to a nearby point, which works very well in this case. Also the t-junctions are connected in the right way with the given parameters.
 
@@ -143,7 +141,7 @@ Figure \ref{roundabout} shows a test case with a roundabout and several t-juncti
 Figure \ref{knooppunt} shows an input case with parallel roads for which the algorithm gives a fairly good solution. Because there is some space between the two parallel roads the $EMST$ doesn't connect two points that don't belong to the same road.
 
 \subsection{conclusion}
-The experimental evaluation showed that the algorithm doesn't always give the optimal solution, but in most cases it comes close and sometimes it does give the optimal solution. The algorithm works very well for junctions and t-junctions, if the parameters are set correctly, which can be seen clearly in figure \ref{givena} and figure \ref{tjunctiona}. For parallel roads doesn't always give an optimal solution, especially when the two roads are close to each other, this can be seen in figure \ref{parallel}. In cases where there is more distance between two parallel roads the algorithm works fairly well, as can be seen in figure \ref{knooppunt}. In future work the output for cases with parallel roads could be improved.
+The experimental evaluation showed that the algorithm doesn't always give the optimal solution, but in most cases it comes close and sometimes it does give the optimal solution. The algorithm works very well for junctions and t-junctions, if the parameters are set correctly, which can be seen clearly in figure \ref{givena} and figure \ref{tjunctiona}. For parallel roads it doesn't always give an optimal solution, especially when the two roads are close to each other. This can be seen in figure \ref{parallel}. In cases where there is more distance between two parallel roads the algorithm works fairly well, as can be seen in figure \ref{knooppunt}. In future work the output for cases with parallel roads could be improved.
 
 \bibliographystyle{plain}
 
