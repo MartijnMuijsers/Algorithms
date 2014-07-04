@@ -439,16 +439,20 @@ public class Simulation {
         os.println("% \\fill[red] (0,0) circle;");
         os.println("%");
         os.println("\\begin{tikzpicture}");
-        for (Segment seg : segments) {
-            os.printf("\\draw (%.4f,%.4f) -- (%.4f,%.4f);\n",
-                        tikzX(seg.node1), tikzY(seg.node1),
-                        tikzX(seg.node2), tikzY(seg.node2));
+        if (showSegments) {
+            for (Segment seg : segments) {
+                os.printf("\\draw (%.4f,%.4f) -- (%.4f,%.4f);\n",
+                            tikzX(seg.node1), tikzY(seg.node1),
+                            tikzX(seg.node2), tikzY(seg.node2));
+            }
         }
         for (Node node : nodes) {
             os.printf("\\fill (%.4f,%.4f) circle;\n", tikzX(node), tikzY(node));
         }
-        for (Node node : newNetworkNodes) {
-            os.printf("\\fill[red] (%.4f,%.4f) circle;\n", tikzX(node), tikzY(node));
+        if (problemType.equals(ProblemType.NETWORK)) {
+            for (Node node : newNetworkNodes) {
+                os.printf("\\fill[red] (%.4f,%.4f) circle;\n", tikzX(node), tikzY(node));
+            }
         }
         os.println("\\end{tikzpicture}");
 //        os.println("\\end{document}")

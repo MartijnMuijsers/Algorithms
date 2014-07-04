@@ -73,7 +73,7 @@ A different algorithm, specifically made for two dimensional reconstruction is `
 DISCUR \cite{discur} is another algorithm solving the curve reconstruction problem. It has no parameters, but requires dense sampling points to recontruct correctly.
 For the network problem there exists a road network reconstruction algorithm \cite{chen} which obtains subcurves by creating a voronoi diagram.
 
-Delaunay triangulation \cite{delaunay} could possibly be used to create a relatively small set of edges for the third problem, after which a rectilinear spanning graph or straight lines can be determined between points. This will improve efficiency, as it has a running time of $O(n \log{n})$, whereas Kruskal's algorithm will check all possible edges initially, resulting in $O(n^2 \log{n})$.
+Delaunay triangulation could possibly be used to create a relatively small set of edges for the third problem, after which a rectilinear spanning graph or straight lines can be determined between points. This will improve efficiency, as it has a running time of $O(n \log{n})$, whereas Kruskal's algorithm will check all possible edges initially, resulting in $O(n^2 \log{n})$.
 
 For the single curve reconstruction problem, we have also looked at the convex hull \cite{convex}. A convex hull will create segments between all the outermost points, such that no unconnected point is outside of the enclosed area. Like putting a rubber band around all the points. This is useful for the outermost nodes, but does not do anything with the nodes inside this outline.
 
@@ -261,30 +261,89 @@ Parameters, input sizes, sampling conditions, wat niet werkt en waarom niet, all
 \subsubsection{Multiple curves}
 The accuracy of the multiple curve algorithm relies on the effectiveness of the initial solution. The description provided two ways to reach the initial solution. The original method is relatively expensive, so the alternative method was made available to make the algorithm feasible for bigger input sizes. In the next section, the experimental results of the initial solution are evaluated. Then, the transformation from the initial solution to the final solution is evaluated.
 
-\subsubsection*{Multiple curves: Initial solution}
-%TODO Compare n^2 with 10n method
-%TODO Test case: Dense = GOOD
-%TODO Test case: Dense square with sparse outer square, n^2 = GOOD, 10n = BAD
-%TODO Test case: sparse paralel = BAD
-%TODO Test case: square/circle with lonely point in middle = GOOD
-%TODO Dense line with odd gaps = BAD/GOOD
+Since the initial solution is created by taking the shortest of all possible line segments, the algorithm works perfect for curves where the points are uniformly distributed over the lines of the desired figure.
+In figure \ref{fig:exp:multiple_initial}, the two initial solutions are displayed for an input of points that resembles three closed curves. Although the points are not uniformly distributed, the initial solution \ref{fig:exp:multiple_initial:initial} is perfect, because the points of the individual curves are closer to each other than the points of the other curves.
+The alternative initial solution \ref{fig:exp:multiple_initial:alternative} has four unconnected points. Each of the four points are far apart from each other, with the points in the center being among their nearest 10 neighbours. Since the alternative algorithm does not look past the 10 nearest neighbours, the other free points are not visible to the algorithm and therefore they remain disconnected.
+The fact that these points are not connected is not necessarily bad. After all, one can argue that a snapshot of four points does not justify the creation of a sparse curve that is larger than the other curves that consist of many more points.
 
-\subsubsection*{Multiple curves: Final solution}
+The alternative solution only selects a number of points in the neighbourhood of a point. When the number of neighbors is too small, many of the input points remain disconnected. The imperfect initial solution \ref{fig:exp:multiple_initial:alternative} can be resolved by doubling the number of neighbors, but the same problem would show up again if the density of the curves in the middle is doubled as well. Since this problem cannot be solved by increasing the number of neighbors, a practical number of neighbors is chosen. 
+Experiments show that using the 10 nearest neighbours is sufficient to get an accurate initial solution. 
+
+\begingroup
+\tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4,rotate=90}}%
+\begin{figure}[ht!]
+\centering
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_multiple_input.tex}
+\caption{Input}
+\label{fig:exp:multiple_initial:input}
+\end{subfigure}%
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_multiple_output.tex}
+\caption{Initial solution}
+\label{fig:exp:multiple_initial:initial}
+\end{subfigure}%
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_multiple_output_alternative.tex}
+\caption{Alternative initial solution}
+\label{fig:exp:multiple_initial:alternative}
+\end{subfigure}
+\caption{The initial solutions for three curves}
+\label{fig:exp:multiple_initial}
+\end{figure}
+\endgroup
+
+Figure \ref{fig:exp:multiple_split_triangles:initial} shows an initial solution that consists of 4 curves. The solution looks reasonable, but note that three of these curves are triangles with a very sharp corner. This is a very typical initial solution, caused by the fact that only lengths of the segments are used in the first step of the algorithm. After connecting the three points at the bottom of picture \ref{fig:exp:multiple_split_triangles:initial:input}, all of the three points have degree two and will no longer accept connections with other points, even though two of these points are very close to the left and right points (which also form a triangle, ultimately).
+
+This problem of generating triangles is very common, and sufficiently solved by the second step of the algorithm, as seen in figure \ref{fig:exp:multiple_split_triangles:output}. All triangles have been identified and merged into one big curve. Not entirely coincidentally, this example shows that the removed segments are the longest segments within the triangle. This happens quite often, because the triangle problem is caused by abusively connecting one endpoint of a short curve with the other endpoint of the same short curve.
+
+\begingroup
+\tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4,rotate=90}}%
+\begin{figure}[ht!]
+\centering
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_split_triangles_input.tex}
+\caption{Input}
+\label{fig:exp:multiple_split_triangles:initial:input}
+\end{subfigure}%
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_split_triangles_initial.tex}
+\caption{Initial solution}
+\label{fig:exp:multiple_split_triangles:initial}
+\end{subfigure}%
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_split_triangles_output.tex}
+\caption{Final solution}
+\label{fig:exp:multiple_split_triangles:output}
+\end{subfigure}
+\caption{The final solution consisting of two curves derived via the initial solution}
+\label{fig:exp:multiple_split_triangles}
+\end{figure}
+\endgroup
+
+
+
 %TODO Parameters $\alpha_{required}$ and $\alpha_{sharp}$ (briefly)
 %TODO Parameter $\lambda$ (=length multiplier)
 %TODO Parameter \textsc{minWeight}
 %TODO Parameter 10 in $Adj_{p_1,10}$ - why 10?
 %TODO (not documented in algo) Parameter 5f that determines closeness? 197-203 in MultipleCurves.java
 
-%TODO Test case: Triangle in corner = GOOD
-%TODO Test case: Paralel = OKAY (mention the undocumented feature?)
-%TODO More test cases?
+%TODO Test case: Parallel lines
 
 \subsubsection{Network reconstruction}
 
 \subsection{Conclusion}
 
 \section{Concluding remarks}
+%TODO Multiple: future=Repeat step 1 with remaining points
+
 
 
 \subsection{Future Work}
@@ -314,10 +373,8 @@ Zeng, Yong, et al. "A distance-based parameter free algorithm for curve reconstr
 \bibitem{gathan}
 Dey, Tamal K., and Rephael Wenger. "Reconstruction curves with sharp corners." \textit{Proceedings of the sixteenth annual symposium on Computational geometry.} ACM, 2000.
 
-\bibitem{delaunay}
-
 \bibitem{convex}
-
+Graham, R. L. "An efficient algorith for determining the convex hull of a finite planar set". \textit{Information processing letters}, 1(4), 132-133, 1972.
 
 \end{thebibliography}
 
