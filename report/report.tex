@@ -175,7 +175,9 @@ A basic implementation of the algorithm requires $O(n^2)$ time (assuming a runni
 
 \subsection{Multiple curve reconstruction}
 \subsubsection{Description}
-For a given set of $n$ points $P \subset U$, this algorithm generates a set of non-intersecting line segments $S$ such that for every point, its degree is at most two. This result is generated in two steps. The segments in $S$ connect points in $P$ and form one or more shapes.
+For a given set of $n$ points $P \subset U$, this algorithm generates a set of non-intersecting line segments $S$ such that for every point, its degree is at most two.
+The segments in $S$ connect points in $P$ and form one or more shapes.
+$S$ is generated in two steps. At first, $S$ is filled with segments by a distance-based algorithm. Then, segments in this set are replaced using an algorithm that also accounts for angles.
 
 During both steps, two invariants are maintained:%
 \noindent\begin{enumerate}\topsep=0pt\itemsep=0pt\parsep=0pt
@@ -187,12 +189,12 @@ During both steps, two invariants are maintained:%
 
 %TODO Arjan said that it would be a good idea to first explain how T is generated before stating how it is used.
 Let $T \subset \{s_{p,q} | p,q \in P \land p \neq q \}$. A segment $s_{shortest}$ is said to be the shortest segment if there is no other segment in $T$ whose length is smaller than the length of $s_{shortest}$.
-While $T$ is not an empty set, find $s_{shortest}$ and remove it from the set and add $s_{shortest}$ to $S$ if doing so does not invalidate the invariants. Repeat this step until $T$ is empty.
+While $T$ is not empty, find $s_{shortest}$, remove it from $T$ and add it to $S$ if doing so does not invalidate the invariants. Repeat this step until $T$ is empty.
 %TODO Early termination is also possible when $S$ has $n$ elements.
 
 %TODO Justify previous method.
 
-The elements for set $T$ can be generated in two ways. A straight-forward approach is to create a list of all possible segments, sort the list and iterate through it. The number of possible segments is $(n-1)^2$, so the memory complexity is $O(n^2)$. Sorting time is linearithmic in terms of the number of elements to sort, so the time complexity is $O(n^2\log(n))$.
+The elements for set $T$ can be generated in two ways. A straight-forward approach is to create a list of all possible segments, sort the list by segment lengths and iterate over the list. The number of possible segments is $(n-1)^2$, so the memory complexity is $O(n^2)$. Sorting time is linearithmic in terms of the number of elements to sort, so the time complexity is $O(n^2\log(n))$.
 
 A quadratic complexity for memory is highly undesirable, because most computer systems have a limited amount of memory. To reduce the memory requirements, the first step can also be calculated using the following alternative method. For each point $p \in P$, find the $m$ nearest points and store the segments that are constructed from these points in a list. Then as before sort the list and iterate through its elements.
 
@@ -200,7 +202,8 @@ With this alternative method, the memory complexity is reduced to $O(mn)$. The $
 %TODO Add reference for partial selection sort.
  $mn$ segments will thus be generated in $O(mn^2)$ time and sorted in $O(mn\log(mn))$ time. If $m$ is a (small) constant, then the memory complexity is $O(n)$ and the time complexity is $O(n\log(n))$. This is a huge improvement over the previous algorithm! The disadvantage of this method over the previous is that a dense cluster of $m$ points will never be connected to other points and leave gaps in a curve.
 
-This first step only accounts for the lengths of the segments, not for any other properties of the shapes in the graph, such as the angle between two segments. Consequently, there may be points with two connected segments that have a small angle. An initial experimental evaluation showed that this first step of the algorithm yields a reasonable solution, but tends to create small and disconnected shapes. This is not surprising, because in a sparse graph nodes in a corner are often close to each other. Consequently, the segments of the initial solution often form a set of small shapes, as seen in figure \ref{fig:multiple_initial_solution}.
+This first step only accounts for the lengths of the segments, not for any other properties of the shapes in the graph, such as the angle between two segments. $S$ could therefore contain segments that form a small angle with other segments.
+A point in a bend of a sparse curve is occasionally slightly closer to another point in the same bend than any other point. Consequently, the initial set of segments form a collection of small curves that are not interconnected, as seen in figure \ref{fig:multiple_initial_solution}. Since these small curves are often triangles, it will be referred to as the "triangle problem" from now on.
 
 \begin{figure}[hbtp]
 \centering
@@ -218,7 +221,7 @@ This first step only accounts for the lengths of the segments, not for any other
 \label{fig:multiple_initial_solution}
 \end{figure}
 
-In the next step, disconnected shapes are joined if possible, by replacing segments in $S$ that are part of a corner with a sharp angle. Since the previous step yields a good initial solution, most of the segments will not be modified, so the angles at the endpoints of most segments will not change. This observation is important, because replacing a segment affects the angles of the segments that are connected to the former and new endpoints of the replaced segment, which could invalidate a previous calculation that relied on the angles.
+After generating the initial set of segments, disconnected shapes are joined by replacing segments in $S$ that are part of a corner with a sharp angle, if possible. Since the previous step yields a good initial solution, most of the segments will not be modified, so the angles at the endpoints of most segments will not change. This observation is important, because replacing a segment affects the angles of the segments that are connected to the former and new endpoints of the replaced segment, which could invalidate previous calculations that relied on the angles.
 
 For every $p \in P$ where $deg(p) = 2$, select $p$ for the next step of the algorithm if $\alpha_p < \alpha_{required}$. $\alpha_{required}$ is a parameter that is used to determine whether an angle is considered to be too sharp. It is set to $90\degree$.
 
@@ -226,10 +229,9 @@ For each of the selected points, try to replace a segment as follows:
 
 \begin{enumerate}
 \item Let $p_1$ be the selected point, and $s_{p_1,p_2}$ be the longest segments that is connected to $p_1$. The other segment is connected to $p_3$.
-\item Select the best point from $Adj_{p_1,10}$. The best point is found by following the next steps for each $q_1 \in Adj_{p_1,10}$.
+\item Now try to find the best point among $Adj_{p_1,10}$. The best point is a point with degree 1 or 2 that has the optimal weight according to the following steps. The point is always accompanied by a neighbor point that is used in step \ref{multi-algo-replace}.
+For every point $q_1 \in Adj_{p_1,10}$, determine the points that are connected to it. For each combination of $q_1$ and $q_2$, follow the following steps:
   \begin{enumerate}
-  \item If $deg(q_1) = 0$, then $q_1$ is not the best point.
-  \item Let $q_2$ be a point that is connected with $q_1$. If $deg(p_1) = 2$, repeat the same steps from here for the endpoint of the other segment.
   \item If $\varphi(s_{p_1,p_3}, s_{p_1,q_1}) < \alpha_{sharp}$, then $q_1$ is not the best point. $\alpha_{sharp}$ is a parameter that specifies the minimum required angle. This step exists to prevent inserting sharp corners again. This parameter is typically lower than $\alpha_{required}$ and is set to $45\degree$.
   \item If $d(p_1, q_1)$ and $d(p_2,q_2)$ are both greater than $d(p_1,p_3) \cdot \lambda$, then $q_1$ is not the best point.
   This step ensures that a segment is not replaced by segments that are significantly shorter.
@@ -240,14 +242,18 @@ For each of the selected points, try to replace a segment as follows:
   \item Otherwise, $q_1$ is the best point if $d(p_1,q_1) + d(p_2,q_2) - d(p_1,p_2) - d(q_1,q_2)$ is minimal (relative to all other $q \in Adj_{p_1,10}$), \textit{and} greater than $\textsc{minWeight}$. This parameter specifies the threshold for the weight. A positive value means that the sum of the new segment's lengths must be smaller than the existing segments, while a negative value means that the sum is allowed to be bigger. $\textsc{minWeight}$ is set to $-0.2$.
   \end{enumerate}
 
-\item If the best point $q_1$ exists, remove $s_{p_1,p_2}$ and $s_{q_1,q_2}$ from $S$, and add $s_{p_1,q_1}$ and $s_{p_2,q_2}$ to $S$.
+\item\label{multi-algo-replace} If the best point $q_1$ exists, remove $s_{p_1,p_2}$ and $s_{q_1,q_2}$ from $S$, and add $s_{p_1,q_1}$ and $s_{p_2,q_2}$ to $S$.
+If $deg(q_1) = deg(q_2) = 1$, put $s_{q_1,q_2}$ back in $S$.
 \item Otherwise the longest segment cannot be replaced, so check whether the shortest segment can be replaced by repeating these steps with the shortest segment instead of the longest one.
 \end{enumerate}
 
 
 The meaning and relations between $p_1$, $p_2$, $p_3$, $q_1$ and $q_2$ are displayed in figure \ref{fig:multiple_pppqq}.
-Let $n$ be the size of $P$. Since $|S| \leq |P|$, $|P| = O(n)$.
-In the worst case, the algorithm checks for each segment whether it needs to be replaced. At each check, the best choice is select among the 10 nearest points (found in linear time using partial selection sort). This takes $O(n)$ time, because after spending a constant amount of time on determining the weight, $O(n)$ time is required to check for intersections. Thus the time complexity is $O(n^2) = O(n^2)$. The storage complexity is constant.
+Let $n$ be the size of $P$. Since $|S| \leq |P|$, $|S| = O(n)$.
+In the worst case, the algorithm checks for each segment whether it needs to be replaced.
+During each check, the best point is selected among the 10 nearest points (found in linear time using partial selection sort).
+Finding the best point takes $O(n)$ time, because a point is either eliminated in one of the constant-time checks and weight calculation, or approved after verifying in $O(n)$ time that it does not intersect the other segments.
+Thus the time complexity is $O(n^2) = O(n^2)$. The storage complexity is constant.
 
 If the first method of step 1 is used, then the full algorithm requires $O(n^2)$ storage and $O(n^2\log(n))$ time. If the alternative method is used, then the algorithm runs in $O(n^2)$ time using $O(n)$ storage.
 
