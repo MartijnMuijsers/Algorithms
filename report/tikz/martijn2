@@ -1,0 +1,60 @@
+%% Include the picture as follows: \
+% \begingroup
+% \tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4}}%
+% \input{tikz/[filename].tex}%
+% \endgroup
+%
+%% Want to add a label? Use node[<position>]{label},
+%% where <position> is one of: below / above / left / right
+% \fill (0,0) circle node[below]{$p_1$};
+%% Want to give the point a different color?
+% \fill[red] (0,0) circle;
+%
+\begin{tikzpicture}
+\draw (3.7467,1.6414) -- (2.4967,1.7072);
+\draw (4.0099,2.6447) -- (3.7467,1.6414);
+\draw (3.9112,3.4178) -- (4.0099,2.6447);
+\draw (4.1908,4.1579) -- (3.9112,3.4178);
+\draw (2.9572,2.6118) -- (2.4967,1.7072);
+\draw (6.5099,4.9967) -- (6.7072,4.1086);
+\draw (5.0954,3.8783) -- (6.7072,4.1086);
+\draw (4.1908,4.1579) -- (5.0954,3.8783);
+\draw (5.0296,7.7599) -- (4.9309,6.9704);
+\draw (5.1283,4.7500) -- (6.5099,4.9967);
+\draw (5.1941,6.0000) -- (4.9309,6.9704);
+\draw (5.1283,4.7500) -- (5.1941,6.0000);
+\draw (4.7171,9.7500) -- (5.1776,9.2401);
+\draw (4.7336,8.5493) -- (5.1776,9.2401);
+\draw (3.7961,9.7500) -- (4.7171,9.7500);
+\draw (4.7336,8.5493) -- (5.0296,7.7599);
+\draw (2.7105,3.2697) -- (2.9408,3.9770);
+\draw (3.5164,8.1875) -- (3.4013,9.2072);
+\draw (3.4013,9.2072) -- (3.7961,9.7500);
+\draw (2.7105,3.2697) -- (2.9572,2.6118);
+\draw (3.3520,5.3092) -- (2.9408,3.9770);
+\draw (3.3520,5.3092) -- (3.0724,6.6086);
+\draw (3.5164,8.1875) -- (3.0724,6.6086);
+\fill (2.4967,1.7072) circle;
+\fill (3.7467,1.6414) circle;
+\fill (4.0099,2.6447) circle;
+\fill (3.9112,3.4178) circle;
+\fill (4.1908,4.1579) circle;
+\fill (5.0954,3.8783) circle;
+\fill (6.7072,4.1086) circle;
+\fill (6.5099,4.9967) circle;
+\fill (5.1283,4.7500) circle;
+\fill (5.1941,6.0000) circle;
+\fill (4.9309,6.9704) circle;
+\fill (5.0296,7.7599) circle;
+\fill (4.7336,8.5493) circle;
+\fill (5.1776,9.2401) circle;
+\fill (4.7171,9.7500) circle;
+\fill (3.7961,9.7500) circle;
+\fill (3.4013,9.2072) circle;
+\fill (3.5164,8.1875) circle;
+\fill (3.3520,5.3092) circle;
+\fill (3.0724,6.6086) circle;
+\fill (2.9408,3.9770) circle;
+\fill (2.7105,3.2697) circle;
+\fill (2.9572,2.6118) circle;
+\end{tikzpicture}
