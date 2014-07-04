@@ -121,6 +121,7 @@ public class Engine {
                 + "F: Flip the screen \n"
                 + "O: Open input file \n"
                 + "S: Save input file \n\n"
+                + "T: Save output as a tikz picture \n\n"
                 + "Left mouse button: Add node \n"
                 + "Right mouse button: Delete nodes \n\n"
                 + "ESC: Close Simulation \n"

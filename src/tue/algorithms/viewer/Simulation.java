@@ -107,6 +107,7 @@ public class Simulation {
     private boolean twoKeyDown;
     private boolean threeKeyDown;
     private boolean saveKeyDown;
+    private boolean tikzKeyDown;
     private boolean openKeyDown;
     private boolean escKeyDown;
     private boolean flipKeyDown;
@@ -128,6 +129,7 @@ public class Simulation {
         clearKeyDown = false;
         showSegments = true;
         saveKeyDown = false;
+        tikzKeyDown = false;
         openKeyDown = false;
         oneKeyDown = false;
         twoKeyDown = false;
@@ -207,6 +209,11 @@ public class Simulation {
             if (Keyboard.getEventKey() == Keyboard.KEY_S) {
                 saveKeyDown = !saveKeyDown && Keyboard.getEventKeyState();
             } 
+
+            // Save as tikz
+            if (Keyboard.getEventKey() == Keyboard.KEY_T) {
+                tikzKeyDown = !tikzKeyDown && Keyboard.getEventKeyState();
+            } 
             
             // Open
             if (Keyboard.getEventKey() == Keyboard.KEY_O) {
@@ -256,6 +263,12 @@ public class Simulation {
             save();
             saveKeyDown = false;
         }
+
+        if (tikzKeyDown) {
+            saveAsTikzPicture();
+            tikzKeyDown = false;
+        }
+        
         
         if (openKeyDown){
             open();
@@ -406,6 +419,52 @@ public class Simulation {
             Logger.getLogger(Simulation.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    private void buildTikzPicture(PrintStream os) {
+        // How to incliude them? Pick whatever you prefer:
+        // http://tex.stackexchange.com/questions/79594/outsourcing-tikz-code
+//        os.println("\\documentclass{standalone}");
+//        os.println("\\usepackage{tikz}");
+//        os.println("\\begin{document}");
+        os.println("%% Include the picture as follows: \\");
+        os.println("% \\begingroup");
+        os.println("% \\tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4}}%");
+        os.println("% \\input{tikz/[filename].tex}%");
+        os.println("% \\endgroup");
+        os.println("%");
+        os.println("%% Want to add a label? Use node[<position>]{label},");
+        os.println("%% where <position> is one of: below / above / left / right");
+        os.println("% \\fill (0,0) circle node[below]{$p_1$};");
+        os.println("%% Want to give the point a different color?");
+        os.println("% \\fill[red] (0,0) circle;");
+        os.println("%");
+        os.println("\\begin{tikzpicture}");
+        for (Segment seg : segments) {
+            os.printf("\\draw (%.4f,%.4f) -- (%.4f,%.4f);\n",
+                        tikzX(seg.node1), tikzY(seg.node1),
+                        tikzX(seg.node2), tikzY(seg.node2));
+        }
+        for (Node node : nodes) {
+            os.printf("\\fill (%.4f,%.4f) circle;\n", tikzX(node), tikzY(node));
+        }
+        for (Node node : newNetworkNodes) {
+            os.printf("\\fill[red] (%.4f,%.4f) circle;\n", tikzX(node), tikzY(node));
+        }
+        os.println("\\end{tikzpicture}");
+//        os.println("\\end{document}")
+    }
+    // Helper functions, float formatted as int (multiplier to be kept in sync with printf flag).
+    // Assuming that most if not all coordinates are [0,1)
+    private float tikzX(Node node) {
+        return node.x * 10f;
+    }
+    private float tikzY(Node node) {
+        float y = node.y;
+        if (Camera.flipped) {
+            y = 1f - y;
+        }
+        return y * 10f;
+    }
     
     private void save() {
         JFileChooser saveFile = new JFileChooser(prefs.get("loc", null));
@@ -416,6 +475,24 @@ public class Simulation {
                 file.createNewFile();
                 buildFile(file);
                 prefs.put("loc", file.getParent());
+            } catch (IOException ex) {
+                Logger.getLogger(Simulation.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    private void saveAsTikzPicture() {
+        JFileChooser exportFile = new JFileChooser(prefs.get("exportLoc", prefs.get("loc", null)));
+        exportFile.showSaveDialog(null);
+        if (exportFile.getSelectedFile() != null) {
+            File file = exportFile.getSelectedFile();
+            try {
+                prefs.put("exportLoc", file.getParent());
+                file.createNewFile();
+                try (PrintStream fileStream = new PrintStream(file)) {
+                    buildTikzPicture(fileStream);
+                } catch (IOException e) {
+                    throw e;
+                }
             } catch (IOException ex) {
                 Logger.getLogger(Simulation.class.getName()).log(Level.SEVERE, null, ex);
             }
