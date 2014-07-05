@@ -66,26 +66,26 @@ To be able to focus on a specific type of curve reconstruction, we will only con
 
 The goal of the road network algorithm is to create a reasonable representation of the road network, such that a person would agree with the representation that the algorithm gives. This algorithm could be used to create a road map from the given data.
 
-As with the other two algorithms, we have created some constraints for the road network to be able to focus on specific input. All points need to have at least one possible path to every other point and intersecting lines need an additional node at the intersection. The nodes are points in a 2D plane. In practice, the generation of nodes can be done by laser scanners, or in the case of the road network, by following roads and giving a gps location at certain intervals.
+As with the other two algorithms, we have created some constraints for the road network to be able to focus on specific input. All points need to have at least one possible path to every other point and intersecting lines need an additional node at the intersection. The nodes are points in a 2D plane. In practice, the generation of nodes can be done by laser scanners, or in the case of the road network, by following roads and giving a GPS location at certain intervals.
 
 There are multiple known solutions to these problems. One of these is `The Crust Algorithm' \cite{crust}, which first creates a Voronoi diagram, then uses Delaunay triangulation between the Voronoi diagram and the Voronoi vertices. The Crust Algorithm works well in three dimensions, but has difficulty with detecting sharp corners which are common in two dimensional reconstruction.
 A different algorithm, specifically made for two dimensional reconstruction is `Gathan' \cite{gathan}. This provides a good solution for general cases, but does not allow for selecting multiple or single curves and relies on difficult mathematical graphs.
-DISCUR \cite{discur} is another algorithm solving the curve reconstruction problem. It has no parameters, but requires dense sampling points to recontruct correctly.
-For the network problem there exists a road network reconstruction algorithm \cite{chen} which obtains subcurves by creating a voronoi diagram.
+DISCUR \cite{discur} is another algorithm solving the curve reconstruction problem. It has no parameters, but requires dense sampling points to reconstruct correctly.
+For the network problem there exists a road network reconstruction algorithm \cite{chen} which obtains subcurves by creating a Voronoi diagram.
 
 Delaunay triangulation could possibly be used to create a relatively small set of edges for the third problem, after which a rectilinear spanning graph or straight lines can be determined between points. This will improve efficiency, as it has a running time of $O(n \log{n})$, whereas Kruskal's algorithm will check all possible edges initially, resulting in $O(n^2 \log{n})$.
 
-For the single curve reconstruction problem, we have also looked at the convex hull \cite{convex}. A convex hull will create segments between all the outermost points, such that no unconnected point is outside of the enclosed area. Like putting a rubber band around all the points. This is useful for the outermost nodes, but does not do anything with the nodes inside this outline.
+For the single curve reconstruction problem, we have also looked at the convex hull \cite{convex}. The convex hull of a set of points is the smallest convex set that contains all those points. The boundary of the convex hull consists of the segments between all the outermost points, such that no unconnected point is outside of the enclosed area, like putting a rubber band around all the points. This is useful for the outermost nodes, but does not do anything with the nodes inside this outline.
 
 For solving these three problems, we present an algorithm for each problem.
 To solve the single curve reconstruction problem, the algorithm creates a convex hull and then continues by removing the largest edge and then reconnecting the figure by creating 2 new segments with another nearby point.
-Multiple curves are solved using a seperate algorithm, which first connects the shortest segments such that there are no intersecting lines, after which it will seek out sharp angles and tries to remove and replace these with obtuse angles.
-The road network reconstruction problems is solved using a minimum spanning tree. After reconstructing this tree, the algorithm finds nodes with degree 1 and connects these to a nearby node. To correctly create intersections, nodes with degree 3 or higher will check their surrounding segments and will add a point based on their angles.
+Multiple curves are solved using a separate algorithm, which first connects the shortest segments such that there are no intersecting lines, after which it will seek out sharp angles and tries to remove and replace these with obtuse angles.
+The road network reconstruction problem is solved using a minimum spanning tree. After constructing this tree, the algorithm finds nodes with degree 1 and connects these to a nearby node. To correctly create intersections, nodes with degree 3 or higher will check their surrounding segments and will add a point based on their angles.
 
 \begin{figure}[ht!]
 \centering
 \includegraphics[scale=0.3]{images/outputOverview.png}
-\caption{Output of the single curve (Left), multiple curve (Middle) and Network (Right) reconstruction algorithms.}
+\caption{Output of the single curve (left), multiple curve (center) and network (right) reconstruction algorithms.}
 \label{outputOverview}
 \end{figure}$ $\\
 
@@ -96,7 +96,7 @@ The road network reconstruction problems is solved using a minimum spanning tree
 Let $U = [0,1]^2$ be a set of points in a two-dimensional space.
 For any $u,v \in U$, the line segment between $u$ and $v$ is denoted as $s_{u,v}$. $u$ and $v$ are called the endpoints of $s_{u,v}$. Each of the presented algorithms take $P \subset U$ as input, and output $S \subset \{s_{p,q} | p,q \in P \land p \neq q \}$.
  Two distinct points $a$ and $b$ are called \textit{connected} if there is a segment in $S$ whose endpoints are $a$ and $b$.
- Two segments are \textit{intersecting} each other if the line segments have a common point besides than the endpoints.
+ Two segments are \textit{intersecting} each other if the line segments have a common point other than the endpoints.
 %TODO (rob): The next line does not belong here, it's a detail specific to the algorithm, right?
 %None of these output line segments intersect another line segment in $S$.
 
@@ -117,7 +117,7 @@ For a given set of $n$ points $P \subset U$, this algorithm will generate a set 
 
 \noindent\begin{enumerate}\topsep=0pt\itemsep=0pt\parsep=0pt
 \item $\forall p \in P : deg(p) \leq 2$
-\item The segments in $S$ do not intersects each other
+\item The segments in $S$ do not intersect each other.
 \end{enumerate}
 
 Furthermore, the algorithm will in many practical cases conform to the following requirement:
@@ -126,9 +126,9 @@ Furthermore, the algorithm will in many practical cases conform to the following
 \item The segments form an open or closed curve, i.e. $\#S = n-1 \vee \#S = n$
 \end{enumerate}
 
-The algorithm is based on the idea that a single curve always can be outlined by some concave polygon, and therefore we start with an outline of the points, after which we collapse this outline into the remaining points inside this polygon.
+The algorithm is based on the idea that a single curve can always be outlined by some concave polygon, and therefore we start with an outline of the points, after which we 'collapse' this outline onto the remaining points inside this polygon.
 
-Collapsing an outline such that the resulting polygon will contain all points implies all points must be inside the polygon defined by this outline. For this purpose, we start with generating the convex hull as our initial set of segments. To compute the convex hull, we will use the Graham scan\cite{convex}, an algorithm that finds all vertices of the convex hull ordered along its boundary.
+Collapsing an outline of $P$ inwards such that the resulting polygon will contain all points in $P$ implies all points must be inside the polygon defined by this outline. For this purpose, we start with generating the convex hull as our initial set of segments. To compute the convex hull, we will use the Graham scan\cite{convex}, an algorithm that finds all vertices of the convex hull ordered along its boundary.
 
 The algorithm thus begins by creating a set $S$ of segments that make up the convex hull of $P$. After that we define a likelihood function, for which two existing possibilities are listed below:
 
@@ -151,27 +151,27 @@ After the convex hull boundary vertices are found, we will start repeating the f
 
 This way, we get a curve defined by the segments in $S$ with exactly as many segments as given in the input. Since for every point in $Q$, we add one segment in $S$, resulting in $\#S = n$.
 
-These operations can however give intersecting segments, and also segments that are extremely long and are likley not part of the correct solution. To solve these issues, the algorithm will remove all lines that seem inappropriate.
+These operations can however give intersecting segments, and also segments that are extremely long and are likely not part of the correct solution. To solve these issues, the algorithm will remove all lines that seem inappropriate.
 
-Let $l1(S)$ be the longest segment such that $l1(S) \in S$, and let $l2(S)$ be the longest segment so that $l2(S) \in S \setminus { l1(S) }$. Then to remove all segments that could be too long we compare the factor between the two longest segments to some parameter $k$:
+Let $l1(S)$ be the longest segment such that $l1(S) \in S$, and let $l2(S)$ be the longest segment so that $l2(S) \in S \setminus \{ l1(S) \}$. Then to remove all segments that could be too long we compare the factor between the two longest segments to some parameter $k$:
 
 \begin{enumerate}
 \item While $l1(S) \geq k \cdot l2(S)$, remove $l1(S)$ from $S$
 \end{enumerate}
 
-Then, the algorithm will remove any intersections that are left, by starting with removing the segments that have the largest amount of intersections:
+Then, the algorithm will remove any intersections that are left, starting by removing the segments that have the largest amount of intersections:
 
 \begin{enumerate}
 \item Let $s \in S \Rightarrow I(s) = \{ t \in S | s$ intersects with $t \}$. Then, until $s \in S \Rightarrow \#I(s) = 0$, remove $r$ from $S$, where $s \in S \Rightarrow \#I(s) \leq \#I(r)$
 \end{enumerate}
 
-This can greatly reduce the size of $S$, which would invalidate the requirement of $\#S=n$. If there are segments $s_{u,v}$ such that $deg(u) = 1$, $deg(v) = 1$, $\neg ( s_{u,v} \in S )$ then $s_{u,v}$ could be a good candidate to add to $S$. The algorithm will, in an attempt to repopulate $S$, add any such segments $s_{u,v} \in MST(P) $, where $MST(P)$ denotes the set of segments representing a minimum spanning tree of $P$. Again, a very long segment may have been re-added. To prevent this from showing up in the final result, the algorithm tries to remove a segment that is too long one more time:
+This can greatly reduce the size of $S$, which would invalidate the requirement of $\#S = n-1 \vee \#S = n$. If there are segments $s_{u,v}$ such that $deg(u) = 1$, $deg(v) = 1$, $\neg ( s_{u,v} \in S )$ then $s_{u,v}$ could be a good candidate to add to $S$. The algorithm will, in an attempt to repopulate $S$, add any such segments $s_{u,v} \in MST(P) $, where $MST(P)$ denotes the set of segments representing a minimum spanning tree of $P$. Again, a very long segment may have been re-added. To prevent this from showing up in the final result, the algorithm tries to remove a segment that is too long one more time:
 
 \begin{enumerate}
 \item If $l1(S) \geq k \cdot l2(S)$, remove $l1(S)$ from $S$
 \end{enumerate}
 
-A basic implementation of the algorithm requires $O(n^2)$ time, assuming a running time of a Graham scan implementation of $O(n\log(n))$ and a running time of a minimum spanning tree implementation of $O(n\log(n))$. It may run using $O(n^2)$ or $O(n)$ storage, depending on how the likelihoods are compared. If memory is slow, an index of likelihoods from every segment in $S$ to every point in $Q$ can be kept and updated, resulting in $O(n^2)$ storage. Otherwise, these likelihoods can be recalculated when needed, resulting in $O(n)$ storage.
+A basic implementation of the algorithm requires $O(n^2)$ time, assuming a running time of a Graham scan implementation of $O(n^2)$ and a running time of a minimum spanning tree implementation of $O(n^2)$. It may run using $O(n^2)$ or $O(n)$ storage, depending on how the likelihoods are compared. If memory is slow, an index of likelihoods from every segment in $S$ to every point in $Q$ can be kept and updated, resulting in $O(n^2)$ storage. Otherwise, these likelihoods can be recalculated when needed, resulting in $O(n)$ storage.
 
 \subsection{Multiple curve reconstruction}
 \subsubsection{Description}
@@ -196,7 +196,7 @@ While $T$ is not empty, find $s_{shortest}$, remove it from $T$ and add it to $S
 
 The elements for set $T$ can be generated in two ways. A straight-forward approach is to create a list of all possible segments, sort the list by segment lengths and iterate over the list. The number of possible segments is $(n-1)^2$, so the memory complexity is $O(n^2)$. Sorting time is linearithmic in terms of the number of elements to sort, so the time complexity is $O(n^2\log(n))$.
 
-A quadratic complexity for memory is highly undesirable, because most computer systems have a limited amount of memory. To reduce the memory requirements, the first step can also be calculated using the following alternative method. For each point $p \in P$, find the $m$ nearest points and store the segments that are constructed from these points in a list. Then as before sort the list and iterate through its elements.
+A quadratic complexity for memory is highly undesirable, because most computer systems have a limited amount of memory. To reduce the memory requirements, the first step can also be calculated using the following alternative method. For each point $p \in P$, find the $m$ nearest points and store the segments that are constructed from these points in a list. Then as before sort the list and iterate it.
 
 With this alternative method, the memory complexity is reduced to $O(mn)$. The $m$ nearest points can be found in $O(mn)$ time with partial selection sort.
 %TODO Add reference for partial selection sort.
@@ -285,7 +285,7 @@ The algorithm consists of the following steps:
 \end{enumerate}
   
 \subsubsection{Description}
-Given the set $P$ that contains $n$ points in $\mathbb{R}^2$ first the Eucledian minimum spanning tree $EMST$ is calculated using Prim's algorithm \cite{p-scnsg-57}, in $O(n^2)$ time and $O(n)$ storage. This results in a connected graph $RN(P,S)$, where $s_{a,b}\in S$ represents a road segment between points $a,b \in P$. This gives a good approximation of the road network but some road segments may be missing, see figure \ref{emst}.
+Given the set $P$ that contains $n$ points in $\mathbb{R}^2$ first the Euclidian minimum spanning tree $EMST$ is calculated using Prim's algorithm \cite{p-scnsg-57}, in $O(n^2)$ time and $O(n)$ storage. This results in a connected graph $RN(P,S)$, where $s_{a,b}\in S$ represents a road segment between points $a,b \in P$. This gives a good approximation of the road network but some road segments may be missing, see figure \ref{emst}.
 
 \begin{figure}[h]
   \centering
@@ -359,14 +359,14 @@ The network algorithm has different input than the other two given curve reconst
 \begin{figure}[ht!]
 \centering
 \includegraphics[scale=0.3]{networkInput.png}
-\caption{A large intersection to test for parrallel and merging lines (Left) Simple neighbourhood (Right)}
+\caption{A large intersection to test for parallel and merging lines (Left) Simple neighbourhood (Right)}
 \label{network}
 \end{figure}$ $\\
 
 \subsection{Resulting output}
 
 \subsubsection{Single curve}
-The single curve algorithm strongly depends on the ability of the likelihood function to accurately measuring how effective the resulting change would be. In the specifics of the algorithm, a segment is routinely removed and replaced by two new segments. This should contribute to a positive change in the curve. Clearly, the likelihood should increase when the two new segments are more like the old one. The triangle inequality gives the interesting opportunity to define the likelihood as follows, while taking into account the angle between the old segment and the new segments, as well as their variation in length:
+The single curve algorithm strongly depends on the ability of a likelihood function to accurately measure how effective the resulting change would be. In the specifics of the algorithm, a segment is routinely removed and replaced by two new segments. This should contribute to a positive evolution of the curve, into a good solution. Clearly, the likelihood should increase when the two new segments are more like the old one. The triangle inequality gives the interesting opportunity to define the likelihood as follows, while taking into account the angle between the old segment and the new segments, as well as their variation in length:
 
 \noindent
 \begin{enumerate}
@@ -452,7 +452,7 @@ In addition, there exists the parameter $k$ so that a segment $s$ is deemed comp
 \end{figure}
 \endgroup
 
-The higher the value of $k$ is chosen, the more gaps there may fall in the result. A low value of $k$ might however allow wrong solutions, such as a curve in the shape of a letter M getting its two pillar bottom points connected by a segment.
+The higher the value of $k$ is chosen, the more gaps there may fall in the result. A low value of $k$ might however allow erroneous solutions, such as a curve in the shape of a letter M getting its two pillar bottom points connected by a segment.
 
 \begingroup
 \tikzset{every picture/.style={scale=0.45,radius=0.05,line width=0.4}}%
@@ -674,7 +674,7 @@ With $\textsc{ClosenessFactor} = 1000$, the proximity of points is effectively n
 The previous evaluations shows that the initial solution is often close to the desired result, especially for dense curves. Many errors related to sparseness of a curve are correctly identified and resolved. The algorithm fails to provide the correct output when it mistakenly detects a group of points as one curve. This problem shows up for parallel lines that are close to each other, and also for dense curves with an uneven point distribution.
 
 \subsubsection{Network reconstruction}
-For this experimental evaluation the algorithm was run on several different input sets and with different parameters. The parameter $d_{max}$ is equal to the average length of the segments of the $EMST$ multiplied by a constant. Experimental evaluation showed that this constant should be around $2.5$. The parameter $\alpha_{straight}$ is set to $170\degree$ and $\alpha_{min}$ is set to $165\degree$. In the experimental evaluation below it shown that these values give the best result overall.
+For this experimental evaluation the algorithm was run on several different input sets and with different parameters. The parameter $d_{max}$ is equal to the average length of the segments of the $EMST$ multiplied by a constant. Experimental evaluation showed that this constant should be around $2.5$. The parameter $\alpha_{straight}$ is set to $170\degree$ and $\alpha_{min}$ is set to $165\degree$. In the experimental evaluation below it is shown that these values give the best result overall.
 \begin{figure}[h]
 \centering
   \begin{subfigure}{.4\linewidth}
@@ -717,7 +717,7 @@ Figure \ref{given} shows the output of the algorithm of a test case with straigh
 \label{tjunction}
 \end{figure}
 
-Figure \ref{tjunction} shows a specific situation of a t-junction. With $\alpha_{min}=160$ the divergent segment in figure \ref{tjunctionb} is not removed. But with $\alpha_{min}=165$ the segment is removed, see figure \ref{tjunctiona} and a segment is added that connects to the new red point. Thus the angle, between the divergent segment and the segment above it, is greater than $160\degree$ and smaller than $165\degree$. It is arguable that the divergent segment should be removed because a real road could have a slight bend towards a t-junction. By observing several cases $\alpha_{min}=165$ seems close to the optimal setting.
+Figure \ref{tjunction} shows a specific situation of a T junction. With $\alpha_{min}=160$ the divergent segment in figure \ref{tjunctionb} is not removed. But with $\alpha_{min}=165$ the segment is removed, see figure \ref{tjunctiona} and a segment is added that connects to the new red point. Thus the angle, between the divergent segment and the segment above it, is greater than $160\degree$ and smaller than $165\degree$. It is arguable that the divergent segment should be removed because a real road could have a slight bend towards a T junction. By observing several cases $\alpha_{min}=165$ seems close to the optimal setting.
 
 \begin{figure}[h]
 \centering
@@ -741,7 +741,7 @@ Figure \ref{tjunction} shows a specific situation of a t-junction. With $\alpha_
 
 In figure \ref{testcases} two different cases are shown. In the first case, figure \ref{parallel}, it is clear that the algorithm doesn't give an optimal solution. The algorithm's initial step creates a $EMST$, thus connecting the points with minimum total distance. This doesn't work well for parallel roads if the distance between the points that belong the same road is greater than the distance between points from both roads. The $EMST$ then connects the points that are closest to each other and thus connects points that should be in different roads. The next step of the algorithm looks for straight road segments and tries to improve the road network from there. However, as figure \ref{parallel} shows, the two parallel roads do not contain a straight road consisting of two straight segments of which the middle point has degree 2. Therefore the algorithm is not able to improve on this solution.
 
-Figure \ref{roundabout} shows a test case with a roundabout and several t-junctions. The algorithm seems the give the optimal solution for this particular input. The roundabout is created by the first two steps of the algorithm. First the $EMST$ is created which nearly completes the roundabout and then point with degree 1 are connected to a nearby point, which works very well in this case. Also the t-junctions are connected in the right way with the given parameters.
+Figure \ref{roundabout} shows a test case with a roundabout and several T junctions. The algorithm seems the give the optimal solution for this particular input. The roundabout is created by the first two steps of the algorithm. First the $EMST$ is created which nearly completes the roundabout and then point with degree 1 are connected to a nearby point, which works very well in this case. Also the T junctions are connected in the right way with the given parameters.
 
 \begin{figure}[h]
   \centering
@@ -754,7 +754,7 @@ Figure \ref{roundabout} shows a test case with a roundabout and several t-juncti
 Figure \ref{knooppunt} shows an input case with parallel roads for which the algorithm gives a fairly good solution. Because there is some space between the two parallel roads the $EMST$ doesn't connect two points that don't belong to the same road.
 
 %TODO Move to Concluding remarks?
-The experimental evaluation showed that the algorithm doesn't always give the optimal solution, but in most cases it comes close and sometimes it does give the optimal solution. The algorithm works very well for junctions and t-junctions, if the parameters are set correctly, which can be seen clearly in figure \ref{givena} and figure \ref{tjunctiona}. For parallel roads it doesn't always give an optimal solution, especially when the two roads are close to each other. This can be seen in figure \ref{parallel}. In cases where there is more distance between two parallel roads the algorithm works fairly well, as can be seen in figure \ref{knooppunt}. In future work the output for cases with parallel roads could be improved.
+The experimental evaluation showed that the algorithm doesn't always give the optimal solution, but in most cases it comes close and sometimes it does give the optimal solution. The algorithm works very well for junctions and T junctions, if the parameters are set correctly, which can be seen clearly in figure \ref{givena} and figure \ref{tjunctiona}. For parallel roads it doesn't always give an optimal solution, especially when the two roads are close to each other. This can be seen in figure \ref{parallel}. In cases where there is more distance between two parallel roads the algorithm works fairly well, as can be seen in figure \ref{knooppunt}. In future work the output for cases with parallel roads could be improved.
 
 
 \section{Concluding remarks}
