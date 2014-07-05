@@ -820,11 +820,26 @@ The experimental evaluation showed that the algorithm doesn't always give the op
 
 
 \section{Concluding remarks}
+
+
+\subsection{State of work}
+The algorithms stated in this paper could be seen to have specific strengths and weaknesses. While designed to give an aesthetically pleasing result, none of the algorithms can fully fulfill the concept of beauty or correctness. Instead, they were designed to use techniques such as generating a convex hull, letting a curve mutate slowly by adding points based on certain criteria, generating a minimum spanning tree, comparing distances between sets of nodes, looking for straight lines, and on. These are all mathematically definable concepts, whereas the specification for the correct solutions is not. It is important to remember that the correctness of the algorithms is always partly subjective, and that any algorithm made for the purpose of delivering an aesthetically pleasing result will always present solutions that are incorrect in the eyes of some human.
+
+That being said, however, it is also true that the presented algorithms give solutions that contain fallacies in the eyes of most humans. Incorrect results stem from the design of the algorithm, and are implied by running time limitations, a limited set of mathematical operations, and an intellectual incapability of the algorithm designer to solve the errors, due to a high likelihood that others errors will arise because of the high chance that the algorithm has ended up being Pareto optimal (considering different aesthetical priorities).
+
+In this case, the single curve reconstruction algorithm shows strong capabilities when confronted with curves that strongly resemble the outline of a shape. It performs weakly for strongly indented figures such as a letter W, or shapes with no clear outline such as spirals. For the multiple curve reconstruction algorithm, it is most significant that curves have a reasonable curvature and a sufficient distance to each other. The network reconstruction algorithm finds it hard to take into account that points on two parallel roads may be further apart from the closest points on the same road as some points on the other road, leading to zigzag patterns. In other cases, the result mostly depends on a well divided sampling density of points.
+
+\subsection{Future work}
+Below we will list a number of propositions for future work on the specifics of algorithms conforming to the presented specifications.
+
+In the single curve reconstruction algorithm, intersections between segments are initially ignored. There may be better solutions, possibly using an overriding value on the likelihood function, that avoid intersections in the first place, and thus no longer require the post-processed removal of these intersections, and also no longer requiring trying to supplement the gaps created. From an other angle, supplementing the gaps can be possibly done much more sophisticatedly by using other pools of segments to supplement from than the minimum spanning tree.
+
 %TODO Multiple: future=Repeat step 1 with remaining points
 
+As for network reconstruction, the algorithm provides a good estimation for the correct solution. It therefore could be useful to look at post-processing techniques to solve the existing errors, such as parallel roads being interpreted as a zigzag pattern. In addition to that, real road systems have become increasingly complex. Tunnels, and multiple layers of roads sometimes intersect. How can these roads be effectively modeled from a sampling of points?
 
+In general, working towards a general solution for curve reconstruction, where requirements such as $S = n$ can be provided at runtime, would make other algorithms generally unnecessary. Some live requirements are all humans need to solve these types of problems, and intuitive algorithms may turn out to be worth more than difficult mathematical solutions, in the long run. The answer may be in artificial neural networks, but this proposition is open, and left to the reader to judge.
 
-\subsection{Future Work}
 \bibliographystyle{plain}
 
 \begin{thebibliography}{50}
