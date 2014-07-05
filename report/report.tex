@@ -120,7 +120,7 @@ For a given set of $n$ points $P \subset U$, this algorithm will generate a set 
 \item The segments in $S$ do not intersects each other
 \end{enumerate}
 
-Furthermore, the algorithm will conform to the following requirement:
+Furthermore, the algorithm will in many practical cases conform to the following requirement:
 
 \noindent\begin{enumerate}\topsep=0pt\itemsep=0pt\parsep=0pt
 \item The segments form an open or closed curve, i.e. $\#S = n-1 \vee \#S = n$
@@ -366,16 +366,91 @@ The network algorithm has different input than the other two given curve reconst
 \subsection{Resulting output}
 
 \subsubsection{Single curve}
-The single curve algorithm strongly depends on the ability of the likelihood function to accurately measuring how effective the resulting change would be. In the specifics of the algorithm, a segment is routinely removed and replaced by two new segments. This should contribute to a positive change in the curve. Clearly, the likelihood should increase when the two new segments are more like the old one. The triangle inequality gives the interesting opportunity to define the likelihood as follows, while taking into account the angle between the old segment and the new segments, as well as their ratio in length:
+The single curve algorithm strongly depends on the ability of the likelihood function to accurately measuring how effective the resulting change would be. In the specifics of the algorithm, a segment is routinely removed and replaced by two new segments. This should contribute to a positive change in the curve. Clearly, the likelihood should increase when the two new segments are more like the old one. The triangle inequality gives the interesting opportunity to define the likelihood as follows, while taking into account the angle between the old segment and the new segments, as well as their variation in length:
 
 \noindent
 \begin{enumerate}
 \topsep=0pt
 \itemsep=0pt
 \parsep=0pt
-\item $s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)*d(u, v)/(d(p, v)*d(p, v)+d(p, u)*d(p, u))$
-\item $s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)/d(p, v)+d(p, u))$
+\item Ratio of squared segment lengths:\\
+$s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)*d(u, v)/(d(p, v)*d(p, v)+d(p, u)*d(p, u))$
+\item Ratio of segment lengths:\\
+$s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)/(d(p, v)+d(p, u))$
 \end{enumerate}
+
+\begingroup
+\tikzset{every picture/.style={scale=0.5,radius=0.05,line width=0.4}}%
+\begin{figure}[ht!]
+\centering
+\begin{subfigure}{.24\linewidth}
+\centering
+\input{tikz/martijn1.tex}
+\label{fig:exp:single_parameter_a:first}
+\end{subfigure}%
+\begin{subfigure}{.24\linewidth}
+\centering
+\input{tikz/martijn2.tex}
+\label{fig:exp:single_parameter_a:second}
+\centering
+\end{subfigure}
+\begin{subfigure}{.24\linewidth}
+\centering
+\input{tikz/martijn3.tex}
+\label{fig:exp:single_parameter_a:third}
+\end{subfigure}%
+\begin{subfigure}{.24\linewidth}
+\centering
+\input{tikz/martijn4.tex}
+\label{fig:exp:single_parameter_a:fourth}
+\centering
+\end{subfigure}
+\caption{The solutions for two inputs, using squared segment lengths (left) and segment lengths (right) for the likelihood function ($k = 1.4$)}
+\end{figure}
+\endgroup
+
+In addition, there exists the parameter $k$ so that a segment $s$ is deemed comparatively long in $S$ if $s = l1(S) \wedge l1(S) \geq k \cdot l2(S)$. Therefore $k$ may be chosen so that $1 < k$.
+
+\begingroup
+\tikzset{every picture/.style={scale=0.3,radius=0.05,line width=0.4}}%
+\begin{figure}[ht!]
+\centering
+\begin{subfigure}{.15\linewidth}
+\centering
+\input{tikz/martijn5.tex}
+\label{fig:exp:single_parameter_b:first}
+\end{subfigure}%
+\begin{subfigure}{.15\linewidth}
+\centering
+\input{tikz/martijn6.tex}
+\label{fig:exp:single_parameter_b:second}
+\centering
+\end{subfigure}
+\begin{subfigure}{.15\linewidth}
+\centering
+\input{tikz/martijn7.tex}
+\label{fig:exp:single_parameter_b:third}
+\end{subfigure}%
+\begin{subfigure}{.15\linewidth}
+\centering
+\input{tikz/martijn8.tex}
+\label{fig:exp:single_parameter_b:fourth}
+\centering
+\end{subfigure}
+\begin{subfigure}{.15\linewidth}
+\centering
+\input{tikz/martijn9.tex}
+\label{fig:exp:single_parameter_b:fifth}
+\end{subfigure}%
+\begin{subfigure}{.15\linewidth}
+\centering
+\input{tikz/martijn10.tex}
+\label{fig:exp:single_parameter_b:sixth}
+\centering
+\end{subfigure}
+\caption{The solutions for two inputs, using $k = 1.2$ (left), $k = 1.4$ (center) and $k = 1.6$ (right) (using squared segment lengths for the likelihood function)}
+\end{figure}
+\endgroup
 
 \subsubsection{Multiple curves}
 The accuracy of the multiple curve algorithm relies on the effectiveness of the initial solution. The description provided two ways to reach the initial solution. The original method is relatively expensive, so the alternative method was made available to make the algorithm feasible for bigger input sizes. In the next section, the experimental results of the initial solution are evaluated. Then, the transformation from the initial solution to the final solution is evaluated.

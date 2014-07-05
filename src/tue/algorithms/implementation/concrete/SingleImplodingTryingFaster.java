@@ -312,8 +312,8 @@ public class SingleImplodingTryingFaster implements SingleImplementation {
 			dx = sNode2.x-nx;
 			dy = sNode2.y-ny;
 			float distance2 = (float) Math.sqrt(dx*dx+dy*dy);
-			//float likeliness = (distance1*distance1+distance2*distance2)/(segmentLength*segmentLength);
-			float likeliness = (distance1+distance2)/(segmentLength);
+			float likeliness = (distance1*distance1+distance2*distance2)/(segmentLength*segmentLength);
+			//float likeliness = (distance1+distance2)/(segmentLength);
 			if (likeliness < smallestLikeliness || smallestLikeliness == 1337.13371337f) {
 				smallestLikeliness = likeliness;
 				smallestNode = n;
