@@ -412,7 +412,7 @@ $s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)/(d(p,
 In addition, there exists the parameter $k$ so that a segment $s$ is deemed comparatively long in $S$ if $s = l1(S) \wedge l1(S) \geq k \cdot l2(S)$. Therefore $k$ may be chosen so that $1 < k$.
 
 \begingroup
-\tikzset{every picture/.style={scale=0.45,radius=0.05,line width=0.4}}%
+\tikzset{every picture/.style={scale=0.55,radius=0.05,line width=0.4}}%
 \begin{figure}[ht!]
 \centering
 \begin{subfigure}{.16\linewidth}
@@ -455,7 +455,7 @@ In addition, there exists the parameter $k$ so that a segment $s$ is deemed comp
 The higher the value of $k$ is chosen, the more gaps there may fall in the result. A low value of $k$ might however allow erroneous solutions, such as a curve in the shape of a letter M getting its two pillar bottom points connected by a segment.
 
 \begingroup
-\tikzset{every picture/.style={scale=0.45,radius=0.05,line width=0.4}}%
+\tikzset{every picture/.style={scale=0.5,radius=0.05,line width=0.4}}%
 \begin{figure}[ht!]
 \begin{subfigure}{.5\linewidth}
 \centering
@@ -468,6 +468,68 @@ The higher the value of $k$ is chosen, the more gaps there may fall in the resul
 \label{fig:exp:single_parameter_c:second}
 \end{subfigure}%
 \caption{A letter M that has its two bottom points connected by a segment (using $k = 50$)}
+\end{figure}
+\endgroup
+
+The single curve algorithm has its strength in curves that strongly resemble an outline of some sort. Curves that do not, such as spirals or strongly indented letters such as a W, are its weak point.
+
+\begingroup
+\tikzset{every picture/.style={scale=0.5,radius=0.05,line width=0.4}}%
+\begin{figure}[ht!]
+\centering
+\begin{subfigure}{.3\linewidth}
+\centering
+\input{tikz/martijn17.tex}
+\label{fig:exp:single_parameter_e:first}
+\end{subfigure}%
+\begin{subfigure}{.3\linewidth}
+\centering
+\input{tikz/martijn18.tex}
+\label{fig:exp:single_parameter_e:second}
+\centering
+\end{subfigure}
+\begin{subfigure}{.19\linewidth}
+\centering
+\input{tikz/martijn19.tex}
+\label{fig:exp:single_parameter_e:third}
+\end{subfigure}%
+\begin{subfigure}{.19\linewidth}
+\centering
+\input{tikz/martijn20.tex}
+\label{fig:exp:single_parameter_e:fourth}
+\centering
+\end{subfigure}
+\caption{Strengths of the single curve reconstruction algorithm}
+\end{figure}
+\endgroup
+
+\begingroup
+\tikzset{every picture/.style={scale=0.4,radius=0.05,line width=0.4}}%
+\begin{figure}[ht!]
+\centering
+\begin{subfigure}{.24\linewidth}
+\centering
+\input{tikz/martijn13.tex}
+\label{fig:exp:single_parameter_f:first}
+\end{subfigure}%
+\begin{subfigure}{.24\linewidth}
+\centering
+\input{tikz/martijn14.tex}
+\label{fig:exp:single_parameter_f:second}
+\centering
+\end{subfigure}
+\begin{subfigure}{.24\linewidth}
+\centering
+\input{tikz/martijn15.tex}
+\label{fig:exp:single_parameter_f:third}
+\end{subfigure}%
+\begin{subfigure}{.24\linewidth}
+\centering
+\input{tikz/martijn16.tex}
+\label{fig:exp:single_parameter_f:fourth}
+\centering
+\end{subfigure}
+\caption{Weaknesses of the single curve reconstruction algorithm}
 \end{figure}
 \endgroup
 
