@@ -380,7 +380,7 @@ $s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)/(d(p,
 \end{enumerate}
 
 \begingroup
-\tikzset{every picture/.style={scale=0.5,radius=0.05,line width=0.4}}%
+\tikzset{every picture/.style={scale=0.4,radius=0.05,line width=0.4}}%
 \begin{figure}[ht!]
 \centering
 \begin{subfigure}{.24\linewidth}
@@ -412,43 +412,62 @@ $s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)/(d(p,
 In addition, there exists the parameter $k$ so that a segment $s$ is deemed comparatively long in $S$ if $s = l1(S) \wedge l1(S) \geq k \cdot l2(S)$. Therefore $k$ may be chosen so that $1 < k$.
 
 \begingroup
-\tikzset{every picture/.style={scale=0.3,radius=0.05,line width=0.4}}%
+\tikzset{every picture/.style={scale=0.45,radius=0.05,line width=0.4}}%
 \begin{figure}[ht!]
 \centering
-\begin{subfigure}{.15\linewidth}
+\begin{subfigure}{.16\linewidth}
 \centering
 \input{tikz/martijn5.tex}
 \label{fig:exp:single_parameter_b:first}
 \end{subfigure}%
-\begin{subfigure}{.15\linewidth}
+\begin{subfigure}{.16\linewidth}
 \centering
 \input{tikz/martijn6.tex}
 \label{fig:exp:single_parameter_b:second}
 \centering
 \end{subfigure}
-\begin{subfigure}{.15\linewidth}
+\begin{subfigure}{.16\linewidth}
 \centering
 \input{tikz/martijn7.tex}
 \label{fig:exp:single_parameter_b:third}
 \end{subfigure}%
-\begin{subfigure}{.15\linewidth}
+\begin{subfigure}{.16\linewidth}
 \centering
 \input{tikz/martijn8.tex}
 \label{fig:exp:single_parameter_b:fourth}
 \centering
 \end{subfigure}
-\begin{subfigure}{.15\linewidth}
+\begin{subfigure}{.16\linewidth}
 \centering
 \input{tikz/martijn9.tex}
 \label{fig:exp:single_parameter_b:fifth}
 \end{subfigure}%
-\begin{subfigure}{.15\linewidth}
+\begin{subfigure}{.16\linewidth}
 \centering
 \input{tikz/martijn10.tex}
 \label{fig:exp:single_parameter_b:sixth}
 \centering
 \end{subfigure}
 \caption{The solutions for two inputs, using $k = 1.2$ (left), $k = 1.4$ (center) and $k = 1.6$ (right) (using squared segment lengths for the likelihood function)}
+\end{figure}
+\endgroup
+
+The higher the value of $k$ is chosen, the more gaps there may fall in the result. A low value of $k$ might however allow wrong solutions, such as a curve in the shape of a letter M getting its two pillar bottom points connected by a segment.
+
+\begingroup
+\tikzset{every picture/.style={scale=0.45,radius=0.05,line width=0.4}}%
+\begin{figure}[ht!]
+\begin{subfigure}{.5\linewidth}
+\centering
+\input{tikz/martijn12.tex}
+\label{fig:exp:single_parameter_c:first}
+\end{subfigure}%
+\begin{subfigure}{.5\linewidth}
+\centering
+\input{tikz/martijn11.tex}
+\label{fig:exp:single_parameter_c:second}
+\end{subfigure}%
+\caption{A letter M that has its two bottom points connected by a segment (using $k = 50$)}
 \end{figure}
 \endgroup
 
