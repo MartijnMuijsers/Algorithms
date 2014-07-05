@@ -113,24 +113,24 @@ If $p \in P$ has degree two, then $\alpha_p$ is defined to be the absolute value
 
 \subsection{Single curve reconstruction}
 \subsubsection{Description}
-For a given set of $n$ points $P \subset U$, this algorithm attempts to generate a set of non-intersecting line segments $S$ such that:
+For a given set of $n$ points $P \subset U$, this algorithm will generate a set of non-intersecting line segments $S$ such that:
 
 \noindent\begin{enumerate}\topsep=0pt\itemsep=0pt\parsep=0pt
 \item $\forall p \in P : deg(p) \leq 2$
 \item The segments in $S$ do not intersects each other
 \end{enumerate}
 
-Furthermore, the algorithm will conform to the following in a good-case scenario:
+Furthermore, the algorithm will conform to the following requirement:
 
 \noindent\begin{enumerate}\topsep=0pt\itemsep=0pt\parsep=0pt
 \item The segments form an open or closed curve, i.e. $\#S = n-1 \vee \#S = n$
 \end{enumerate}
 
-The algorithm is based on the idea that a single curve always outlines some concave polygon, and thus can be gotten by starting with an outline of the points and collapsing this outline onto the other points to wrap a curve around a polygon containing all the points.
+The algorithm is based on the idea that a single curve always can be outlined by some concave polygon, and therefore we start with an outline of the points, after which we collapse this outline into the remaining points inside this polygon.
 
-Collapsing an outline to wrap it around all points means all points must be inside the polygon defined by that outline. For this purpose, we start with the boundary of the convex hull as our initial set of segments. To compute the convex hull, we will use Graham's scan, an algorithm that finds all vertices of the convex hull ordered along its boundary.
+Collapsing an outline such that the resulting polygon will contain all points implies all points must be inside the polygon defined by this outline. For this purpose, we start with generating the convex hull as our initial set of segments. To compute the convex hull, we will use the Graham scan\cite{convex}, an algorithm that finds all vertices of the convex hull ordered along its boundary.
 
-The algorithm thus begins by creating a set $S$ of segments that are the boundary of the convex hull of $P$. We will now define a likelihood function, for which two existing possibilities are listed below:
+The algorithm thus begins by creating a set $S$ of segments that make up the convex hull of $P$. After that we define a likelihood function, for which two existing possibilities are listed below:
 
 \noindent\begin{enumerate}\topsep=0pt\itemsep=0pt\parsep=0pt
 \item $s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)*d(u, v)/(d(p, v)*d(p, v)+d(p, u)*d(p, u))$
@@ -139,7 +139,7 @@ The algorithm thus begins by creating a set $S$ of segments that are the boundar
 
 Then, let $Q = \{ p \in P | \neg ( \exists v \in P \exists s_{p,v} \}$. Then $\#Q = n - \#S$.
 
-After the convex hull boundary vertices are found, we start repeating the following procedure until $\#Q = 0$:
+After the convex hull boundary vertices are found, we will start repeating the following procedures until $\#Q = 0$:
 
 \begin{enumerate}
 \item Let $p \in P$ be a point and $s_{u,v} \in S$ be a segment so that $q \in P \wedge t \in S \Rightarrow likelihood(s_{u,v}, p) \geq likelihood(t, q)$
@@ -149,29 +149,29 @@ After the convex hull boundary vertices are found, we start repeating the follow
 \item Remove $p$ from $Q$
 \end{enumerate}
 
-This way, a curve (defined by the segments in $S$) is gotten with exactly as many segments as there were points given (per point removed from $Q$, we end up with one more segment in $S$, resulting in $\#S = n$).
+This way, we get a curve defined by the segments in $S$ with exactly as many segments as given in the input. Since for every point in $Q$, we add one segment in $S$, resulting in $\#S = n$.
 
-Now however, we may end up with segments that intersect each other, and segments that are too long and should be better replaced by a gap. To take these matters into account, the algorithm then removes all lines which seem inappropriate, choosing to remove lines that are unexpected in length or intersect with others.
+These operations can however give intersecting segments, and also segments that are extremely long and are likley not part of the correct solution. To solve these issues, the algorithm will remove all lines that seem inappropriate.
 
-Now, let $l1(S)$ be the longest segment so that $l1(S) \in S$, and let $l2(S)$ be the longest segment so that $l2(S) \in S \setminus { l1(S) }$. Then it is wanted to remove all segments that could be too long by comparing the factor between the top two longest segments to some parameter $k$:
+Let $l1(S)$ be the longest segment such that $l1(S) \in S$, and let $l2(S)$ be the longest segment so that $l2(S) \in S \setminus { l1(S) }$. Then to remove all segments that could be too long we compare the factor between the two longest segments to some parameter $k$:
 
 \begin{enumerate}
 \item While $l1(S) \geq k \cdot l2(S)$, remove $l1(S)$ from $S$
 \end{enumerate}
 
-Then, the algorithm removes any intersections left, by removing the segments that have intersections in order of number of intersections:
+Then, the algorithm will remove any intersections that are left, by starting with removing the segments that have the largest amount of intersections:
 
 \begin{enumerate}
 \item Let $s \in S \Rightarrow I(s) = \{ t \in S | s$ intersects with $t \}$. Then, until $s \in S \Rightarrow \#I(s) = 0$, remove $r$ from $S$, where $s \in S \Rightarrow \#I(s) \leq \#I(r)$
 \end{enumerate}
 
-This of course can cause a great loss of size of $S$. If there are segments $s_{u,v}$ such that $deg(u) = 1$, $deg(v) = 1$, $\neg ( s_{u,v} \in S )$ then $s_{u,v}$ could be a good candidate to add to $S$. The algorithm will, in an attempt to repopulate $S$, add any such segments $s_{u,v} \in MST(P) $, where $MST(P)$ denotes the set of segments representing a minimum spanning tree of $P$. Then again, an unwantedly long segment may have been re-added, so to prevent this from showing in the final result, the algorithm tries to remove a segment that seems too long one more time:
+This can greatly reduce the size of $S$, which would invalidate the requirement of $\#S=n$. If there are segments $s_{u,v}$ such that $deg(u) = 1$, $deg(v) = 1$, $\neg ( s_{u,v} \in S )$ then $s_{u,v}$ could be a good candidate to add to $S$. The algorithm will, in an attempt to repopulate $S$, add any such segments $s_{u,v} \in MST(P) $, where $MST(P)$ denotes the set of segments representing a minimum spanning tree of $P$. Again, a very long segment may have been re-added. To prevent this from showing up in the final result, the algorithm tries to remove a segment that is too long one more time:
 
 \begin{enumerate}
 \item If $l1(S) \geq k \cdot l2(S)$, remove $l1(S)$ from $S$
 \end{enumerate}
 
-A basic implementation of the algorithm requires $O(n^2)$ time (assuming a running time of a Graham scan implementation of $O(n\log(n))$ and a running time of a minimum spanning tree implementation of $O(n\log(n))$. It may run using $O(n^2)$ or $O(n)$ storage, depending on how the likelihoods are compared. If memory is slow, an index of likelihoods from every segment in $S$ to every point in $Q$ can be kept and updated, resulting in $O(n^2)$ storage. Otherwise, these likelihoods can be recalculated when needed, resulting in $O(n)$ storage.
+A basic implementation of the algorithm requires $O(n^2)$ time, assuming a running time of a Graham scan implementation of $O(n\log(n))$ and a running time of a minimum spanning tree implementation of $O(n\log(n))$. It may run using $O(n^2)$ or $O(n)$ storage, depending on how the likelihoods are compared. If memory is slow, an index of likelihoods from every segment in $S$ to every point in $Q$ can be kept and updated, resulting in $O(n^2)$ storage. Otherwise, these likelihoods can be recalculated when needed, resulting in $O(n)$ storage.
 
 \subsection{Multiple curve reconstruction}
 \subsubsection{Description}
@@ -233,13 +233,13 @@ For each of the selected points, try to replace a segment as follows:
 For every point $q_1 \in Adj_{p_1,10}$, determine the points that are connected to it. For each combination of $q_1$ and $q_2$, follow the following steps:
   \begin{enumerate}
   \item If $\varphi(s_{p_1,p_3}, s_{p_1,q_1}) < \alpha_{sharp}$, then $q_1$ is not the best point. $\alpha_{sharp}$ is a parameter that specifies the minimum required angle. This step exists to prevent inserting sharp corners again. This parameter is typically lower than $\alpha_{required}$ and is set to $45\degree$.
-  \item If $d(p_1, q_1)$ and $d(p_2,q_2)$ are both greater than $d(p_1,p_3) \cdot \lambda$, then $q_1$ is not the best point.
+  \item If $d(p_1, q_1)$ and $d(p_2,q_2)$ are both greater than $d(p_1,p_3) \cdot \textsc{DistanceMultiplier}$, then $q_1$ is not the best point.
   This step ensures that a segment is not replaced by segments that are significantly shorter.
-  Parameter $\lambda$ is set to $1.2$ to allow points that result in a slightly shorter segment to be considered as best point.
+  Parameter $\textsc{DistanceMultiplier}$ is set to $1.2$ to allow points that result in a slightly shorter segment to be considered as best point.
   \item If $s_{q_1,q_2}$ is already in $S$, and (indirectly) connected to $p_1$, then $q_1$ is not the best point. This step exists to avoid breaking shapes in even smaller shapes. Since the degree of every point is at most two, this can easily be checked by enumerating the segments in the paths originating from $p_1$.
   \item If any of the new segments is close to the endpoints of the other new segment, then $q_1$ is not the best endpoint. A point is close to a line segment if the length of the line segment is greater than the distance between the point and the segment multiplied by parameter $\textsc{ClosenessFactor}$ (set to $5$).
   \item If any of the new segments intersect each other or other segments in $S$ (besides the to-be-removed ones), then $q_1$ is not the best point.
-  \item Otherwise, $q_1$ is the best point if $d(p_1,q_1) + d(p_2,q_2) - d(p_1,p_2) - d(q_1,q_2)$ is minimal (relative to all other $q \in Adj_{p_1,10}$), \textit{and} greater than $\textsc{minWeight}$. This parameter specifies the threshold for the weight. A positive value means that the sum of the new segment's lengths must be smaller than the existing segments, while a negative value means that the sum is allowed to be bigger. $\textsc{minWeight}$ is set to $-0.2$.
+  \item Otherwise, $q_1$ is the best point if $d(p_1,q_1) + d(p_2,q_2) - d(p_1,p_2) - d(q_1,q_2)$ is minimal (relative to all other $q \in Adj_{p_1,10}$), \textit{and} greater than $\textsc{minWeight}$. This parameter specifies the threshold for the weight. A positive value means that the sum of the new segment's lengths must be smaller than the existing segments, while a negative value means that the sum is allowed to be bigger. If its value is too high, then segments will never be reconnected. When the threshold is too low, then segments are replaced regardless of the suitability of the new segments. $\textsc{minWeight}$ is set to $-0.2$.
   \end{enumerate}
 
 \item\label{multi-algo-replace} If the best point $q_1$ exists, remove $s_{p_1,p_2}$ and $s_{q_1,q_2}$ from $S$, and add $s_{p_1,q_1}$ and $s_{p_2,q_2}$ to $S$.
@@ -275,7 +275,52 @@ If the first method of step 1 is used, then the full algorithm requires $O(n^2)$
 
 
 \subsection{Network Algorithm}
-%TODO Chris: Insert content of network2.tex.
+\subsubsection{Outline}
+The algorithm consists of the following steps:
+\begin{enumerate}
+  \item Compute the $EMST$ of $P$.
+  \item Find points with degree 1 and connect, if possible, to a nearby node.
+  \item Find segment that divert from straight roads and remove these segments from the graph.
+  \item After removing segments, find better segments to connect the road network.
+\end{enumerate}
+  
+\subsubsection{Description}
+Given the set $P$ that contains $n$ points in $\mathbb{R}^2$ first the Eucledian minimum spanning tree $EMST$ is calculated using Prim's algorithm \cite{p-scnsg-57}, in $O(n^2)$ time and $O(n)$ storage. This results in a connected graph $RN(P,S)$, where $s_{a,b}\in S$ represents a road segment between points $a,b \in P$. This gives a good approximation of the road network but some road segments may be missing, see figure \ref{emst}.
+
+\begin{figure}[h]
+  \centering
+      \graphicspath{ {images/}}
+      \includegraphics[width=0.5\linewidth]{NetworkMST}
+      \caption{$EMST$ for a given set $p$. The red dashed circles indicate the missing road segments.}
+      \label{emst}
+  \end{figure}
+
+From $RN$ a new graph is made in which the missing road segments are added in a naive way. For each point $p_1 \in P$ that has degree $1$ the nearest point $p_n \in Adj_{p_1,5}$ is found such that the angle between the segment that contains $p_n$ and point $p_n$ is greater than $90\degree$. This avoids that roads contain sharp angles. A minimum spanning tree has at most $n-1$ points with degree 1 \cite{clrs-ia-09}, this step takes $O(n)$ time in the worst case.
+
+The next step in the algorithm is to find road segments that diverge from straight roads. $\alpha_{straight}$ is defined as the minimum angle for which two consecutive road segments are considered as a straight road. $\alpha_{min}$ is the minimum angle that a road segment must make with the previous segment for it not to be a bend. For every point $p_2 \in P$ that has degree $2$ there are two points $r_1, q_1 \in P$ which make up the segments $s_{p_2, q_1}$ and $s_{p_2,r_1}$. Segments $s_{q_1, q_2}$ and $s_{r_1,r_2}$ are the segments that are connected to $q_1$ and $r_1$. Let $\theta=\varphi(s_{p_2, q_1},s_{p_2,r_1})$. If $\theta> \alpha_{straight}$ then $\alpha_1=\varphi(s_{p_2, q_1},s_{q_1, q_2})$ and $\alpha_2=\varphi(s_{p_2, r_1},s_{r_1, r_2})$, see figure \ref{networkremove}. If $\alpha_1$ or $\alpha_2$ $<\alpha_{min}$ then $s_{r_1, r_2}$ or $s_{q_1, q_2}$ is removed from $S$. Every point is visited once and finding the segment that include this point takes $O(|S|)$, since $|S|<n$ the upper bound is then $O(n)$. This gives running time of $O(n^2)$ for this step.
+
+\begin{figure}[h]
+\centering
+  \graphicspath{ {images/}}
+  \includegraphics[width=0.5\linewidth]{NetworkRemoveSegmentsDetail}
+  \caption{Schematic of $\theta$, $\alpha_1$ and $\alpha_2$}
+  \label{networkremove}
+\end{figure}
+  
+$RN$ is now an unconnected graph. For $RN$ to represent the road network it must be connected. Points that are not connected have degree 1. $d_{max}$ is defined as the maximum distance that is allowed between two points for them to form a new segment. For every point $p_3 \in P$ that has degree 1, the 10 most nearest points are found. $q_3 \in P$ is the point such that $s_{q_3, p_3} \in S$. Let $p_{near} \in Adj_{p_3,10}$ be such a point and $\alpha_3=\varphi(s_{q_3, p_3},s_{p_3, p_{near}})$. If $\alpha_3>\alpha_{min}$, $d(p_3,p_{near})<d_{max}$ and $s_{p_3, p_{near}}$ does not intersect any other segment in $S$ then $S=S \cup \{s_{p_3, p_{near}}\}$. In case a intersection does occur at point $u_1 \in U$ with segment $s_{w_1, w_2}\in S$, $P_{add}=P_{add}\cup \{u\}$. Four new segments $s_{w_1, u_1}$, $s_{u_1, w_2}$, $s_{p_3, u_1}$ and $s_{u_1, p_{near}}$ are added to $S$ and $s_{w_1, w_2}$ is removed from $S$, see figure \ref{addintersect}.
+
+\begin{figure}[h]
+\centering
+      \graphicspath{ {images/}}
+      \includegraphics[width=0.5\linewidth]{NetworkAddIntersection}
+      \caption{Adding a new segment that intersects the existing segment $s_{w_1,w_2}$}.
+      \label{addintersect}
+  \end{figure}
+
+When no such point is found in $Adj_{p_3,10}$ the segment $s_{q_3, p_3}$ is extended, in the same direction, with a new segment $s_{p_3,q_4}$ where $q_4 \in U$ and $d(p_3,q_4)=d_{max}$. If $s_{p_3,q_4}$ intersects with another segment $s_{w_3,w_4} \in S$ at $u_2 \in U$ then three new segments $s_{p_3,u_2}$, $s_{w_3,u_2}$ and $s_{u_2,w_4}$ are added to $S$, $s_{w_3,w_4}$ is removed from $S$ and $P_{add}=P_{add}\cup \{u_2\}$. Every point with degree 1 is visited, in the worse case these are all points. For every point at most 10 points are looked up in the adjacency list. Comparisons between the points takes $O(1)$. This gives a running time of $O(n)$.
+
+If we add the running times for each step that gives us: $O(n^2)+O(n)+O(n^2)+O(n)=O(n^2)$. The first step of the algorithm creates a minimum spanning tree that uses $O(n)$ storage. In the second step at most $n-1$ segments are added. The last step only creates a new segment if another segment is removed. The adjacency lists take $O(mn)$ storage, where $m$ is the number of nearby points to store. Since this is a constant the adjacency lists use $O(n)$ storage. Combining these results gives a total storage of $O(n)$.
+
 
 \section{Experimental evaluation}
 \subsection{Generating input}
@@ -314,18 +359,20 @@ The network algorithm has different input than the other two given curve reconst
 \begin{figure}[ht!]
 \centering
 \includegraphics[scale=0.3]{networkInput.png}
-\caption{A large intersection to test for parallel and merging lines (Left) Simple neighbourhood (Right)}
+\caption{A large intersection to test for parrallel and merging lines (Left) Simple neighbourhood (Right)}
 \label{network}
 \end{figure}$ $\\
 
 \subsection{Resulting output}
-Dingen die je erin kan zetten:\\
-Parameters, input sizes, sampling conditions, wat niet werkt en waarom niet, allemaal met plaatjes/tabellen erbij. Geef ook aan hoe je de werking van het algoritme kan zien in de output.
 
 \subsubsection{Single curve}
-The single curve algorithm strongly depends on the ability of the likelihood function to accurately measuring how effective the resulting change would be. In the specifics of the algorithm, a segment is routinely removed and replaced by two new segments. This should contribute to a positive change in the curve. Clearly, the likelihood should increase when the two new segments are more like the old one. The triangle inequality gives the interesting opportunity to define the likelihood as follows (as noted earlier), while taking into account the angle between the old segment and the new segments, as well as their ratio in length:
+The single curve algorithm strongly depends on the ability of the likelihood function to accurately measuring how effective the resulting change would be. In the specifics of the algorithm, a segment is routinely removed and replaced by two new segments. This should contribute to a positive change in the curve. Clearly, the likelihood should increase when the two new segments are more like the old one. The triangle inequality gives the interesting opportunity to define the likelihood as follows, while taking into account the angle between the old segment and the new segments, as well as their ratio in length:
 
-\noindent\begin{enumerate}\topsep=0pt\itemsep=0pt\parsep=0pt
+\noindent
+\begin{enumerate}
+\topsep=0pt
+\itemsep=0pt
+\parsep=0pt
 \item $s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)*d(u, v)/(d(p, v)*d(p, v)+d(p, u)*d(p, u))$
 \item $s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)/d(p, v)+d(p, u))$
 \end{enumerate}
@@ -342,7 +389,7 @@ The alternative solution only selects a number of points in the neighbourhood of
 Experiments show that using the 10 nearest neighbours is sufficient to get an accurate initial solution.
 
 \begingroup
-\tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4,rotate=90}}%
+\tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4}}%
 \begin{figure}[ht!]
 \centering
 \begin{subfigure}{.33\linewidth}
@@ -373,7 +420,7 @@ Figure \ref{fig:exp:multiple_split_triangles:initial} shows an initial solution 
 This problem of generating triangles is very common, and sufficiently solved by the second step of the algorithm, as seen in figure \ref{fig:exp:multiple_split_triangles:output}. All triangles have been identified and merged into one big curve. Not entirely coincidentally, this example shows that the removed segments are the longest segments within the triangle. This happens quite often, because the triangle problem is caused by abusively connecting one endpoint of a short curve with the other endpoint of the same short curve.
 
 \begingroup
-\tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4,rotate=90}}%
+\tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4}}%
 \begin{figure}[ht!]
 \centering
 \begin{subfigure}{.33\linewidth}
@@ -405,16 +452,216 @@ When $\alpha_{sharp}$ is set to $180\degree$, then the angles with alternative s
 
 These parameters were designed to speed up the algorithm, but no evidence for such speed improvements were found during tests with 1000 and 10000 points. This might be caused by the fact that the majority of the alternative segments are ruled out during the initial steps of the "best point" finding algorithm that runs in constant time.
 
-%TODO Parameter $\lambda$ (=length multiplier)
-%TODO Parameter \textsc{minWeight}
-%TODO Parameter 10 in $Adj_{p_1,10}$ - why 10?
-%TODO \testsc{ClosenessFactor} Parameter 5f that determines closeness? 197-203 in MultipleCurves.java
+When the distance between a point and another point is more than $\textsc{DistanceMultiplier}$, then the line segment between these two points will never be considered as a suitable replacement. Figure \ref{fig:exp:multiple_length_factor:1} shows that two triangles are not connected due to a $\textsc{DistanceMultiplier}$ factor of 1. After increasing this parameter value to $1.2$, the triangles are joined into one curve. $1.2$ turns out to be the ideal value for this parameter. When the parameter is incremented to $1.5$, then some curves are mistakenly joined, as seen as figure \ref{fig:exp:multiple_face}.
 
-%TODO Test case: Parallel lines
+\begingroup
+\tikzset{every picture/.style={scale=0.5,radius=0.10,line width=0.4,rotate=70}}%
+\begin{figure}[ht!]
+\centering
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_length_factor_input.tex}
+\caption{Input}
+\label{fig:exp:multiple_length_factor:input}
+\end{subfigure}%
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_length_factor_1.tex}
+\caption{$\textsc{DistanceMultiplier} = 1$}
+\label{fig:exp:multiple_length_factor:1}
+\end{subfigure}%
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_length_factor_1.2.tex}
+\caption{$\textsc{DistanceMultiplier} = 1.2$}
+\label{fig:exp:multiple_length_factor:1.2}
+\end{subfigure}
+\caption{Output for different values of $\textsc{DistanceMultiplier}$}
+\label{fig:exp:multiple_length_factor}
+\end{figure}
+\endgroup
+\begingroup
+\tikzset{every picture/.style={scale=0.5,radius=0.10,line width=0.5}}%
+\begin{figure}[ht!]
+\centering
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_face_input.tex}
+\caption{Input}
+\label{fig:exp:multiple_face:input}
+\end{subfigure}%
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_face_factor_1.2.tex}
+\caption{$\textsc{DistanceMultiplier} = 1.2$}
+\label{fig:exp:multiple_face:1.2}
+\end{subfigure}%
+\begin{subfigure}{.33\linewidth}
+\centering
+\input{tikz/final_face_factor_1.5.tex}
+\caption{$\textsc{DistanceMultiplier} = 1.5$}
+\label{fig:exp:multiple_face:1.5}
+\end{subfigure}
+\caption{Varying $\textsc{DistanceMultiplier}$ for a set of points that resembles a face}
+\label{fig:exp:multiple_face}
+\end{figure}
+\endgroup
+
+Figure \ref{fig:exp:multiple_weight} shows the outputs for $\textsc{minWeight} = -0.2$ and $2$. As predicted in the description of the algorithm, none of the segments from the initial solution are replaced when the parameter is set to $2$.
+\begingroup
+\tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4}}%
+\begin{figure}[ht!]
+\centering
+\begin{subfigure}{.25\linewidth}
+\centering
+\input{tikz/final_weight_input.tex}
+\caption{Input}
+\label{fig:exp:multiple_weight:input}
+\end{subfigure}%
+\begin{subfigure}{.25\linewidth}
+\centering
+\input{tikz/final_weight_2.tex}
+\caption{Initial solution}
+\label{fig:exp:multiple_weight:initial}
+\end{subfigure}%
+\begin{subfigure}{.25\linewidth}
+\centering
+\input{tikz/final_weight_-0.2.tex}
+\caption{$\textsc{minWeight} = -0.2$}
+\label{fig:exp:multiple_weight:-0.2}
+\end{subfigure}%
+\begin{subfigure}{.25\linewidth}
+\centering
+\input{tikz/final_weight_2.tex}
+\caption{$\textsc{minWeight} = 2$}
+\label{fig:exp:multiple_weight:1}
+\end{subfigure}
+\caption{Varying $\textsc{minWeight}$}
+\label{fig:exp:multiple_weight}
+\end{figure}
+\endgroup
+
+Figure \ref{fig:exp:multiple_bar} shows an initial solution that consists of four curves.
+With $\textsc{ClosenessFactor} = 1000$, the proximity of points is effectively not taken into account. The result of this becomes apparent in figure \ref{fig:exp:multiple_bar:bad}: the final curve looks like a bar with a dent. After setting the parameter to $5$, the dent disappears.
+
+\begingroup
+\tikzset{every picture/.style={scale=1,radius=0.05,line width=0.4,rotate=90}}%
+\begin{figure}[ht!]
+\centering
+\begin{subfigure}{.25\linewidth}
+\centering
+\input{tikz/final_bar_input.tex}
+\caption{Input}
+\label{fig:exp:multiple_bar:input}
+\end{subfigure}%
+\begin{subfigure}{.25\linewidth}
+\centering
+\input{tikz/final_bar_initial.tex}
+\caption{Initial solution}
+\label{fig:exp:multiple_bar:initial}
+\end{subfigure}%
+\begin{subfigure}{.25\linewidth}
+\centering
+\input{tikz/final_bar_bad.tex}
+\caption{$1000$}
+\label{fig:exp:multiple_bar:bad}
+\end{subfigure}%
+\begin{subfigure}{.25\linewidth}
+\centering
+\input{tikz/final_bar_good.tex}
+\caption{factor $5$}
+\label{fig:exp:multiple_bar:good}
+\end{subfigure}
+\caption{Initial solution and output for varying $\textsc{ClosenessFactor}$}
+\label{fig:exp:multiple_bar}
+\end{figure}
+\endgroup
+
+The previous evaluations shows that the initial solution is often close to the desired result, especially for dense curves. Many errors related to sparseness of a curve are correctly identified and resolved. The algorithm fails to provide the correct output when it mistakenly detects a group of points as one curve. This problem shows up for parallel lines that are close to each other, and also for dense curves with an uneven point distribution.
 
 \subsubsection{Network reconstruction}
+For this experimental evaluation the algorithm was run on several different input sets and with different parameters. The parameter $d_{max}$ is equal to the average length of the segments of the $EMST$ multiplied by a constant. Experimental evaluation showed that this constant should be around $2.5$. The parameter $\alpha_{straight}$ is set to $170\degree$ and $\alpha_{min}$ is set to $165\degree$. In the experimental evaluation below it shown that these values give the best result overall.
+\begin{figure}[h]
+\centering
+  \begin{subfigure}{.4\linewidth}
+  \centering
+  \graphicspath{ {images/}}
+  \includegraphics[width=\linewidth]{given167_170}
+  \caption{$\alpha_{min}=165$ and $\alpha_{straight}=170$. }
+  \label{givena}
+  \end{subfigure}
+    \begin{subfigure}{0.4\linewidth}
+  \centering
+  \graphicspath{ {images/}}
+  \includegraphics[width=\linewidth]{given90_90}
+  \caption{$\alpha_{min}=130$ and $\alpha_{straight}=170$.}
+  \label{givenb}
+  \end{subfigure}
+  \caption{}
+  \label{given}
+\end{figure}
 
-\subsection{Conclusion}
+Figure \ref{given} shows the output of the algorithm of a test case with straight roads and junctions. \ref{givena} shows the output with $\alpha_{min}=165$ and $\alpha_{straight}=170$ and \ref{givenb} shows the output with $\alpha_{min}=90$ and $\alpha_{straight}=170$. A crucial step in the algorithm is to identify straight road segments. A straight road segment consists of three points that make up two consecutive segments of which the middle point has degree 2. For a perfectly straight road the angle between these two segment is $180\degree$. But in our input straight roads could have a slight bend, therefore we set a margin of $10\degree$ by setting $\alpha_{straight}=170$. It is clear that figure \ref{givena} gives a better solution than figure \ref{givenb}. In figure \ref{givenb} any angle greater than $130\degree$ between two consecutive road segment is allowed. In figure \ref{givena} only angles greater than $165\degree$ between two consecutive road segments are allowed. Therefore the segments with a smaller angle, that were not removed in figure \ref{givenb}, are removed and connected to a point that gives an angle smaller than $165\degree$.
+
+\begin{figure}[h]
+\centering
+  \begin{subfigure}{0.4\linewidth}
+  \centering
+  \graphicspath{ {images/}}
+  \includegraphics[width=\linewidth]{test1165_170}
+  \caption{$\alpha_{min}=165$ and $\alpha_{straight}=170$.}
+  \label{tjunctiona}
+  \end{subfigure}
+    \begin{subfigure}{0.4\linewidth}
+  \centering
+  \graphicspath{ {images/}}
+  \includegraphics[width=\linewidth]{test1140_170}
+  \caption{$\alpha_{min}=160$ and $\alpha_{straight}=170$.}
+  \label{tjunctionb}
+  \end{subfigure}
+  \caption{}
+\label{tjunction}
+\end{figure}
+
+Figure \ref{tjunction} shows a specific situation of a t-junction. With $\alpha_{min}=160$ the divergent segment in figure \ref{tjunctionb} is not removed. But with $\alpha_{min}=165$ the segment is removed, see figure \ref{tjunctiona} and a segment is added that connects to the new red point. Thus the angle, between the divergent segment and the segment above it, is greater than $160\degree$ and smaller than $165\degree$. It is arguable that the divergent segment should be removed because a real road could have a slight bend towards a t-junction. By observing several cases $\alpha_{min}=165$ seems close to the optimal setting.
+
+\begin{figure}[h]
+\centering
+  \begin{subfigure}{0.4\linewidth}
+  \centering
+  \graphicspath{ {images/}}
+  \includegraphics[width=\linewidth]{parallel165_165}
+  \caption{$\alpha_{min}=165$ and $\alpha_{straight}=170$.}
+  \label{parallel}
+  \end{subfigure}
+    \begin{subfigure}{0.4\linewidth}
+  \centering
+  \graphicspath{ {images/}}
+  \includegraphics[width=\linewidth]{roundabout167_170}
+  \caption{$\alpha_{min}=165$ and $\alpha_{straight}=170$.}
+  \label{roundabout}
+  \end{subfigure}
+  \caption{}
+  \label{testcases}
+\end{figure}
+
+In figure \ref{testcases} two different cases are shown. In the first case, figure \ref{parallel}, it is clear that the algorithm doesn't give an optimal solution. The algorithm's initial step creates a $EMST$, thus connecting the points with minimum total distance. This doesn't work well for parallel roads if the distance between the points that belong the same road is greater than the distance between points from both roads. The $EMST$ then connects the points that are closest to each other and thus connects points that should be in different roads. The next step of the algorithm looks for straight road segments and tries to improve the road network from there. However, as figure \ref{parallel} shows, the two parallel roads do not contain a straight road consisting of two straight segments of which the middle point has degree 2. Therefore the algorithm is not able to improve on this solution.
+
+Figure \ref{roundabout} shows a test case with a roundabout and several t-junctions. The algorithm seems the give the optimal solution for this particular input. The roundabout is created by the first two steps of the algorithm. First the $EMST$ is created which nearly completes the roundabout and then point with degree 1 are connected to a nearby point, which works very well in this case. Also the t-junctions are connected in the right way with the given parameters.
+
+\begin{figure}[h]
+  \centering
+  \graphicspath{ {images/}}
+  \includegraphics[width=\linewidth, height=150pt]{knooppunt167_170}
+  \caption{$\alpha_{min}=165$ and $\alpha_{straight}=170$.}
+  \label{knooppunt}
+\end{figure}
+
+Figure \ref{knooppunt} shows an input case with parallel roads for which the algorithm gives a fairly good solution. Because there is some space between the two parallel roads the $EMST$ doesn't connect two points that don't belong to the same road.
+
+%TODO Move to Concluding remarks?
+The experimental evaluation showed that the algorithm doesn't always give the optimal solution, but in most cases it comes close and sometimes it does give the optimal solution. The algorithm works very well for junctions and t-junctions, if the parameters are set correctly, which can be seen clearly in figure \ref{givena} and figure \ref{tjunctiona}. For parallel roads it doesn't always give an optimal solution, especially when the two roads are close to each other. This can be seen in figure \ref{parallel}. In cases where there is more distance between two parallel roads the algorithm works fairly well, as can be seen in figure \ref{knooppunt}. In future work the output for cases with parallel roads could be improved.
+
 
 \section{Concluding remarks}
 %TODO Multiple: future=Repeat step 1 with remaining points
@@ -450,6 +697,21 @@ Dey, Tamal K., and Rephael Wenger. "Reconstruction curves with sharp corners." \
 
 \bibitem{convex}
 Graham, R. L. "An efficient algorith for determining the convex hull of a finite planar set". \textit{Information processing letters}, 1(4), 132-133, 1972.
+
+\bibitem{p-scnsg-57}
+R. C. Prim.
+Shortest connection networks and some generalizations.
+In \emph{Bell System Technical Journal)}, 36: (1957), pp. 1389–1401
+
+\bibitem{clrs-ia-09}
+T.H. Cormen, C.E. Leiserson, R.L. Rivest, C. Stein.
+\emph{Introduction to Algorithms} (3th edition).
+The MIT Press, 2009.
+
+\bibitem{cghs-rnrop-20}
+D. Chen, L.J. Guibas, J. Hershberger, J. Sun.
+Road Network Reconstruction for Organizing Paths.
+In \emph{Proceedings of 21st ACM-SIAM Symposium on Discrete Algorithms}, 10: 1309-1320, 2010.
 
 \end{thebibliography}
 
