@@ -120,7 +120,7 @@ For a given set of $n$ points $P \subset U$, this algorithm will generate a set 
 \item The segments in $S$ do not intersect each other.
 \end{enumerate}
 
-Furthermore, the algorithm will in many practical cases conform to the following requirement:
+Furthermore, the algorithm is designed to conform to the following in some cases (as described later):
 
 \noindent\begin{enumerate}\topsep=0pt\itemsep=0pt\parsep=0pt
 \item The segments form an open or closed curve, i.e. $\#S = n-1 \vee \#S = n$
@@ -128,21 +128,25 @@ Furthermore, the algorithm will in many practical cases conform to the following
 
 The algorithm is based on the idea that a single curve can always be outlined by some concave polygon, and therefore we start with an outline of the points, after which we 'collapse' this outline onto the remaining points inside this polygon.
 
-Collapsing an outline of $P$ inwards such that the resulting polygon will contain all points in $P$ implies all points must be inside the polygon defined by this outline. For this purpose, we start with generating the convex hull as our initial set of segments. To compute the convex hull, we will use the Graham scan\cite{convex}, an algorithm that finds all vertices of the convex hull ordered along its boundary.
+Collapsing an outline of $P$ inwards such that the resulting polygon will contain all points in $P$ implies all points must be inside the polygon defined by this outline. For this purpose, we start with generating the convex hull (the smallest convex set that contains $P$) as our initial set of segments. To compute the convex hull, the Graham scan\cite{convex} is used, an algorithm that finds all vertices of the convex hull ordered along its boundary. After that we define a likelihood function, for which two existing possibilities are listed below:
 
-The algorithm thus begins by creating a set $S$ of segments that make up the convex hull of $P$. After that we define a likelihood function, for which two existing possibilities are listed below:
-
-\noindent\begin{enumerate}\topsep=0pt\itemsep=0pt\parsep=0pt
-\item $s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)*d(u, v)/(d(p, v)*d(p, v)+d(p, u)*d(p, u))$
-\item $s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)/d(p, v)+d(p, u))$
+\noindent
+\begin{enumerate}
+\topsep=0pt
+\itemsep=0pt
+\parsep=0pt
+\item Ratio of squared segment lengths:\\
+$s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)*d(u, v)/(d(p, v)*d(p, v)+d(p, u)*d(p, u))$
+\item Ratio of segment lengths:\\
+$s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)/(d(p, v)+d(p, u))$
 \end{enumerate}
 
-Then, let $Q = \{ p \in P | \neg ( \exists v \in P \exists s_{p,v} \}$. Then $\#Q = n - \#S$.
+Then, let $Q = \{ p \in P | \neg ( \exists v \in P : s_{p,v} \in S ) \}$. Then $\#Q = n - \#S$.
 
 After the convex hull boundary vertices are found, we will start repeating the following procedures until $\#Q = 0$:
 
 \begin{enumerate}
-\item Let $p \in P$ be a point and $s_{u,v} \in S$ be a segment so that $q \in P \wedge t \in S \Rightarrow likelihood(s_{u,v}, p) \geq likelihood(t, q)$
+\item Let $p \in P$ be a point and $s_{u,v} \in S$ be a segment so that ( $q \in P \wedge t \in S ) \Rightarrow ( likelihood(s_{u,v}, p) \geq likelihood(t, q)$ )
 \item Remove $s_{u,v}$ from $S$
 \item Add $s_{u, p}$ to $S$
 \item Add $s_{v, p}$ to $S$
@@ -151,7 +155,7 @@ After the convex hull boundary vertices are found, we will start repeating the f
 
 This way, we get a curve defined by the segments in $S$ with exactly as many segments as given in the input. Since for every point in $Q$, we add one segment in $S$, resulting in $\#S = n$.
 
-These operations can however give intersecting segments, and also segments that are extremely long and are likely not part of the correct solution. To solve these issues, the algorithm will remove all lines that seem inappropriate.
+These operations can however give intersecting segments and segments that are extremely long, which mean they are likely not part of the correct solution. To solve these issues, the algorithm will remove all lines that seem inappropriate.
 
 Let $l1(S)$ be the longest segment such that $l1(S) \in S$, and let $l2(S)$ be the longest segment so that $l2(S) \in S \setminus \{ l1(S) \}$. Then to remove all segments that could be too long we compare the factor between the two longest segments to some parameter $k$:
 
@@ -159,19 +163,19 @@ Let $l1(S)$ be the longest segment such that $l1(S) \in S$, and let $l2(S)$ be t
 \item While $l1(S) \geq k \cdot l2(S)$, remove $l1(S)$ from $S$
 \end{enumerate}
 
-Then, the algorithm will remove any intersections that are left, starting by removing the segments that have the largest amount of intersections:
+Then, the algorithm will remove any intersections that are left, starting by removing the segments that have the largest number of intersections:
 
 \begin{enumerate}
-\item Let $s \in S \Rightarrow I(s) = \{ t \in S | s$ intersects with $t \}$. Then, until $s \in S \Rightarrow \#I(s) = 0$, remove $r$ from $S$, where $s \in S \Rightarrow \#I(s) \leq \#I(r)$
+\item Find the segment with the largest number of intersections, and remove it from $S$. Continue doing this until there are no more intersecting segments in $S$. I.e.: let $s \in S \Rightarrow I(s) = \{ t \in S | s$ intersects with $t \}$. Then, until $s \in S \Rightarrow \#I(s) = 0$, remove $r$ from $S$, where $s \in S \Rightarrow \#I(s) \leq \#I(r)$
 \end{enumerate}
 
-This can greatly reduce the size of $S$, which would invalidate the requirement of $\#S = n-1 \vee \#S = n$. If there are segments $s_{u,v}$ such that $deg(u) = 1$, $deg(v) = 1$, $\neg ( s_{u,v} \in S )$ then $s_{u,v}$ could be a good candidate to add to $S$. The algorithm will, in an attempt to repopulate $S$, add any such segments $s_{u,v} \in MST(P) $, where $MST(P)$ denotes the set of segments representing a minimum spanning tree of $P$. Again, a very long segment may have been re-added. To prevent this from showing up in the final result, the algorithm tries to remove a segment that is too long one more time:
+This can greatly reduce the size of $S$, which would invalidate the requirement $\#S = n-1 \vee \#S = n$. If there are segments $s_{u,v}$ such that $deg(u) = 1$ and $deg(v) = 1$ and $\neg ( s_{u,v} \in S )$ then $s_{u,v}$ could be a good candidate to add to $S$. The algorithm will, in an attempt to repopulate $S$, add any such segments $s_{u,v} \in MST(P) $, where $MST(P)$ denotes the set of segments representing a minimum spanning tree of $P$. Again, a very long segment may have been re-added. To prevent this from showing up in the final result, the algorithm tries to remove a segment that is too long one more time:
 
 \begin{enumerate}
 \item If $l1(S) \geq k \cdot l2(S)$, remove $l1(S)$ from $S$
 \end{enumerate}
 
-A basic implementation of the algorithm requires $O(n^2)$ time, assuming a running time of a Graham scan implementation of $O(n^2)$ and a running time of a minimum spanning tree implementation of $O(n^2)$. It may run using $O(n^2)$ or $O(n)$ storage, depending on how the likelihoods are compared. If memory is slow, an index of likelihoods from every segment in $S$ to every point in $Q$ can be kept and updated, resulting in $O(n^2)$ storage. Otherwise, these likelihoods can be recalculated when needed, resulting in $O(n)$ storage.
+The algorithm requires $O(n^2)$ time, assuming a running time of a convex hull boundary implementation of $O(n^2)$ and a running time of a minimum spanning tree implementation of $O(n^2)$. It may run using $O(n^2)$ or $O(n)$ storage, depending on how the likelihoods are compared. If memory is slow, an index of likelihoods from every segment in $S$ to every point in $Q$ can be kept and updated, resulting in $O(n^2)$ storage. Otherwise, these likelihoods can be recalculated when needed, resulting in $O(n)$ storage.
 
 \subsection{Multiple curve reconstruction}
 \subsubsection{Description}
@@ -366,7 +370,7 @@ The network algorithm has different input than the other two given curve reconst
 \subsection{Resulting output}
 
 \subsubsection{Single curve}
-The single curve algorithm strongly depends on the ability of a likelihood function to accurately measure how effective the resulting change would be. In the specifics of the algorithm, a segment is routinely removed and replaced by two new segments. This should contribute to a positive evolution of the curve, into a good solution. Clearly, the likelihood should increase when the two new segments are more like the old one. The triangle inequality gives the interesting opportunity to define the likelihood as follows, while taking into account the angle between the old segment and the new segments, as well as their variation in length:
+The single curve algorithm strongly depends on the ability of the likelihood function to accurately measure how effective the resulting change would be. In the specifics of the algorithm, a segment is routinely removed and replaced by two new segments. This should contribute to a positive evolution of the curve, into a good solution. Clearly, the likelihood should increase when the two new segments are more like the old one. Two likelihood functions given before were:
 
 \noindent
 \begin{enumerate}
@@ -378,6 +382,8 @@ $s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)*d(u, 
 \item Ratio of segment lengths:\\
 $s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)/(d(p, v)+d(p, u))$
 \end{enumerate}
+
+Differing results for these functions can be seen in figure \ref{fig:exp:single_parameter_a}.
 
 \begingroup
 \tikzset{every picture/.style={scale=0.4,radius=0.05,line width=0.4}}%
@@ -406,10 +412,11 @@ $s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)/(d(p,
 \centering
 \end{subfigure}
 \caption{The solutions for two inputs, using squared segment lengths (left) and segment lengths (right) for the likelihood function ($k = 1.4$)}
+\label{fig:exp:single_parameter_a}
 \end{figure}
 \endgroup
 
-In addition, there exists the parameter $k$ so that a segment $s$ is deemed comparatively long in $S$ if $s = l1(S) \wedge l1(S) \geq k \cdot l2(S)$. Therefore $k$ may be chosen so that $1 < k$.
+In addition, there exists the parameter $k$ so that a segment $s$ is deemed comparatively long in $S$ if it is a factor $k$ larger than the second largest element of $S$, i.e. $s \geq k \cdot l2(S)$, . Therefore $k$ may be chosen so that $1 < k$. Differing results for three values of $k$ can be seen in figure \ref{fig:exp:single_parameter_b}.
 
 \begingroup
 \tikzset{every picture/.style={scale=0.55,radius=0.05,line width=0.4}}%
@@ -449,10 +456,11 @@ In addition, there exists the parameter $k$ so that a segment $s$ is deemed comp
 \centering
 \end{subfigure}
 \caption{The solutions for two inputs, using $k = 1.2$ (left), $k = 1.4$ (center) and $k = 1.6$ (right) (using squared segment lengths for the likelihood function)}
+\label{fig:exp:single_parameter_b}
 \end{figure}
 \endgroup
 
-The higher the value of $k$ is chosen, the more gaps there may fall in the result. A low value of $k$ might however allow erroneous solutions, such as a curve in the shape of a letter M getting its two pillar bottom points connected by a segment.
+The higher the value of $k$ is chosen, the more gaps there may fall in the result. A low value of $k$ might however allow erroneous solutions, such as a curve in the shape of a letter M getting its two pillar bottom points connected by a segment (figure \ref{fig:exp:single_parameter_c}).
 
 \begingroup
 \tikzset{every picture/.style={scale=0.5,radius=0.05,line width=0.4}}%
@@ -468,10 +476,11 @@ The higher the value of $k$ is chosen, the more gaps there may fall in the resul
 \label{fig:exp:single_parameter_c:second}
 \end{subfigure}%
 \caption{A letter M that has its two bottom points connected by a segment (using $k = 50$)}
+\label{fig:exp:single_parameter_c}
 \end{figure}
 \endgroup
 
-The single curve algorithm has its strength in curves that strongly resemble an outline of some sort. Curves that do not, such as spirals or strongly indented letters such as a W, are its weak point.
+The single curve algorithm has its strength in curves that strongly resemble an outline of some sort (e.g. the curve represents a concave polygon), since the boundary the algorithm starts with will nicely wrap around the shape (figure \ref{fig:exp:single_parameter_e}). Curves that do not, such as spirals or strongly indented letters such as a W (figure \ref{fig:exp:single_parameter_f}), are its weak point.
 
 \begingroup
 \tikzset{every picture/.style={scale=0.5,radius=0.05,line width=0.4}}%
@@ -499,7 +508,8 @@ The single curve algorithm has its strength in curves that strongly resemble an 
 \label{fig:exp:single_parameter_e:fourth}
 \centering
 \end{subfigure}
-\caption{Strengths of the single curve reconstruction algorithm}
+\caption{The single curve reconstruction algorithm performs strongly on shapes that represent a concave polygon}
+\label{fig:exp:single_parameter_e}
 \end{figure}
 \endgroup
 
@@ -529,7 +539,8 @@ The single curve algorithm has its strength in curves that strongly resemble an 
 \label{fig:exp:single_parameter_f:fourth}
 \centering
 \end{subfigure}
-\caption{Weaknesses of the single curve reconstruction algorithm}
+\caption{The single curve reconstruction algorithm performs weakly on shapes that do not represent a concave polygon}
+\label{fig:exp:single_parameter_f}
 \end{figure}
 \endgroup
 
@@ -823,9 +834,7 @@ The experimental evaluation showed that the algorithm doesn't always give the op
 
 
 \subsection{State of work}
-The algorithms stated in this paper could be seen to have specific strengths and weaknesses. While designed to give an aesthetically pleasing result, none of the algorithms can fully fulfill the concept of beauty or correctness. Instead, they were designed to use techniques such as generating a convex hull, letting a curve mutate slowly by adding points based on certain criteria, generating a minimum spanning tree, comparing distances between sets of nodes, looking for straight lines, and on. These are all mathematically definable concepts, whereas the specification for the correct solutions is not. It is important to remember that the correctness of the algorithms is always partly subjective, and that any algorithm made for the purpose of delivering an aesthetically pleasing result will always present solutions that are incorrect in the eyes of some human.
-
-That being said, however, it is also true that the presented algorithms give solutions that contain fallacies in the eyes of most humans. Incorrect results stem from the design of the algorithm, and are implied by running time limitations, a limited set of mathematical operations, and an intellectual incapability of the algorithm designer to solve the errors, due to a high likelihood that others errors will arise because of the high chance that the algorithm has ended up being Pareto optimal (considering different aesthetical priorities).
+The algorithms stated in this paper could be seen to have specific strengths and weaknesses. While designed to give an aesthetically pleasing result, none of the algorithms can fully fulfill the concept of beauty or correctness. It is important to remember that the correctness of the algorithms is always partly subjective, and that any algorithm made for the purpose of a sufficient result in the eyes of most humans will always present solutions that are incorrect in the eyes of some human. That being said, however, it is also true that the presented algorithms give solutions that contain fallacies in the eyes of most humans.
 
 In this case, the single curve reconstruction algorithm shows strong capabilities when confronted with curves that strongly resemble the outline of a shape. It performs weakly for strongly indented figures such as a letter W, or shapes with no clear outline such as spirals. For the multiple curve reconstruction algorithm, it is most significant that curves have a reasonable curvature and a sufficient distance to each other. The network reconstruction algorithm finds it hard to take into account that points on two parallel roads may be further apart from the closest points on the same road as some points on the other road, leading to zigzag patterns. In other cases, the result mostly depends on a well divided sampling density of points.
 
