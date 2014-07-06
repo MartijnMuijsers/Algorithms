@@ -126,9 +126,12 @@ Furthermore, the algorithm is designed to conform to the following in some cases
 \item The segments form an open or closed curve, i.e. $\#S = n-1 \vee \#S = n$
 \end{enumerate}
 
-The algorithm is based on the idea that a single curve can always be outlined by some concave polygon, and therefore we start with an outline of the points, after which we 'collapse' this outline onto the remaining points inside this polygon.
+The algorithm is based on the idea that a single curve can always be outlined by some concave polygon. Therefore it starts with constructing an outline of the points, after which the outline is collapsed onto the remaining points inside this polygon.
 
-Collapsing an outline of $P$ inwards such that the resulting polygon will contain all points in $P$ implies all points must be inside the polygon defined by this outline. For this purpose, we start with generating the convex hull (the smallest convex set that contains $P$) as our initial set of segments. To compute the convex hull, the Graham scan\cite{convex} is used, an algorithm that finds all vertices of the convex hull ordered along its boundary. After that we define a likelihood function, for which two existing possibilities are listed below:
+Collapsing an outline of $P$ inwards such that the resulting polygon will contain all points in $P$ implies that all points must be inside the polygon defined by this outline.
+For this purpose, the initial set of segments is generated using a convex hull (the smallest convex set that contains $P$). To compute the convex hull, the Graham scan\cite{convex} is used, an algorithm that finds all vertices of the convex hull ordered along its boundary.
+%TODO Defining a function without explaining its purpose is useless. Write something like "After that, magic happens using a likelihood function that does X. Two likelihoods functions are given below:"
+After that we define a likelihood function, for which two existing possibilities are listed below:
 
 \noindent
 \begin{enumerate}
@@ -143,10 +146,11 @@ $s_{u,v} \in S \wedge p \in P \Rightarrow likelihood(s_{u,v}, p) = d(u, v)/(d(p,
 
 Then, let $Q = \{ p \in P | \neg ( \exists v \in P : s_{p,v} \in S ) \}$. Then $\#Q = n - \#S$.
 
-After the convex hull boundary vertices are found, we will start repeating the following procedures until $\#Q = 0$:
+After finding the convex hull boundary vertices, repeat the following procedures until $\#Q = 0$:
 
+%TODO Explain parameter $q$ and $t$.
 \begin{enumerate}
-\item Let $p \in P$ be a point and $s_{u,v} \in S$ be a segment so that ( $q \in P \wedge t \in S ) \Rightarrow ( likelihood(s_{u,v}, p) \geq likelihood(t, q)$ )
+\item Let $p \in P$ be a point and $s_{u,v} \in S$ be a segment so that $(q \in P \wedge t \in S ) \Rightarrow ( likelihood(s_{u,v}, p) \geq likelihood(t, q))$
 \item Remove $s_{u,v}$ from $S$
 \item Add $s_{u, p}$ to $S$
 \item Add $s_{v, p}$ to $S$
@@ -155,13 +159,10 @@ After the convex hull boundary vertices are found, we will start repeating the f
 
 This way, we get a curve defined by the segments in $S$ with exactly as many segments as given in the input. Since for every point in $Q$, we add one segment in $S$, resulting in $\#S = n$.
 
-These operations can however give intersecting segments and segments that are extremely long, which mean they are likely not part of the correct solution. To solve these issues, the algorithm will remove all lines that seem inappropriate.
-
-Let $l1(S)$ be the longest segment such that $l1(S) \in S$, and let $l2(S)$ be the longest segment so that $l2(S) \in S \setminus \{ l1(S) \}$. Then to remove all segments that could be too long we compare the factor between the two longest segments to some parameter $k$:
-
-\begin{enumerate}
-\item While $l1(S) \geq k \cdot l2(S)$, remove $l1(S)$ from $S$
-\end{enumerate}
+%TODO Why are the lines intersecting or too long? This "fact" is not obvipus from the above description.
+These operations can give segments that are intersecting or extremely long, which means that they are likely not part of the correct solution. To solve these issues, the algorithm will remove all lines that seem inappropriate.
+Let $k$ be a parameter of the algorithm.
+To remove lines that are too long, repeatedly check whether the length of the longest line is at least $k$ times greater than the second longest line. If this is the case, remove the line.
 
 Then, the algorithm will remove any intersections that are left, starting by removing the segments that have the largest number of intersections:
 
@@ -169,11 +170,8 @@ Then, the algorithm will remove any intersections that are left, starting by rem
 \item Find the segment with the largest number of intersections, and remove it from $S$. Continue doing this until there are no more intersecting segments in $S$. I.e.: let $s \in S \Rightarrow I(s) = \{ t \in S | s$ intersects with $t \}$. Then, until $s \in S \Rightarrow \#I(s) = 0$, remove $r$ from $S$, where $s \in S \Rightarrow \#I(s) \leq \#I(r)$
 \end{enumerate}
 
-This can greatly reduce the size of $S$, which would invalidate the requirement $\#S = n-1 \vee \#S = n$. If there are segments $s_{u,v}$ such that $deg(u) = 1$ and $deg(v) = 1$ and $\neg ( s_{u,v} \in S )$ then $s_{u,v}$ could be a good candidate to add to $S$. The algorithm will, in an attempt to repopulate $S$, add any such segments $s_{u,v} \in MST(P) $, where $MST(P)$ denotes the set of segments representing a minimum spanning tree of $P$. Again, a very long segment may have been re-added. To prevent this from showing up in the final result, the algorithm tries to remove a segment that is too long one more time:
-
-\begin{enumerate}
-\item If $l1(S) \geq k \cdot l2(S)$, remove $l1(S)$ from $S$
-\end{enumerate}
+This can greatly reduce the size of $S$, which would invalidate the requirement $\#S = n-1 \vee \#S = n$. If there are segments $s_{u,v}$ such that $deg(u) = 1$ and $deg(v) = 1$ and $\neg ( s_{u,v} \in S )$ then $s_{u,v}$ could be a good candidate to add to $S$. The algorithm will, in an attempt to repopulate $S$, add any such segments $s_{u,v} \in MST(P) $, where $MST(P)$ denotes the set of segments representing a minimum spanning tree of $P$. Again, a very long segment may have been re-added.
+To prevent this from showing up in the final result, remove the longest line if its length is at least $k$ times greater than the second longest line.
 
 The algorithm requires $O(n^2)$ time, assuming a running time of a convex hull boundary implementation of $O(n^2)$ and a running time of a minimum spanning tree implementation of $O(n^2)$. It may run using $O(n^2)$ or $O(n)$ storage, depending on how the likelihoods are compared. If memory is slow, an index of likelihoods from every segment in $S$ to every point in $Q$ can be kept and updated, resulting in $O(n^2)$ storage. Otherwise, these likelihoods can be recalculated when needed, resulting in $O(n)$ storage.
 
@@ -323,7 +321,7 @@ $RN$ is now an unconnected graph. For $RN$ to represent the road network it must
 
 When no such point is found in $Adj_{p_3,10}$ the segment $s_{q_3, p_3}$ is extended, in the same direction, with a new segment $s_{p_3,q_4}$ where $q_4 \in U$ and $d(p_3,q_4)=d_{max}$. If $s_{p_3,q_4}$ intersects with another segment $s_{w_3,w_4} \in S$ at $u_2 \in U$ then three new segments $s_{p_3,u_2}$, $s_{w_3,u_2}$ and $s_{u_2,w_4}$ are added to $S$, $s_{w_3,w_4}$ is removed from $S$ and $P_{add}=P_{add}\cup \{u_2\}$. Every point with degree 1 is visited, in the worse case these are all points. For every point at most 10 points are looked up in the adjacency list. Comparisons between the points takes $O(1)$. This gives a running time of $O(n)$.
 
-If we add the running times for each step that gives us: $O(n^2)+O(n)+O(n^2)+O(n)=O(n^2)$. The first step of the algorithm creates a minimum spanning tree that uses $O(n)$ storage. In the second step at most $n-1$ segments are added. The last step only creates a new segment if another segment is removed. The adjacency lists take $O(mn)$ storage, where $m$ is the number of nearby points to store. Since this is a constant the adjacency lists use $O(n)$ storage. Combining these results gives a total storage of $O(n)$.
+Adding the running times for each step gives $O(n^2)+O(n)+O(n^2)+O(n)=O(n^2)$. The first step of the algorithm creates a minimum spanning tree that uses $O(n)$ storage. In the second step at most $n-1$ segments are added. The last step only creates a new segment if another segment is removed. The adjacency lists take $O(mn)$ storage, where $m$ is the number of nearby points to store. Since this is a constant the adjacency lists use $O(n)$ storage. Combining these results gives a total storage of $O(n)$.
 
 
 \section{Experimental evaluation}
