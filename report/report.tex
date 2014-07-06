@@ -33,7 +33,6 @@
 
 \newenvironment{proof}{\emph{Proof.}}{\hfill $\Box$ \medskip\\}
 
-% TODO(robwu): Choose a more descriptive title
 \title{2D curve and network reconstruction}
 \author{
 A. van den Boogaart \and
@@ -97,8 +96,6 @@ Let $U = [0,1]^2$ be a set of points in a two-dimensional space.
 For any $u,v \in U$, the line segment between $u$ and $v$ is denoted as $s_{u,v}$. $u$ and $v$ are called the endpoints of $s_{u,v}$. Each of the presented algorithms take $P \subset U$ as input, and output $S \subset \{s_{p,q} | p,q \in P \land p \neq q \}$.
  Two distinct points $a$ and $b$ are called \textit{connected} if there is a segment in $S$ whose endpoints are $a$ and $b$.
  Two segments are \textit{intersecting} each other if the line segments have a common point other than the endpoints.
-%TODO (rob): The next line does not belong here, it's a detail specific to the algorithm, right?
-%None of these output line segments intersect another line segment in $S$.
 
 For any $p,q \in U$, $d(p,q)$ is the Euclidean distance between $p$ and $q$. %\ref{todo:euclid_distance}.
 
@@ -107,7 +104,7 @@ For every $p \in P$ and $n \in \mathbb{N}$, $Adj_{p,n}$ is an adjacency list con
 For any $p \in P$, the degree of $p$ denoted by $deg(p)$ is the number of line segments that are connected to $p$.
 
 $\varphi(s_{u,v}, s_{v_w})$ is the absolute value of the smallest angle between two segments that share a common point,
-If $p \in P$ has degree two, then $\alpha_p$ is defined to be the absolute value of the smallest angle between its two connected segments. %TODO What if degree is not two?
+If $p \in P$ has degree two, then $\alpha_p$ is defined to be the absolute value of the smallest angle between its two connected segments.
 
 
 
@@ -200,8 +197,7 @@ The elements for set $T$ can be generated in two ways. A straight-forward approa
 
 A quadratic complexity for memory is highly undesirable, because most computer systems have a limited amount of memory. To reduce the memory requirements, the first step can also be calculated using the following alternative method. For each point $p \in P$, find the $m$ nearest points and store the segments that are constructed from these points in a list. Then as before sort the list and iterate it.
 
-With this alternative method, the memory complexity is reduced to $O(mn)$. The $m$ nearest points can be found in $O(mn)$ time with partial selection sort.
-%TODO Add reference for partial selection sort.
+With this alternative method, the memory complexity is reduced to $O(mn)$. The $m$ nearest points can be found in $O(mn)$ time with partial selection sort \cite{partial_selection_sort}.
  $mn$ segments will thus be generated in $O(mn^2)$ time and sorted in $O(mn\log(mn))$ time. If $m$ is a (small) constant, then the memory complexity is $O(n)$ and the time complexity is $O(n\log(n))$. This is a huge improvement over the previous algorithm! The disadvantage of this method over the previous is that a dense cluster of $m$ points will never be connected to other points and leave gaps in a curve.
 
 This first step only accounts for the lengths of the segments, not for any other properties of the shapes in the graph, such as the angle between two segments. $S$ could therefore contain segments that form a small angle with other segments.
@@ -857,36 +853,41 @@ Amenta, Nina, Marshall Bern, and Manolis Kamvysselis.
 \bibitem{kruskal}
 J.B. Kruskal.
 On the shortest spanning subtree of a graph and the traveling salesman problem.
-In \emph{Proceedings of the American Mathematical Society},7: 48-50, 1956.
+In \emph{Proceedings of the American Mathematical Society},7: pp. 48-50, 1956.
 
 \bibitem{chen}
 D. Chen, L.J. Guibas, J. Hershberger, J. Sun.
 Road Network Reconstruction for Organizing Paths.
-In \emph{Proceedings  of  21st  ACM-SIAM  Symposium  on  Discrete  Algorithms}, 10: 1309-1320, 2010.
+In \emph{Proceedings  of  21st  ACM-SIAM  Symposium  on  Discrete  Algorithms}, 10: pp. 1309-1320, 2010.
 
 \bibitem{discur}
-Zeng, Yong, et al. "A distance-based parameter free algorithm for curve reconstruction." \textit{Computer-Aided Design} 40.2: 210-222, 2008 .
+Zeng, Yong, et al. "A distance-based parameter free algorithm for curve reconstruction." \textit{Computer-Aided Design} 40.2: pp. 210-222, 2008 .
 
 \bibitem{gathan}
 Dey, Tamal K., and Rephael Wenger. "Reconstruction curves with sharp corners." \textit{Proceedings of the sixteenth annual symposium on Computational geometry.} ACM, 2000.
 
 \bibitem{convex}
-Graham, R. L. "An efficient algorith for determining the convex hull of a finite planar set". \textit{Information processing letters}, 1(4), 132-133, 1972.
+Graham, R. L. "An efficient algorith for determining the convex hull of a finite planar set". \textit{Information processing letters}, 1(4), pp. 132-133, 1972.
 
 \bibitem{p-scnsg-57}
 R. C. Prim.
 Shortest connection networks and some generalizations.
-In \emph{Bell System Technical Journal)}, 36: (1957), pp. 1389–1401
+In \emph{Bell System Technical Journal)}, 36, pp. 1389–1401, 1957.
 
 \bibitem{clrs-ia-09}
 T.H. Cormen, C.E. Leiserson, R.L. Rivest, C. Stein.
 \emph{Introduction to Algorithms} (3th edition).
 The MIT Press, 2009.
 
+\bibitem{partial_selection_sort}
+J.M. Chambers.
+\emph{Partial sorting}
+CACM, vol. 14(5): pp. 357–358, 1971
+
 \bibitem{cghs-rnrop-20}
 D. Chen, L.J. Guibas, J. Hershberger, J. Sun.
 Road Network Reconstruction for Organizing Paths.
-In \emph{Proceedings of 21st ACM-SIAM Symposium on Discrete Algorithms}, 10: 1309-1320, 2010.
+In \emph{Proceedings of 21st ACM-SIAM Symposium on Discrete Algorithms}, 10, pp. 1309-1320, 2010.
 
 \end{thebibliography}
 
